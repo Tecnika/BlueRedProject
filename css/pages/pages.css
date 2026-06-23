@@ -178,16 +178,46 @@
     font-weight: 500;
 }
 
-.page-view-page__content {
+.page-view-page__block {
+    margin-bottom: var(--space-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+    overflow: hidden;
+}
+
+.page-view-page__block-meta {
+    display: flex;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background-color: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.page-view-page__block-type-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px var(--space-sm);
+    border-radius: 999px;
+    color: var(--color-white);
+    text-transform: uppercase;
+}
+
+.page-view-page__block-content {
     font-size: 1rem;
     line-height: 1.7;
     color: var(--color-text);
     padding: var(--space-xl);
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-xl);
-    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+}
+
+.page-view-page__block-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+    display: block;
 }
 
 .page-view-page__empty {
@@ -369,6 +399,7 @@
     line-height: 1.5;
 }
 
+.page-edit-page__block,
 .page-edit-page__slot {
     margin-bottom: var(--space-lg);
     padding: var(--space-md);
@@ -419,15 +450,49 @@
     margin-bottom: var(--space-xs);
 }
 
+.page-edit__block-content,
 .page-edit__slot-content {
     width: 100%;
     margin-bottom: var(--space-sm);
 }
 
+.page-edit__block-tags,
 .page-edit__slot-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-xs);
+}
+
+.page-edit__block-faction,
+.page-edit__block-type {
+    display: block;
+}
+
+.page-edit__block-images {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-sm);
+}
+
+.page-edit__block-image {
+    width: 100%;
+}
+
+.page-edit-page__add-img {
+    font-size: 0.8rem;
+    padding: var(--space-xs) var(--space-sm);
+    background: none;
+    border: 1px dashed var(--color-primary);
+    border-radius: var(--radius-sm);
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    align-self: flex-start;
+}
+
+.page-edit-page__add-img:hover {
+    background-color: var(--color-primary-light);
 }
 
 .page-edit-page__add-slot {

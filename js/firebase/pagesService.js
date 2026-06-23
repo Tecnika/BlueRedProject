@@ -125,23 +125,50 @@ export function filterVisiblePages(pages, user) {
 }
 
 /**
- * Отфильтровать слоты контента по тегам пользователя.
- * Слот без тегов — виден всем. Слот с тегами — только если
- * у пользователя есть хотя бы один совпадающий тег.
- * @param {Array} slots — [{ content, tags }]
+ * Отфильтровать блоки контента по тегам пользователя.
+ *
+ * Каждый блок может быть тегирован. Без тегов — видят все,
+ * кто видит страницу. С тегами — только если у пользователя
+ * есть хотя бы один совпадающий тег.
+ *
+ * Пропаганда доступна по тегу «propaganda» или «propaganda-*».
+ * Жёсткая пропаганда — по тегу «hard-propaganda».
+ * Пользователь не видит скрытые блоки и не знает об их существовании.
+ *
+ * @param {Array} blocks — [{ content, faction, type, tags }]
  * @param {Object} user — { accessTags }
  * @returns {Array}
  */
-export function filterVisibleSlots(slots, user) {
-    if (!slots || slots.length === 0) return [];
-    if (user.role === 'master') return slots;
+export function filterVisibleBlocks(blocks, user) {
+    if (!blocks || blocks.length === 0) return [];
+    if (user.role === 'master') return blocks;
 
     const userTags = (user.accessTags || []).map(t => t.toLowerCase());
 
-    return slots.filter(slot => {
-        if (!slot.tags || slot.tags.length === 0) return true;
-        return slot.tags.some(t => userTags.includes(t.toLowerCase()));
+    return blocks.filter(block => {
+        if (!block.tags || block.tags.length === 0) return true;
+        const blockTags = block.tags.map(t => t.toLowerCase());
+        return blockTags.some(t => userTags.includes(t));
     });
+}
+
+/**
+ * Преобразовать содержимое блока в HTML:
+ * - {{img:URL}} → <img src="URL">
+ * - переносы строк → <br>
+ */
+export function renderBlockContent(content, extraImages = []) {
+    let html = (content || '')
+        .replace(/{{img:\s*([^}]+)\s*}}/g, '<img src="$1" alt="" loading="lazy">')
+        .replace(/\n/g, '<br>');
+
+    for (const url of extraImages) {
+        if (url.trim()) {
+            html += '<br><img src="' + url.trim() + '" alt="" loading="lazy">';
+        }
+    }
+
+    return html;
 }
 
 /** Создать стартовую страницу, если страниц ещё нет (только для мастеров) */
@@ -156,8 +183,8 @@ export async function seedInitialPages() {
         parentId: null,
         order: 0,
         createdBy: 'system',
-        slots: [
-            { content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.', tags: [] }
+        blocks: [
+            { content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.', tags: [], faction: '', type: 'info' }
         ]
     });
 }
