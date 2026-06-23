@@ -2,6 +2,7 @@
  * TagInput — поле ввода тегов с автокомплитом.
  *
  * Особенности:
+ *   - Список появляется только при фокусе / вводе
  *   - При вводе фильтрует существующие теги из каталога
  *   - Клик по варианту — добавляет тег
  *   - Enter при отсутствии совпадений — создаёт новый тег
@@ -20,26 +21,22 @@ import { searchTags, addTag } from '../firebase/tagsService.js';
 export async function TagInput({ initialTags = [], onChange, placeholder = 'Добавить тег...' }) {
     const container = createElement('div', { className: 'tag-input' });
 
-    // Контейнер для чипсов
     const chipsContainer = createElement('div', { className: 'tag-input__chips' });
     const selectedTags = [...initialTags];
 
-    // Поле ввода
     const input = createElement('input', {
         className: 'tag-input__field',
         attributes: { type: 'text', placeholder, autocomplete: 'off' }
     });
 
-    // Выпадающий список
     const dropdown = createElement('ul', { className: 'tag-input__dropdown' });
 
     container.appendChild(chipsContainer);
     container.appendChild(input);
     container.appendChild(dropdown);
 
-    let currentSuggestions = [];
+    let tagsLoaded = false;
 
-    /** Перерисовать чипсы */
     function renderChips() {
         chipsContainer.innerHTML = '';
         for (const tag of selectedTags) {
@@ -62,10 +59,8 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
         }
     }
 
-    /** Показать выпадающий список */
     function showDropdown(suggestions) {
         dropdown.innerHTML = '';
-        currentSuggestions = suggestions;
 
         if (suggestions.length === 0) {
             const value = input.value.trim();
@@ -75,12 +70,21 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
                     text: `Добавить «${value}»`,
                     events: {
                         click: async () => {
-                            await addTag(value);
-                            selectedTags.push(value);
-                            renderChips();
-                            input.value = '';
-                            dropdown.innerHTML = '';
-                            if (onChange) onChange([...selectedTags]);
+                            try {
+                                await addTag(value);
+                                selectedTags.push(value);
+                                renderChips();
+                                input.value = '';
+                                dropdown.innerHTML = '';
+                                if (onChange) onChange([...selectedTags]);
+                            } catch (e) {
+                                // Тег мог уже существовать — добавляем как есть
+                                selectedTags.push(value);
+                                renderChips();
+                                input.value = '';
+                                dropdown.innerHTML = '';
+                                if (onChange) onChange([...selectedTags]);
+                            }
                         }
                     }
                 });
@@ -108,37 +112,45 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
         }
     }
 
-    // Обработка ввода
+    /** Загрузить теги и показать dropdown */
+    async function openDropdown(query) {
+        try {
+            const results = await searchTags(query || input.value.trim());
+            showDropdown(results.filter(t => !selectedTags.includes(t.name)));
+        } catch (e) {
+            // Если Firestore недоступен — ничего не показываем
+            dropdown.innerHTML = '';
+        }
+    }
+
+    // Показывать dropdown при фокусе
+    input.addEventListener('focus', () => {
+        openDropdown('');
+    });
+
+    // Фильтрация при вводе
     let debounceTimer = null;
     input.addEventListener('input', () => {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-            const value = input.value.trim();
-            if (!value) {
-                const all = await searchTags('');
-                showDropdown(all.filter(t => !selectedTags.includes(t.name)));
-            } else {
-                const results = await searchTags(value);
-                showDropdown(results.filter(t => !selectedTags.includes(t.name)));
-            }
+        debounceTimer = setTimeout(() => {
+            openDropdown(input.value.trim());
         }, 150);
     });
 
-    // Enter — если нет совпадений, создаём новый тег
+    // Enter — добавить первый вариант или создать новый
     input.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             const value = input.value.trim();
             if (!value) return;
 
-            // Если есть видимые варианты — берём первый
             const visibleOptions = dropdown.querySelectorAll('.tag-input__option:not(.tag-input__option--new)');
             if (visibleOptions.length > 0) {
-                const first = visibleOptions[0];
-                selectedTags.push(first.textContent);
+                selectedTags.push(visibleOptions[0].textContent);
             } else {
-                // Создаём новый
-                await addTag(value);
+                try {
+                    await addTag(value);
+                } catch (e) { /* игнорируем дубликаты */ }
                 selectedTags.push(value);
             }
 
@@ -148,13 +160,12 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
             if (onChange) onChange([...selectedTags]);
         }
 
-        // Escape — закрыть dropdown
         if (e.key === 'Escape') {
             dropdown.innerHTML = '';
         }
     });
 
-    // Закрыть dropdown при клике вне контейнера
+    // Закрыть при клике вне
     const closeOnOutsideClick = (e) => {
         if (!container.contains(e.target)) {
             dropdown.innerHTML = '';
@@ -163,10 +174,5 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
     document.addEventListener('click', closeOnOutsideClick);
 
     renderChips();
-
-    // Загружаем начальные варианты
-    const all = await searchTags('');
-    showDropdown(all.filter(t => !selectedTags.includes(t.name)));
-
     return container;
 }
