@@ -548,9 +548,9 @@
     background-color: var(--color-primary-light);
 }
 
-/* --- Редактор матрицы 3×3 (фракционная страница) --- */
+/* --- Редактор фракционной страницы — таблица 3×3 --- */
 
-.page-edit__matrix {
+.page-edit__faction-grid {
     display: flex;
     flex-direction: column;
     border: 1px solid var(--color-border);
@@ -559,30 +559,31 @@
     margin-top: var(--space-md);
 }
 
-.page-edit__matrix-row {
+.page-edit__fg-row {
     display: flex;
 }
 
-.page-edit__matrix-row + .page-edit__matrix-row {
+.page-edit__fg-row + .page-edit__fg-row {
     border-top: 1px solid var(--color-border);
 }
 
-.page-edit__matrix-header {
+.page-edit__fg-header {
     background-color: var(--color-bg-secondary);
+    font-weight: 700;
 }
 
-.page-edit__matrix-cell {
+.page-edit__fg-cell {
     flex: 1;
     min-width: 0;
     padding: var(--space-sm);
 }
 
-.page-edit__matrix-cell + .page-edit__matrix-cell {
+.page-edit__fg-cell + .page-edit__fg-cell {
     border-left: 1px solid var(--color-border);
 }
 
-.page-edit__matrix-label {
-    flex: 0 0 110px;
+.page-edit__fg-label {
+    flex: 0 0 100px;
     font-size: 0.8rem;
     font-weight: 600;
     color: var(--color-text-secondary);
@@ -591,34 +592,56 @@
     padding: var(--space-sm) var(--space-md);
 }
 
-.page-edit__matrix-col-head {
+.page-edit__fg-col {
     text-align: center;
     font-size: 0.85rem;
-    font-weight: 700;
     padding: var(--space-sm);
 }
 
-.page-edit__matrix-col-head--red { color: #dc2626; }
-.page-edit__matrix-col-head--blue { color: #2563eb; }
-.page-edit__matrix-col-head--purple { color: #7c3aed; }
+.page-edit__fg-col--red { color: #dc2626; }
+.page-edit__fg-col--blue { color: #2563eb; }
+.page-edit__fg-col--purple { color: #7c3aed; }
 
-.page-edit__matrix-editor {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
+.page-edit__fg-data {
     background-color: var(--color-white);
-}
-
-.page-edit__matrix-imgs {
     display: flex;
     flex-direction: column;
     gap: var(--space-xs);
 }
 
-.page-edit__matrix-tags {
+.page-edit__fg-imgs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.page-edit__fg-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-xs);
+}
+
+/* --- Панель инструментов тегов --- */
+
+.page-edit-page__tag-toolbar {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.page-edit-page__tag-select-all {
+    padding: 2px var(--space-sm);
+    font-size: 0.8rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.page-edit-page__tag-select-all:hover {
+    background-color: var(--color-primary-light);
 }
 
 /* --- Редактор общей страницы --- */
