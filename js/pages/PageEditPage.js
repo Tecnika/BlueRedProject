@@ -33,7 +33,7 @@ export async function PageEditPage(slug) {
         form.appendChild(createField('text', 'p-slug', 'URL', defaultSlug, 'Очистите чтобы сгенерировать из названия'));
 
         // === Тип ===
-        const pageType = existing ? existing.type || 'general' : 'general';
+        const pageType = existing ? existing.type || 'faction' : 'faction';
         form.appendChild(createSelect('p-type', 'Тип страницы', pageType, [
             { value: 'general', text: 'Общая' },
             { value: 'faction', text: 'Фракционная' }
@@ -77,22 +77,24 @@ export async function PageEditPage(slug) {
 
         // === Зона контента ===
         const contentArea = createElement('div', { id: 'p-content-area' });
-        if (pageType === 'faction') {
-            renderFactionEditor(contentArea, existing, allTags);
-        } else {
-            renderGeneralEditor(contentArea, existing);
-        }
         form.appendChild(contentArea);
 
-        const typeSelect = form.querySelector('#p-type');
-        typeSelect.addEventListener('change', () => {
+        /** Перерисовать зону контента под выбранный тип */
+        function renderContentByType(typeVal) {
             contentArea.innerHTML = '';
-            if (typeSelect.value === 'faction') {
-                renderFactionEditor(contentArea, null, allTags);
+            if (typeVal === 'faction') {
+                renderFactionEditor(contentArea, existing, allTags);
             } else {
-                renderGeneralEditor(contentArea, null);
+                renderGeneralEditor(contentArea, existing);
             }
-        });
+        }
+
+        // Первичный рендер
+        renderContentByType(pageType);
+
+        // Смена типа
+        const typeSelect = form.querySelector('#p-type');
+        typeSelect.addEventListener('change', () => renderContentByType(typeSelect.value));
 
         // === Кнопки ===
         const actions = createElement('div', { className: 'page-edit-page__actions' });
