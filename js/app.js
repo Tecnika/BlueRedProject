@@ -69,6 +69,18 @@ async function init() {
         const uid = idx >= 0 ? new URLSearchParams(hash.slice(idx)).get('uid') : null;
         return ProfilePage(uid, themeManager);
     });
+
+    // Ждём восстановления сессии Firebase перед первым переходом
+    router.beforeEach(async () => {
+        if (!store.get('isAuthReady')) {
+            await new Promise(resolve => {
+                const unsub = store.subscribe('isAuthReady', (ready) => {
+                    if (ready) { unsub(); resolve(); }
+                });
+            });
+        }
+    });
+
     router.start();
 
     // Слушаем изменения статуса авторизации
