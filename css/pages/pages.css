@@ -200,79 +200,56 @@
     display: block;
 }
 
-/* --- Фракционная страница (faction) — таблица 3×3 --- */
+/* --- Фракционная страница (faction) — карточки --- */
 
-.page-view__faction-table {
-    display: flex;
-    flex-direction: column;
+.page-view__faction-card {
+    margin-bottom: var(--space-xl);
+    background-color: var(--color-white);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-bottom: var(--space-xl);
     box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+    overflow: hidden;
 }
 
-.page-view__ft-row {
+.page-view__faction-card--red { border-top: 3px solid #dc2626; }
+.page-view__faction-card--blue { border-top: 3px solid #2563eb; }
+.page-view__faction-card--purple { border-top: 3px solid #7c3aed; }
+
+.page-view__faction-card-meta {
     display: flex;
-}
-
-.page-view__ft-row + .page-view__ft-row {
-    border-top: 1px solid var(--color-border);
-}
-
-.page-view__ft-header {
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
     background-color: var(--color-bg-secondary);
-    font-weight: 700;
-}
-
-.page-view__ft-cell {
-    flex: 1;
-    min-width: 0;
-    padding: var(--space-md);
-}
-
-.page-view__ft-cell + .page-view__ft-cell {
-    border-left: 1px solid var(--color-border);
-}
-
-.page-view__ft-corner {
-    flex: 0 0 120px;
-}
-
-.page-view__ft-col-head {
-    text-align: center;
-    font-size: 0.9rem;
-    padding: var(--space-sm) var(--space-md);
-}
-
-.page-view__ft-col-head--red { color: #dc2626; }
-.page-view__ft-col-head--blue { color: #2563eb; }
-.page-view__ft-col-head--purple { color: #7c3aed; }
-
-.page-view__ft-row-head {
-    flex: 0 0 120px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    display: flex;
+    border-bottom: 1px solid var(--color-border);
     align-items: center;
 }
 
-.page-view__ft-data {
-    background-color: var(--color-white);
+.page-view__faction-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px var(--space-sm);
+    border-radius: 999px;
+    color: var(--color-white);
 }
 
-.page-view__ft-data--red { border-top: 3px solid #dc2626; }
-.page-view__ft-data--blue { border-top: 3px solid #2563eb; }
-.page-view__ft-data--purple { border-top: 3px solid #7c3aed; }
+.page-view__faction-badge--red { background-color: #dc2626; }
+.page-view__faction-badge--blue { background-color: #2563eb; }
+.page-view__faction-badge--purple { background-color: #7c3aed; }
 
-.page-view__ft-content {
-    font-size: 0.95rem;
-    line-height: 1.6;
+.page-view__faction-type {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.page-view__faction-card-content {
+    font-size: 1rem;
+    line-height: 1.7;
     color: var(--color-text);
+    padding: var(--space-xl);
 }
 
-.page-view__ft-content img {
+.page-view__faction-card-content img {
     max-width: 100%;
     height: auto;
     border-radius: var(--radius-md);

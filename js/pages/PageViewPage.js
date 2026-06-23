@@ -113,47 +113,31 @@ function renderGeneralView(container, page) {
 
 function renderFactionView(container, page, user) {
     const filtered = filterVisibleCells(page.matrix, user);
-    const hasAny = Object.keys(filtered).length > 0;
+    let anyContent = false;
 
-    if (!hasAny) {
-        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Нет доступного контента' }));
-        return;
-    }
-
-    // Рендерим таблицу 3×3 только с видимыми ячейками
-    const table = createElement('div', { className: 'page-view__faction-table' });
-
-    // Заголовки колонок
-    const headerRow = createElement('div', { className: 'page-view__ft-row page-view__ft-header' });
-    headerRow.appendChild(createElement('div', { className: 'page-view__ft-cell page-view__ft-corner' }));
     for (const f of FACTION_COLUMNS) {
-        if (filtered[f]) {
-            headerRow.appendChild(createElement('div', { className: `page-view__ft-cell page-view__ft-col-head page-view__ft-col-head--${f}`, text: FACTION_LABELS[f] }));
+        if (!filtered[f]) continue;
+        for (const row of MATRIX_ROWS) {
+            const cell = filtered[f][row];
+            if (!cell || !cell.content) continue;
+            anyContent = true;
+
+            const card = createElement('div', { className: `page-view__faction-card page-view__faction-card--${f}` });
+
+            const meta = createElement('div', { className: 'page-view__faction-card-meta' });
+            meta.appendChild(createElement('span', { className: `page-view__faction-badge page-view__faction-badge--${f}`, text: FACTION_LABELS[f] }));
+            meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: MATRIX_ROW_LABELS[row] }));
+            card.appendChild(meta);
+
+            card.appendChild(createElement('div', { className: 'page-view__faction-card-content', html: renderContent(cell.content, cell.images) }));
+
+            container.appendChild(card);
         }
     }
-    table.appendChild(headerRow);
 
-    // Строки
-    for (const row of MATRIX_ROWS) {
-        const hasRowCell = FACTION_COLUMNS.some(f => filtered[f] && filtered[f][row]);
-        if (!hasRowCell) continue;
-
-        const rowEl = createElement('div', { className: 'page-view__ft-row' });
-        rowEl.appendChild(createElement('div', { className: 'page-view__ft-cell page-view__ft-row-head', text: MATRIX_ROW_LABELS[row] }));
-
-        for (const f of FACTION_COLUMNS) {
-            const cell = filtered[f] && filtered[f][row];
-            if (cell) {
-                const cellEl = createElement('div', { className: `page-view__ft-cell page-view__ft-data page-view__ft-data--${f}` });
-                cellEl.appendChild(createElement('div', { className: 'page-view__ft-content', html: renderContent(cell.content, cell.images) }));
-                rowEl.appendChild(cellEl);
-            }
-        }
-
-        table.appendChild(rowEl);
+    if (!anyContent) {
+        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Нет доступного контента' }));
     }
-
-    container.appendChild(table);
 }
 
 function buildBreadcrumbs(page, allPages) {
