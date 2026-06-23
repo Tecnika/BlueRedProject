@@ -1,5 +1,6 @@
 import { store } from '../core/Store.js';
 import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js';
 import { render, createElement } from '../utils/dom.js';
 
@@ -24,6 +25,7 @@ export function AdminPage() {
         createElement('div', { className: 'admin-page__container' }, [
             createElement('h1', { className: 'admin-page__title', text: 'Панель управления' }),
             renderTagsSection(),
+            renderSubTagsSection(),
             renderPagesSection()
         ])
     ])]);
@@ -135,6 +137,117 @@ document.addEventListener('submit', async (e) => {
         await addTag(name);
         input.value = '';
         loadTagsList();
+    } catch (err) {
+        alert('Ошибка: ' + err.message);
+    }
+});
+
+/* ========================================
+   Секция управления субтегами
+   ======================================== */
+
+function renderSubTagsSection() {
+    const container = createElement('div', { className: 'admin-section' });
+
+    container.appendChild(createElement('h2', {
+        className: 'admin-section__title',
+        text: 'Технические субтеги'
+    }));
+    container.appendChild(createElement('p', {
+        className: 'admin-section__desc',
+        text: 'Авто-создаются из тегов фракционных страниц. Только для мастеров.'
+    }));
+
+    const wrap = createElement('div', { className: 'admin-tags' });
+
+    const list = createElement('div', {
+        className: 'admin-tags__list',
+        id: 'admin-subtags-list',
+        text: 'Загрузка...'
+    });
+    wrap.appendChild(list);
+
+    const form = createElement('form', {
+        className: 'admin-tags__form',
+        id: 'admin-subtags-form',
+        children: [
+            createElement('input', {
+                type: 'text',
+                id: 'admin-subtags-input',
+                className: 'admin-tags__input',
+                placeholder: 'Название субтега'
+            }),
+            createElement('button', {
+                type: 'submit',
+                className: 'admin-tags__add-btn',
+                text: 'Добавить'
+            })
+        ]
+    });
+    wrap.appendChild(form);
+    container.appendChild(wrap);
+
+    loadSubTagsList();
+
+    return container;
+}
+
+async function loadSubTagsList() {
+    const listEl = document.getElementById('admin-subtags-list');
+    if (!listEl) return;
+
+    try {
+        const tags = await getAllSubTags();
+        if (!tags || tags.length === 0) {
+            listEl.textContent = 'Нет субтегов';
+            return;
+        }
+        listEl.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        tags.forEach(tag => {
+            const item = createElement('div', { className: 'admin-tags__item' });
+            item.appendChild(createElement('span', {
+                className: 'admin-tags__name',
+                text: tag.name
+            }));
+            const delBtn = createElement('button', {
+                className: 'admin-tags__remove-btn',
+                attributes: { 'data-id': tag.id, title: 'Удалить субтег' },
+                text: '✕'
+            });
+            item.appendChild(delBtn);
+            fragment.appendChild(item);
+        });
+        listEl.appendChild(fragment);
+
+        listEl.querySelectorAll('.admin-tags__remove-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                if (!confirm('Удалить субтег?')) return;
+                try {
+                    await removeSubTag(id);
+                    loadSubTagsList();
+                } catch (err) {
+                    alert('Ошибка удаления: ' + err.message);
+                }
+            });
+        });
+    } catch (err) {
+        listEl.textContent = 'Ошибка загрузки: ' + err.message;
+    }
+}
+
+// Форма добавления субтега
+document.addEventListener('submit', async (e) => {
+    if (e.target.id !== 'admin-subtags-form') return;
+    e.preventDefault();
+    const input = document.getElementById('admin-subtags-input');
+    const name = input.value.trim();
+    if (!name) return;
+    try {
+        await addSubTag(name);
+        input.value = '';
+        loadSubTagsList();
     } catch (err) {
         alert('Ошибка: ' + err.message);
     }

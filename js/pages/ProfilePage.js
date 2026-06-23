@@ -17,6 +17,7 @@ import { getAvatarUrl } from '../core/Avatar.js';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
 import { getNote, saveNote } from '../firebase/notesService.js';
 import { TagInput } from '../components/TagInput.js';
+import { getAllSubTags } from '../firebase/subtagsService.js';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {
@@ -311,6 +312,46 @@ async function createAdminSection(profile, targetUid, themeManager) {
         form.appendChild(createAdminInput('admin-hidden', 'Скрытые теги (через запятую)', currentHidden.join(', ')));
     }
 
+    // Субтеги фракционных страниц (только мастера)
+    const currentFactionTags = [...(profile.factionAccessTags || [])];
+    try {
+        const allSubTags = await getAllSubTags();
+        if (allSubTags.length > 0) {
+            const subLabel = createElement('label', {
+                className: 'profile-edit__label',
+                text: 'Субтеги фракций'
+            });
+            form.appendChild(subLabel);
+
+            const subToolbar = createElement('div', { className: 'page-edit-page__tag-toolbar' });
+            const selectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Выбрать все', attributes: { type: 'button' } });
+            const deselectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Сбросить', attributes: { type: 'button' } });
+            subToolbar.appendChild(selectAllBtn);
+            subToolbar.appendChild(deselectAllBtn);
+            form.appendChild(subToolbar);
+
+            const subContainer = createElement('div', { className: 'page-edit-page__tags', id: 'admin-faction-tags' });
+            allSubTags.forEach(st => {
+                const checked = currentFactionTags.includes(st.name);
+                const label = createElement('label', { className: 'page-edit-page__tag-label' });
+                label.appendChild(createElement('input', { attributes: { type: 'checkbox', value: st.name, checked } }));
+                label.appendChild(createElement('span', { text: st.name }));
+                subContainer.appendChild(label);
+            });
+
+            selectAllBtn.addEventListener('click', () => {
+                subContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            });
+            deselectAllBtn.addEventListener('click', () => {
+                subContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            });
+
+            form.appendChild(subContainer);
+        }
+    } catch (e) {
+        // Если Firestore недоступен — пропускаем
+    }
+
     const saveBtn = createElement('button', {
         className: 'profile-edit__save',
         text: 'Сохранить',
@@ -342,11 +383,18 @@ async function createAdminSection(profile, targetUid, themeManager) {
                 currentHidden.push(...(raw ? raw.split(',').map(t => t.trim()).filter(Boolean) : []));
             }
 
+            const factionTags = [];
+            const subContainer = form.querySelector('#admin-faction-tags');
+            if (subContainer) {
+                subContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => factionTags.push(cb.value));
+            }
+
             const data = {
                 faction: form.querySelector('#admin-faction').value,
                 worldview: form.querySelector('#admin-worldview').value.trim(),
                 accessTags: [...currentAccess],
-                hiddenTags: [...currentHidden]
+                hiddenTags: [...currentHidden],
+                factionAccessTags: factionTags
             };
 
             await updateUserProfile(targetUid, data);

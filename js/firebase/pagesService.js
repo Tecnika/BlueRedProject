@@ -23,7 +23,7 @@
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getFirebase } from './firebase.js';
-import { addTag } from './tagsService.js';
+import { addSubTag } from './subtagsService.js';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
@@ -147,7 +147,10 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
     if (!matrix) return {};
     if (user.role === 'master') return matrix;
 
-    const userTags = (user.accessTags || []).map(t => t.toLowerCase());
+    const userTags = [
+        ...(user.accessTags || []).map(t => t.toLowerCase()),
+        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
+    ];
     const tags = pageTags.map(t => t.toLowerCase());
     const result = {};
 
@@ -217,10 +220,7 @@ export async function ensureFactionSubTags(pageTags) {
         for (const f of FACTION_COLUMNS) {
             for (const r of MATRIX_ROWS) {
                 const subTag = `${tag.trim()}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`;
-                try { await addTag(subTag); } catch (e) {
-                    // Если тег уже существует — firestore не бросит ошибку (setDoc merge),
-                    // но если имя совпадает — всё ок
-                }
+                try { await addSubTag(subTag); } catch (e) { /* дубликат — ок */ }
             }
         }
     }
