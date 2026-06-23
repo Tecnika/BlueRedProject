@@ -66,14 +66,16 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // ========== Коллекция tags ==========
+    // ========== Коллекция tags (каталог тегов) ==========
     match /tags/{tagId} {
 
-      // Читать теги могут все авторизованные пользователи
-      allow read: if request.auth != null;
+      // Читать теги можно без авторизации (seed на старте, автокомплит)
+      allow read: if true;
 
-      // Создавать и удалять теги может только мастер
-      allow create: if isMaster();
+      // Создавать теги может любой авторизованный пользователь
+      allow create: if request.auth != null;
+
+      // Удалять теги может только мастер
       allow delete: if isMaster();
       allow update: if false;
     }

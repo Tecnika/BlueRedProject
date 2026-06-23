@@ -37,9 +37,6 @@ async function init() {
     // Инициализируем Firebase (конфиг из data/firebase.json)
     await initFirebase();
 
-    // Сидируем начальные теги, если каталог пуст
-    await seedInitialTags();
-
     // Загружаем пункты меню из JSON
     let navItems = [];
     try {
@@ -86,6 +83,9 @@ async function init() {
     // Слушаем изменения статуса авторизации
     onAuthChange(async (firebaseUser) => {
         if (firebaseUser) {
+            // Сидируем начальные теги при первом входе
+            try { await seedInitialTags(); } catch (e) { /* каталог уже есть */ }
+
             // Загружаем профиль из Firestore и пишем в store
             const profile = await getUserProfile(firebaseUser.uid);
             if (profile) {
