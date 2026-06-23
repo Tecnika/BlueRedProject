@@ -9,17 +9,16 @@
  * Вложенность через parentId, версионность через versions-мапу.
  */
 
-import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getFirebase } from './firebase.js';
 
-/** Получить все страницы (плоский список) */
+/** Получить все страницы (плоский список, сортировка на клиенте) */
 export async function getAllPages() {
     const { db } = getFirebase();
-    const snapshot = await getDocs(
-        query(collection(db, 'pages'), orderBy('order'), orderBy('title'))
-    );
+    const snapshot = await getDocs(collection(db, 'pages'));
     const pages = [];
     snapshot.forEach(d => pages.push({ id: d.id, ...d.data() }));
+    pages.sort((a, b) => (a.order || 0) - (b.order || 0) || (a.title || '').localeCompare(b.title || ''));
     return pages;
 }
 
@@ -101,6 +100,22 @@ export function filterVisiblePages(pages, user) {
         // Должен совпасть хотя бы один тег
         const pageTags = p.tags.map(t => t.toLowerCase());
         return pageTags.some(t => userTags.includes(t));
+    });
+}
+
+/** Создать стартовую страницу, если страниц ещё нет (только для мастеров) */
+export async function seedInitialPages() {
+    const all = await getAllPages();
+    if (all.length > 0) return;
+    await savePage(null, {
+        title: 'Добро пожаловать',
+        slug: 'welcome',
+        content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.',
+        faction: '',
+        tags: [],
+        parentId: null,
+        order: 0,
+        createdBy: 'system'
     });
 }
 

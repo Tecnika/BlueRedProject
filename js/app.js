@@ -27,6 +27,7 @@ import { store } from './core/Store.js';
 import { initFirebase } from './firebase/firebase.js';
 import { onAuthChange, getUserProfile } from './firebase/authService.js';
 import { seedInitialTags } from './firebase/tagsService.js';
+import { seedInitialPages } from './firebase/pagesService.js';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -107,6 +108,11 @@ async function init() {
                 store.set('user', { uid: firebaseUser.uid, ...profile });
                 // Тема автоматически подстраивается под фракцию
                 themeManager.setThemeByFaction(profile.faction);
+
+                // Сидируем стартовую страницу, если пусто (только для мастеров)
+                if (profile.role === 'master') {
+                    try { await seedInitialPages(); } catch (e) { /* страница уже есть */ }
+                }
             }
         } else {
             store.set('user', null);

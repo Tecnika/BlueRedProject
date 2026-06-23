@@ -8,7 +8,7 @@
 
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
-import { getPageBySlug, resolveVersion, getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js';
+import { getPageBySlug, resolveVersion, getAllPages, filterVisiblePages } from '../firebase/pagesService.js';
 
 const FACTION_COLORS = {
     red: '#dc2626',
