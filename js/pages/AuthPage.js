@@ -1,6 +1,5 @@
 import { createElement } from '../utils/dom.js';
 import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js';
-import { Router } from '../core/Router.js';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });
@@ -34,9 +33,8 @@ function buildForm(mode) {
     const groups = [usernameGroup, passwordGroup];
 
     if (!isLogin) {
-        const emailGroup = createField('email', 'email', 'Email');
         const confirmGroup = createField('password', 'confirm', 'Повторите пароль');
-        groups.push(emailGroup, confirmGroup);
+        groups.push(confirmGroup);
     }
 
     const submitBtn = createElement('button', {
@@ -76,20 +74,20 @@ function buildForm(mode) {
             const username = usernameGroup.querySelector('input').value.trim();
             const password = passwordGroup.querySelector('input').value;
 
+            if (!username || !password) {
+                throw new Error('Заполните все поля');
+            }
+
             if (isLogin) {
                 await signInWithUsername(username, password);
             } else {
-                const email = groups[2].querySelector('input').value.trim();
-                const confirm = groups[3].querySelector('input').value;
+                const confirm = groups[2].querySelector('input').value;
 
                 if (password !== confirm) {
                     throw new Error('Пароли не совпадают');
                 }
-                if (!email) {
-                    throw new Error('Введите email');
-                }
 
-                await signUpWithUsername(username, email, password);
+                await signUpWithUsername(username, password);
             }
 
             window.location.hash = '#/';
