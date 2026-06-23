@@ -2,15 +2,39 @@
  * pagesService — CRUD для страниц wiki.
  *
  * Коллекция 'pages':
- *   { title, slug, content, faction, tags, parentId, order,
- *     versions: { red, blue, pro-red-for-blue, pro-blue-for-red },
+ *   { title, slug, faction, tags, parentId, order,
+ *     slots: [{ content, tags: [...] }, ...],
  *     createdBy, createdAt, updatedAt }
  *
- * Вложенность через parentId, версионность через versions-мапу.
+ * Вложенность через parentId.
+ * Контент разбит на слоты — каждый слот виден только
+ * пользователям, у которых есть хотя бы один из его тегов.
+ * Слот без тегов виден всем, кто видит страницу.
+ * Пользователь не знает о существовании скрытых слотов.
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getFirebase } from './firebase.js';
+
+/** Транслитерация кириллицы в латиницу для slug */
+const CYR_TO_LAT = {
+    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'yo','ж':'zh','з':'z',
+    'и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r',
+    'с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh',
+    'щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya',
+    'А':'a','Б':'b','В':'v','Г':'g','Д':'d','Е':'e','Ё':'yo','Ж':'zh','З':'z',
+    'И':'i','Й':'y','К':'k','Л':'l','М':'m','Н':'n','О':'o','П':'p','Р':'r',
+    'С':'s','Т':'t','У':'u','Ф':'f','Х':'kh','Ц':'ts','Ч':'ch','Ш':'sh',
+    'Щ':'shch','Ъ':'','Ы':'y','Ь':'','Э':'e','Ю':'yu','Я':'ya'
+};
+
+/** Сгенерировать slug из заголовка */
+export function slugify(title) {
+    let s = title.replace(/[ъь]/g, '').replace(/[^a-zA-Zа-яА-Я0-9\s-]/g, '');
+    s = s.split('').map(c => CYR_TO_LAT[c] || c).join('');
+    s = s.replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    return s.toLowerCase() || 'page';
+}
 
 /** Получить все страницы (плоский список, сортировка на клиенте) */
 export async function getAllPages() {
@@ -35,14 +59,15 @@ export async function getPageBySlug(slug) {
     return all.find(p => p.slug === slug) || null;
 }
 
-/** Создать / обновить страницу */
+/** Создать / обновить страницу (slug генерируется из title при создании) */
 export async function savePage(pageId, data) {
     const { db } = getFirebase();
     const now = new Date().toISOString();
     const payload = { ...data, updatedAt: now };
     if (!pageId) {
         payload.createdAt = now;
-        pageId = data.slug || crypto.randomUUID();
+        payload.slug = payload.slug || slugify(payload.title || '') + '-' + Date.now().toString(36);
+        pageId = payload.slug;
     }
     await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
     return pageId;
@@ -91,15 +116,31 @@ export function filterVisiblePages(pages, user) {
     const userFaction = user.faction;
 
     return pages.filter(p => {
-        // Страница без фракции — видна всем
         if (!p.faction) return true;
-        // Фракция не совпадает
         if (p.faction !== userFaction) return false;
-        // Если у страницы нет тегов — видна всем во фракции
         if (!p.tags || p.tags.length === 0) return true;
-        // Должен совпасть хотя бы один тег
         const pageTags = p.tags.map(t => t.toLowerCase());
         return pageTags.some(t => userTags.includes(t));
+    });
+}
+
+/**
+ * Отфильтровать слоты контента по тегам пользователя.
+ * Слот без тегов — виден всем. Слот с тегами — только если
+ * у пользователя есть хотя бы один совпадающий тег.
+ * @param {Array} slots — [{ content, tags }]
+ * @param {Object} user — { accessTags }
+ * @returns {Array}
+ */
+export function filterVisibleSlots(slots, user) {
+    if (!slots || slots.length === 0) return [];
+    if (user.role === 'master') return slots;
+
+    const userTags = (user.accessTags || []).map(t => t.toLowerCase());
+
+    return slots.filter(slot => {
+        if (!slot.tags || slot.tags.length === 0) return true;
+        return slot.tags.some(t => userTags.includes(t.toLowerCase()));
     });
 }
 
@@ -110,42 +151,13 @@ export async function seedInitialPages() {
     await savePage(null, {
         title: 'Добро пожаловать',
         slug: 'welcome',
-        content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.',
         faction: '',
         tags: [],
         parentId: null,
         order: 0,
-        createdBy: 'system'
+        createdBy: 'system',
+        slots: [
+            { content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.', tags: [] }
+        ]
     });
-}
-
-/** Приоритет версий в зависимости от фракции пользователя */
-const VERSION_PRIORITY = {
-    red:    ['pro-blue-for-red', 'red', 'default'],
-    blue:   ['pro-red-for-blue', 'blue', 'default'],
-    purple: ['purple', 'default']
-};
-
-/**
- * Получить контент для конкретной фракции (с учётом версий).
- * @returns { content, title } или null
- */
-export function resolveVersion(page, faction) {
-    if (!page) return null;
-    const priority = VERSION_PRIORITY[faction] || ['default'];
-    const versions = page.versions || {};
-
-    for (const key of priority) {
-        if (key === 'default') {
-            return { content: page.content, title: page.title };
-        }
-        if (versions[key]) {
-            return {
-                content: versions[key].content || versions[key],
-                title: versions[key].title || page.title
-            };
-        }
-    }
-
-    return { content: page.content, title: page.title };
 }

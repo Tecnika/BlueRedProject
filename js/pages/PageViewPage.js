@@ -1,14 +1,6 @@
-/**
- * PageViewPage — просмотр страницы.
- *
- * Выбирает версию под фракцию пользователя.
- * Мастер видит все версии + кнопку редактировать.
- * Тело страницы окрашивается в цвет фракции страницы (шапка — нет).
- */
-
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
-import { getPageBySlug, resolveVersion, getAllPages, filterVisiblePages } from '../firebase/pagesService.js';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleSlots } from '../firebase/pagesService.js';
 
 const FACTION_COLORS = {
     red: '#dc2626',
@@ -45,7 +37,7 @@ export async function PageViewPage(slug) {
             return section;
         }
 
-        // Проверка доступа
+        // Проверка доступа к странице
         const visible = filterVisiblePages([page], user);
         if (visible.length === 0 && user.role !== 'master') {
             section.appendChild(createElement('p', {
@@ -58,14 +50,11 @@ export async function PageViewPage(slug) {
         const isAdmin = user.role === 'master';
         const container = createElement('div', { className: 'page-view-page__container' });
 
-        // Окрашиваем body в цвет фракции страницы (шапка не меняется)
+        // Окрашиваем body в цвет фракции
         const factionColor = FACTION_COLORS[page.faction];
         if (factionColor) {
             document.body.style.backgroundColor = factionColor + '08';
         }
-
-        // Шапка
-        const header = createElement('div', { className: 'page-view-page__header' });
 
         // Хлебные крошки
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
@@ -85,13 +74,12 @@ export async function PageViewPage(slug) {
                 }));
             }
         }
-        header.appendChild(breadcrumbs);
+        container.appendChild(breadcrumbs);
 
         // Заголовок
-        const resolved = resolveVersion(page, user.faction);
-        header.appendChild(createElement('h1', {
+        container.appendChild(createElement('h1', {
             className: 'page-view-page__title',
-            text: resolved.title
+            text: page.title
         }));
 
         // Метки
@@ -110,40 +98,23 @@ export async function PageViewPage(slug) {
                 }));
             }
         }
-        header.appendChild(meta);
+        container.appendChild(meta);
 
-        container.appendChild(header);
+        // Слоты контента — фильтруем по тегам пользователя
+        const visibleSlots = filterVisibleSlots(page.slots || [], user);
 
-        // Контент
-        const content = createElement('div', {
-            className: 'page-view-page__content',
-            html: resolved.content.replace(/\n/g, '<br>')
-        });
-        container.appendChild(content);
-
-        // Селектор версий (для мастера)
-        if (isAdmin && page.versions) {
-            const versionKeys = Object.keys(page.versions);
-            if (versionKeys.length > 0) {
-                const versionBlock = createElement('div', { className: 'page-view-page__versions' });
-                versionBlock.appendChild(createElement('h3', {
-                    className: 'page-view-page__versions-title',
-                    text: 'Версии'
-                }));
-                for (const key of versionKeys) {
-                    const v = page.versions[key];
-                    const vEl = createElement('div', { className: 'page-view-page__version' });
-                    vEl.appendChild(createElement('span', {
-                        className: 'page-view-page__version-label',
-                        text: key
-                    }));
-                    vEl.appendChild(createElement('div', {
-                        className: 'page-view-page__version-content',
-                        html: (typeof v === 'string' ? v : v.content || '').replace(/\n/g, '<br>')
-                    }));
-                    versionBlock.appendChild(vEl);
-                }
-                container.appendChild(versionBlock);
+        if (visibleSlots.length === 0) {
+            container.appendChild(createElement('p', {
+                className: 'page-view-page__empty',
+                text: 'Нет доступного контента'
+            }));
+        } else {
+            for (const slot of visibleSlots) {
+                const content = createElement('div', {
+                    className: 'page-view-page__content',
+                    html: slot.content.replace(/\n/g, '<br>')
+                });
+                container.appendChild(content);
             }
         }
 

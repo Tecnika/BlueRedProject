@@ -190,42 +190,11 @@
     box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
 }
 
-/* Версии (только для мастера) */
-.page-view-page__versions {
-    margin-bottom: var(--space-xl);
-    padding: var(--space-lg);
-    background-color: var(--color-white);
-    border: 1px dashed var(--color-accent);
-    border-radius: var(--radius-lg);
-}
-
-.page-view-page__versions-title {
+.page-view-page__empty {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-3xl);
     font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-accent);
-    margin-bottom: var(--space-md);
-}
-
-.page-view-page__version {
-    margin-bottom: var(--space-md);
-    padding: var(--space-md);
-    background-color: var(--color-bg-secondary);
-    border-radius: var(--radius-md);
-}
-
-.page-view-page__version-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--color-primary);
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: var(--space-xs);
-}
-
-.page-view-page__version-content {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--color-text);
 }
 
 /* Кнопка редактирования */
@@ -378,7 +347,7 @@
     font-weight: 600;
 }
 
-/* Версии */
+/* Слоты контента */
 .page-edit-page__versions {
     padding: var(--space-lg);
     border: 1px dashed var(--color-border);
@@ -393,20 +362,88 @@
     margin-bottom: var(--space-md);
 }
 
-.page-edit-page__version-group {
-    margin-bottom: var(--space-md);
+.page-edit-page__versions-desc {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+    line-height: 1.5;
+}
+
+.page-edit-page__slot {
+    margin-bottom: var(--space-lg);
     padding: var(--space-md);
     background-color: var(--color-white);
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
 }
 
-.page-edit-page__version-label {
+.page-edit-page__slot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.page-edit-page__slot-number {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-primary);
+}
+
+.page-edit-page__slot-remove {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.page-edit-page__slot-remove:hover {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.page-edit-page__slot-tag-label {
     display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-top: var(--space-sm);
     margin-bottom: var(--space-xs);
+}
+
+.page-edit__slot-content {
+    width: 100%;
+    margin-bottom: var(--space-sm);
+}
+
+.page-edit__slot-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.page-edit-page__add-slot {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
+    background: none;
+    border: 1px dashed var(--color-primary);
+    border-radius: var(--radius-md);
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.page-edit-page__add-slot:hover {
+    background-color: var(--color-primary-light);
 }
 
 /* Кнопки */
