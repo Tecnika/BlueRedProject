@@ -115,6 +115,8 @@ function renderFactionView(container, page, user) {
     const filtered = filterVisibleCells(page.matrix, user, page.tags || []);
     let anyContent = false;
 
+    const isAdmin = user.role === 'master';
+
     for (const f of FACTION_COLUMNS) {
         if (!filtered[f]) continue;
         for (const row of MATRIX_ROWS) {
@@ -126,7 +128,12 @@ function renderFactionView(container, page, user) {
 
             const meta = createElement('div', { className: 'page-view__faction-card-meta' });
             meta.appendChild(createElement('span', { className: `page-view__faction-badge page-view__faction-badge--${f}`, text: FACTION_LABELS[f] }));
-            meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: MATRIX_ROW_LABELS[row] }));
+            // Не-мастерам не показываем метку пропаганды — всё выглядит как «О фракции»
+            if (isAdmin) {
+                meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: MATRIX_ROW_LABELS[row] }));
+            } else {
+                meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: 'О фракции' }));
+            }
             card.appendChild(meta);
 
             card.appendChild(createElement('div', { className: 'page-view__faction-card-content', html: renderContent(cell.content, cell.images) }));

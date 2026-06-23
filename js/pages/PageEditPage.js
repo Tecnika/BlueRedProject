@@ -1,6 +1,6 @@
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
-import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS } from '../firebase/pagesService.js';
+import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js';
 import { getAllTags } from '../firebase/tagsService.js';
 
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
@@ -161,6 +161,11 @@ export async function PageEditPage(slug) {
                 }
 
                 await savePage(existing ? existing.id : null, data);
+
+                // Авто-создание субтегов для фракционной страницы
+                if (type === 'faction' && pageTags.length > 0) {
+                    ensureFactionSubTags(pageTags).catch(() => {});
+                }
 
                 msg.textContent = 'Сохранено!';
                 msg.className = 'page-edit-page__msg page-edit-page__msg--ok';

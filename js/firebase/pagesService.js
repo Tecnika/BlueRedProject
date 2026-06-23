@@ -23,6 +23,7 @@
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { getFirebase } from './firebase.js';
+import { addTag } from './tagsService.js';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
@@ -132,9 +133,15 @@ export function filterVisiblePages(pages, user) {
 
 /**
  * Отфильтровать ячейки матрицы фракционной страницы.
- * Доступ к строке info — по тегу страницы или тегу_0.
- * К propaganda — по тегу_1, к hard-propaganda — по тегу_2.
- * pageTags — массив тегов самой страницы.
+ * Доступ к ячейке — по составному тегу {pageTag}_{abbr}_{level}
+ *   abbr: к / с / ф  (red / blue / purple)
+ *   level: 0 (info) / 1 (propaganda) / 2 (hard-propaganda)
+ *
+ * Например: техник_к_0 — доступ к красной колонке info,
+ *           техник_с_1 — доступ к синей колонке propaganda.
+ *
+ * Игрок не видит разницы между уровнями — propaganda и
+ * hard-propaganda отображаются как обычная информация.
  */
 export function filterVisibleCells(matrix, user, pageTags = []) {
     if (!matrix) return {};
@@ -151,17 +158,9 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
             const cell = matrix[f][r];
             if (!cell) continue;
 
-            let hasAccess = false;
-            if (r === 'info') {
-                // info: base tag или tag_0
-                hasAccess = tags.some(t => userTags.includes(t) || userTags.includes(t + '_0'));
-            } else if (r === 'propaganda') {
-                // propaganda: tag_1
-                hasAccess = tags.some(t => userTags.includes(t + '_1'));
-            } else if (r === 'hard-propaganda') {
-                // hard-propaganda: tag_2
-                hasAccess = tags.some(t => userTags.includes(t + '_2'));
-            }
+            // Составной тег: техник_к_0
+            const required = tags.map(t => `${t}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`);
+            const hasAccess = required.some(tag => userTags.includes(tag));
 
             if (hasAccess) {
                 cellGroup[r] = { content: cell.content, images: cell.images || [] };
@@ -201,6 +200,31 @@ export const MATRIX_ROW_LABELS = {
     propaganda: 'Пропаганда',
     'hard-propaganda': 'Жёсткая пропаганда'
 };
+
+/** Сокращения фракций для составных тегов: техник_к_0 */
+export const FACTION_ABBR = { red: 'к', blue: 'с', purple: 'ф' };
+/** Уровни пропаганды для составных тегов */
+export const LEVEL_ABBR = { info: '0', propaganda: '1', 'hard-propaganda': '2' };
+
+/**
+ * Создать субтеги для фракционной страницы в каталоге тегов.
+ * Для каждого тега страницы создаются: {tag}_{abbr}_{level}
+ *   abbr: к/с/ф, level: 0/1/2
+ */
+export async function ensureFactionSubTags(pageTags) {
+    for (const tag of pageTags) {
+        if (!tag || !tag.trim()) continue;
+        for (const f of FACTION_COLUMNS) {
+            for (const r of MATRIX_ROWS) {
+                const subTag = `${tag.trim()}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`;
+                try { await addTag(subTag); } catch (e) {
+                    // Если тег уже существует — firestore не бросит ошибку (setDoc merge),
+                    // но если имя совпадает — всё ок
+                }
+            }
+        }
+    }
+}
 
 /** Создать пустую матрицу 3×3 */
 export function createEmptyMatrix() {
