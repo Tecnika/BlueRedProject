@@ -68,13 +68,20 @@
     gap: var(--space-sm);
 }
 
-.header__user-name {
+.header__user-link {
     font-size: 0.85rem;
     font-weight: 600;
     color: var(--color-primary);
     padding: var(--space-xs) var(--space-sm);
     background-color: var(--color-primary-light);
     border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.header__user-link:hover {
+    background-color: var(--color-primary);
+    color: var(--color-white);
 }
 
 .header__user-login,

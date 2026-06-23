@@ -12,7 +12,8 @@ import {
     getDocs,
     doc,
     setDoc,
-    getDoc
+    getDoc,
+    updateDoc
 } from 'firebase/firestore';
 
 import { getFirebase } from './firebase.js';
@@ -50,7 +51,12 @@ export async function signUpWithUsername(username, password) {
     await setDoc(doc(db, 'users', credential.user.uid), {
         username,
         email,
-        role: 'user',
+        role: 'player',
+        faction: '',
+        worldview: '',
+        about: '',
+        accessTags: [],
+        hiddenTags: [],
         createdAt: new Date().toISOString()
     });
 
@@ -61,6 +67,11 @@ export async function getUserProfile(uid) {
     const { db } = getFirebase();
     const snapshot = await getDoc(doc(db, 'users', uid));
     return snapshot.exists() ? snapshot.data() : null;
+}
+
+export async function updateUserProfile(uid, data) {
+    const { db } = getFirebase();
+    await updateDoc(doc(db, 'users', uid), data);
 }
 
 export async function signOutUser() {

@@ -2,6 +2,7 @@ import { Header } from './components/Header.js';
 import { Footer } from './components/Footer.js';
 import { HomePage } from './pages/HomePage.js';
 import { AuthPage } from './pages/AuthPage.js';
+import { ProfilePage } from './pages/ProfilePage.js';
 import { render } from './utils/dom.js';
 import { ThemeManager } from './core/ThemeManager.js';
 import { Router } from './core/Router.js';
@@ -39,6 +40,12 @@ async function init() {
     const router = new Router(contentRoot);
     router.register('/', () => HomePage());
     router.register('/login', () => AuthPage());
+    router.register('/profile', () => {
+        const hash = window.location.hash;
+        const idx = hash.indexOf('?');
+        const uid = idx >= 0 ? new URLSearchParams(hash.slice(idx)).get('uid') : null;
+        return ProfilePage(uid);
+    });
     router.start();
 
     onAuthChange(async (firebaseUser) => {

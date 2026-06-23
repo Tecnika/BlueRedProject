@@ -42,9 +42,10 @@ function createAuthBlock() {
     if (user) {
         const block = createElement('div', { className: 'header__user', dataset: { auth: '' } });
 
-        const name = createElement('span', {
-            className: 'header__user-name',
-            text: user.username
+        const profileLink = createElement('a', {
+            className: 'header__user-link',
+            text: user.username,
+            attributes: { href: '#/profile' }
         });
 
         const logoutBtn = createElement('button', {
@@ -59,7 +60,7 @@ function createAuthBlock() {
             }
         });
 
-        block.appendChild(name);
+        block.appendChild(profileLink);
         block.appendChild(logoutBtn);
         return block;
     }
