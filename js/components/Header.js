@@ -1,6 +1,8 @@
 import { createElement } from '../utils/dom.js';
 import { Navigation } from './Navigation.js';
 import { ThemeToggle } from './ThemeToggle.js';
+import { store } from '../core/Store.js';
+import { signOutUser } from '../firebase/authService.js';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -17,12 +19,57 @@ export function Header(navItems, themeManager) {
 
     const rightGroup = createElement('div', {
         className: 'header__right',
-        children: [nav, themeToggle]
+        children: [nav, createAuthBlock(), themeToggle]
     });
 
     container.appendChild(logo);
     container.appendChild(rightGroup);
     header.appendChild(container);
 
+    store.subscribe('user', () => {
+        const oldBlock = rightGroup.querySelector('[data-auth]');
+        if (oldBlock) {
+            rightGroup.replaceChild(createAuthBlock(), oldBlock);
+        }
+    });
+
     return header;
+}
+
+function createAuthBlock() {
+    const user = store.get('user');
+
+    if (user) {
+        const block = createElement('div', { className: 'header__user', dataset: { auth: '' } });
+
+        const name = createElement('span', {
+            className: 'header__user-name',
+            text: user.username
+        });
+
+        const logoutBtn = createElement('button', {
+            className: 'header__user-logout',
+            text: 'Выйти',
+            attributes: { type: 'button' },
+            events: {
+                click: async () => {
+                    await signOutUser();
+                    window.location.hash = '#/';
+                }
+            }
+        });
+
+        block.appendChild(name);
+        block.appendChild(logoutBtn);
+        return block;
+    }
+
+    const link = createElement('a', {
+        className: 'header__user-login',
+        text: 'Войти',
+        attributes: { href: '#/login' },
+        dataset: { auth: '' }
+    });
+
+    return link;
 }
