@@ -1,4 +1,5 @@
 [
     { "label": "Главная", "path": "/" },
-    { "label": "О проекте", "path": "/about" }
+    { "label": "Фракция", "path": "/faction" },
+    { "label": "Профиль", "path": "/profile" }
 ]

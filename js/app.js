@@ -3,6 +3,7 @@ import { Footer } from './components/Footer.js';
 import { HomePage } from './pages/HomePage.js';
 import { AuthPage } from './pages/AuthPage.js';
 import { ProfilePage } from './pages/ProfilePage.js';
+import { FactionPage } from './pages/FactionPage.js';
 import { render } from './utils/dom.js';
 import { ThemeManager } from './core/ThemeManager.js';
 import { Router } from './core/Router.js';
@@ -40,6 +41,7 @@ async function init() {
     const router = new Router(contentRoot);
     router.register('/', () => HomePage());
     router.register('/login', () => AuthPage());
+    router.register('/faction', () => FactionPage());
     router.register('/profile', () => {
         const hash = window.location.hash;
         const idx = hash.indexOf('?');

@@ -1,0 +1,116 @@
+.faction-page {
+    min-height: calc(100vh - var(--header-height));
+    padding: calc(var(--header-height) + var(--space-2xl)) var(--space-lg) var(--space-2xl);
+    background-color: var(--color-bg);
+}
+
+.faction-page__header {
+    max-width: 800px;
+    margin: 0 auto var(--space-xl);
+}
+
+.faction-page__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.faction-page__list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.faction-page__error,
+.faction-page__empty {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-3xl);
+    font-size: 1.1rem;
+}
+
+.faction-card {
+    display: flex;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.faction-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+}
+
+.faction-card--current {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
+
+.faction-card__avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.faction-card__info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
+}
+
+.faction-card__name-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.faction-card__name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.faction-card__role {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+}
+
+.faction-card__detail {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.faction-card__tags {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.faction-card__tag {
+    font-size: 0.75rem;
+    padding: 1px var(--space-sm);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.faction-card__tag--more {
+    background-color: var(--color-accent-light, var(--color-bg-secondary));
+    color: var(--color-text-secondary);
+}
