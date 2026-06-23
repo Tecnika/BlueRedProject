@@ -1,28 +1,17 @@
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleBlocks, renderBlockContent } from '../firebase/pagesService.js';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js';
 
-const FACTION_COLORS = {
-    red: '#dc2626',
-    blue: '#2563eb',
-    purple: '#7c3aed'
-};
-
-const FACTION_LABELS = {
-    red: 'Красные',
-    blue: 'Синие',
-    purple: 'Фиолетовые'
-};
-
+const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
+const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 const TYPE_LABELS = {
-    'info': 'Информация',
-    'propaganda': 'Пропаганда',
+    info: 'О фракции',
+    propaganda: 'Пропаганда',
     'hard-propaganda': 'Жёсткая пропаганда'
 };
-
 const TYPE_COLORS = {
-    'info': 'var(--color-primary)',
-    'propaganda': '#f59e0b',
+    info: 'var(--color-primary)',
+    propaganda: '#f59e0b',
     'hard-propaganda': '#dc2626'
 };
 
@@ -31,53 +20,42 @@ export async function PageViewPage(slug) {
     const user = store.get('user');
 
     if (!user) {
-        section.appendChild(createElement('p', {
-            className: 'page-view-page__error',
-            text: 'Необходимо авторизоваться'
-        }));
+        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Необходимо авторизоваться' }));
         return section;
     }
 
     try {
         const page = await getPageBySlug(slug);
-
         if (!page) {
-            section.appendChild(createElement('p', {
-                className: 'page-view-page__error',
-                text: 'Страница не найдена'
-            }));
+            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Страница не найдена' }));
             return section;
         }
 
         const visible = filterVisiblePages([page], user);
         if (visible.length === 0 && user.role !== 'master') {
-            section.appendChild(createElement('p', {
-                className: 'page-view-page__error',
-                text: 'Нет доступа к этой странице'
-            }));
+            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Нет доступа к этой странице' }));
             return section;
         }
 
         const isAdmin = user.role === 'master';
         const container = createElement('div', { className: 'page-view-page__container' });
 
-        const factionColor = FACTION_COLORS[page.faction];
-        if (factionColor) document.body.style.backgroundColor = factionColor + '08';
+        // Фон: для general — серый, для faction — цвет фракции пользователя
+        if (page.type === 'general') {
+            document.body.style.backgroundColor = '#f5f5f510';
+        } else {
+            const fc = FACTION_COLORS[user.faction];
+            if (fc) document.body.style.backgroundColor = fc + '08';
+        }
 
         // Хлебные крошки
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
         const allPages = await getAllPages();
         const crumbs = buildBreadcrumbs(page, allPages);
         crumbs.forEach((crumb, i) => {
-            const link = createElement('a', {
-                className: 'page-view-page__crumb',
-                text: crumb.title,
-                attributes: { href: `#/page/view?slug=${crumb.slug}` }
-            });
+            const link = createElement('a', { className: 'page-view-page__crumb', text: crumb.title, attributes: { href: `#/page/view?slug=${crumb.slug}` } });
             breadcrumbs.appendChild(link);
-            if (i < crumbs.length - 1) {
-                breadcrumbs.appendChild(createElement('span', { className: 'page-view-page__crumb-sep', text: ' / ' }));
-            }
+            if (i < crumbs.length - 1) breadcrumbs.appendChild(createElement('span', { className: 'page-view-page__crumb-sep', text: ' / ' }));
         });
         container.appendChild(breadcrumbs);
 
@@ -85,61 +63,21 @@ export async function PageViewPage(slug) {
         container.appendChild(createElement('h1', { className: 'page-view-page__title', text: page.title }));
 
         // Метки
-        const meta = createElement('div', { className: 'page-view-page__meta' });
         if (page.tags && page.tags.length) {
-            page.tags.forEach(tag => {
-                meta.appendChild(createElement('span', { className: 'page-view-page__tag', text: tag }));
-            });
+            const meta = createElement('div', { className: 'page-view-page__meta' });
+            page.tags.forEach(tag => meta.appendChild(createElement('span', { className: 'page-view-page__tag', text: tag })));
+            container.appendChild(meta);
         }
-        container.appendChild(meta);
 
-        // Блоки контента — фильтруем по тегам
-        const visibleBlocks = filterVisibleBlocks(page.blocks || [], user);
-
-        if (visibleBlocks.length === 0) {
-            container.appendChild(createElement('p', {
-                className: 'page-view-page__empty',
-                text: 'Нет доступного контента'
-            }));
+        if (page.type === 'general') {
+            renderGeneralView(container, page);
         } else {
-            visibleBlocks.forEach(block => {
-                const blockEl = createElement('div', { className: 'page-view-page__block' });
-
-                // Шапка блока: фракция + тип
-                const blockMeta = createElement('div', { className: 'page-view-page__block-meta' });
-                if (block.faction) {
-                    blockMeta.appendChild(createElement('span', {
-                        className: `page-view-page__badge page-view-page__badge--${block.faction}`,
-                        text: FACTION_LABELS[block.faction] || block.faction
-                    }));
-                }
-                if (block.type) {
-                    blockMeta.appendChild(createElement('span', {
-                        className: 'page-view-page__block-type-badge',
-                        text: TYPE_LABELS[block.type] || block.type,
-                        attributes: { style: `background-color:${TYPE_COLORS[block.type] || '#666'}` }
-                    }));
-                }
-                blockEl.appendChild(blockMeta);
-
-                // Контент с картинками
-                const content = createElement('div', {
-                    className: 'page-view-page__block-content',
-                    html: renderBlockContent(block.content, block.images)
-                });
-                blockEl.appendChild(content);
-
-                container.appendChild(blockEl);
-            });
+            renderFactionView(container, page, user);
         }
 
         // Кнопка редактирования
         if (isAdmin) {
-            container.appendChild(createElement('a', {
-                className: 'page-view-page__edit-btn',
-                text: 'Редактировать',
-                attributes: { href: `#/page/edit?slug=${page.slug}` }
-            }));
+            container.appendChild(createElement('a', { className: 'page-view-page__edit-btn', text: 'Редактировать', attributes: { href: `#/page/edit?slug=${page.slug}` } }));
         }
 
         // Дочерние страницы
@@ -149,12 +87,9 @@ export async function PageViewPage(slug) {
             childBlock.appendChild(createElement('h3', { className: 'page-view-page__children-title', text: 'Подстраницы' }));
             const childList = createElement('ul', { className: 'page-view-page__child-list' });
             children.forEach(child => {
-                const childLink = createElement('a', {
-                    className: 'page-view-page__child-link',
-                    text: child.title,
-                    attributes: { href: `#/page/view?slug=${child.slug}` }
-                });
-                childList.appendChild(createElement('li', { className: 'page-view-page__child-item', children: [childLink] }));
+                childList.appendChild(createElement('li', { className: 'page-view-page__child-item', children: [
+                    createElement('a', { className: 'page-view-page__child-link', text: child.title, attributes: { href: `#/page/view?slug=${child.slug}` } })
+                ] }));
             });
             childBlock.appendChild(childList);
             container.appendChild(childBlock);
@@ -162,13 +97,63 @@ export async function PageViewPage(slug) {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', {
-            className: 'page-view-page__error',
-            text: 'Ошибка: ' + err.message
-        }));
+        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Ошибка: ' + err.message }));
     }
 
     return section;
+}
+
+function renderGeneralView(container, page) {
+    if (page.content) {
+        container.appendChild(createElement('div', { className: 'page-view-page__content', html: renderContent(page.content, page.images) }));
+    } else {
+        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Страница пуста' }));
+    }
+}
+
+function renderFactionView(container, page, user) {
+    const filtered = filterVisibleCells(page.matrix, user);
+    const hasAny = Object.keys(filtered).length > 0;
+
+    if (!hasAny) {
+        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Нет доступного контента' }));
+        return;
+    }
+
+    // Рендерим таблицу 3×3 только с видимыми ячейками
+    const table = createElement('div', { className: 'page-view__faction-table' });
+
+    // Заголовки колонок
+    const headerRow = createElement('div', { className: 'page-view__ft-row page-view__ft-header' });
+    headerRow.appendChild(createElement('div', { className: 'page-view__ft-cell page-view__ft-corner' }));
+    for (const f of FACTION_COLUMNS) {
+        if (filtered[f]) {
+            headerRow.appendChild(createElement('div', { className: `page-view__ft-cell page-view__ft-col-head page-view__ft-col-head--${f}`, text: FACTION_LABELS[f] }));
+        }
+    }
+    table.appendChild(headerRow);
+
+    // Строки
+    for (const row of MATRIX_ROWS) {
+        const hasRowCell = FACTION_COLUMNS.some(f => filtered[f] && filtered[f][row]);
+        if (!hasRowCell) continue;
+
+        const rowEl = createElement('div', { className: 'page-view__ft-row' });
+        rowEl.appendChild(createElement('div', { className: 'page-view__ft-cell page-view__ft-row-head', text: MATRIX_ROW_LABELS[row] }));
+
+        for (const f of FACTION_COLUMNS) {
+            const cell = filtered[f] && filtered[f][row];
+            if (cell) {
+                const cellEl = createElement('div', { className: `page-view__ft-cell page-view__ft-data page-view__ft-data--${f}` });
+                cellEl.appendChild(createElement('div', { className: 'page-view__ft-content', html: renderContent(cell.content, cell.images) }));
+                rowEl.appendChild(cellEl);
+            }
+        }
+
+        table.appendChild(rowEl);
+    }
+
+    container.appendChild(table);
 }
 
 function buildBreadcrumbs(page, allPages) {

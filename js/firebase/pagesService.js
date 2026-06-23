@@ -2,15 +2,23 @@
  * pagesService — CRUD для страниц wiki.
  *
  * Коллекция 'pages':
- *   { title, slug, faction, tags, parentId, order,
- *     slots: [{ content, tags: [...] }, ...],
+ *   { title, slug, type, tags, parentId, order,
  *     createdBy, createdAt, updatedAt }
  *
- * Вложенность через parentId.
- * Контент разбит на слоты — каждый слот виден только
- * пользователям, у которых есть хотя бы один из его тегов.
- * Слот без тегов виден всем, кто видит страницу.
- * Пользователь не знает о существовании скрытых слотов.
+ * Два типа страниц:
+ *
+ * 1. type='general' — общая страница с серым фоном,
+ *    контент в поляx content + images, доступ по тегам.
+ *
+ * 2. type='faction' — фракционная страница. Таблица 3×3:
+ *    строки: info / propaganda / hard-propaganda
+ *    колонки: red / blue / purple
+ *    matrix = {
+ *      red:   { info: {content,tags,images}, propaganda: {...}, hard-propaganda: {...} },
+ *      blue:  { ... },
+ *      purple:{ ... }
+ *    }
+ *    Каждая ячейка — контент + теги доступа + изображения.
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
@@ -103,9 +111,10 @@ export function buildPageTree(pages) {
 }
 
 /**
- * Отфильтровать страницы по фракции и тегам пользователя.
- * @param {Array} pages — плоский список
- * @param {Object} user — { faction, accessTags }
+ * Отфильтровать страницы по тегам пользователя.
+ * Общие страницы — по тегам. Фракционные — по тегам + фракция автоматом.
+ * @param {Array} pages
+ * @param {Object} user — { accessTags }
  * @returns {Array}
  */
 export function filterVisiblePages(pages, user) {
@@ -113,11 +122,8 @@ export function filterVisiblePages(pages, user) {
     if (user.role === 'master') return pages;
 
     const userTags = (user.accessTags || []).map(t => t.toLowerCase());
-    const userFaction = user.faction;
 
     return pages.filter(p => {
-        if (!p.faction) return true;
-        if (p.faction !== userFaction) return false;
         if (!p.tags || p.tags.length === 0) return true;
         const pageTags = p.tags.map(t => t.toLowerCase());
         return pageTags.some(t => userTags.includes(t));
@@ -125,39 +131,48 @@ export function filterVisiblePages(pages, user) {
 }
 
 /**
- * Отфильтровать блоки контента по тегам пользователя.
- *
- * Каждый блок может быть тегирован. Без тегов — видят все,
- * кто видит страницу. С тегами — только если у пользователя
- * есть хотя бы один совпадающий тег.
- *
- * Пропаганда доступна по тегу «propaganda» или «propaganda-*».
- * Жёсткая пропаганда — по тегу «hard-propaganda».
- * Пользователь не видит скрытые блоки и не знает об их существовании.
- *
- * @param {Array} blocks — [{ content, faction, type, tags }]
- * @param {Object} user — { accessTags }
- * @returns {Array}
+ * Отфильтровать ячейки матрицы фракционной страницы.
+ * Возвращает { faction: { row: { content, tags, images } } }
+ * только для тех ячеек, куда у пользователя есть доступ.
+ * Ячейка без тегов — видна всем.
  */
-export function filterVisibleBlocks(blocks, user) {
-    if (!blocks || blocks.length === 0) return [];
-    if (user.role === 'master') return blocks;
+export function filterVisibleCells(matrix, user) {
+    if (!matrix) return {};
+    if (user.role === 'master') return matrix;
 
     const userTags = (user.accessTags || []).map(t => t.toLowerCase());
+    const result = {};
+    const factions = ['red', 'blue', 'purple'];
+    const rows = ['info', 'propaganda', 'hard-propaganda'];
 
-    return blocks.filter(block => {
-        if (!block.tags || block.tags.length === 0) return true;
-        const blockTags = block.tags.map(t => t.toLowerCase());
-        return blockTags.some(t => userTags.includes(t));
-    });
+    for (const f of factions) {
+        if (!matrix[f]) continue;
+        const cellGroup = {};
+        for (const r of rows) {
+            const cell = matrix[f][r];
+            if (!cell) continue;
+            if (!cell.tags || cell.tags.length === 0) {
+                cellGroup[r] = cell;
+                continue;
+            }
+            const cellTags = cell.tags.map(t => t.toLowerCase());
+            if (cellTags.some(t => userTags.includes(t))) {
+                cellGroup[r] = cell;
+            }
+        }
+        if (Object.keys(cellGroup).length > 0) {
+            result[f] = cellGroup;
+        }
+    }
+    return result;
 }
 
 /**
- * Преобразовать содержимое блока в HTML:
+ * Преобразовать контент в HTML:
  * - {{img:URL}} → <img src="URL">
  * - переносы строк → <br>
  */
-export function renderBlockContent(content, extraImages = []) {
+export function renderContent(content, extraImages = []) {
     let html = (content || '')
         .replace(/{{img:\s*([^}]+)\s*}}/g, '<img src="$1" alt="" loading="lazy">')
         .replace(/\n/g, '<br>');
@@ -171,6 +186,27 @@ export function renderBlockContent(content, extraImages = []) {
     return html;
 }
 
+/** Константы для матрицы фракционных страниц */
+export const FACTION_COLUMNS = ['red', 'blue', 'purple'];
+export const MATRIX_ROWS = ['info', 'propaganda', 'hard-propaganda'];
+export const MATRIX_ROW_LABELS = {
+    info: 'О фракции',
+    propaganda: 'Пропаганда',
+    'hard-propaganda': 'Жёсткая пропаганда'
+};
+
+/** Создать пустую матрицу 3×3 */
+export function createEmptyMatrix() {
+    const m = {};
+    for (const f of FACTION_COLUMNS) {
+        m[f] = {};
+        for (const r of MATRIX_ROWS) {
+            m[f][r] = { content: '', tags: [], images: [] };
+        }
+    }
+    return m;
+}
+
 /** Создать стартовую страницу, если страниц ещё нет (только для мастеров) */
 export async function seedInitialPages() {
     const all = await getAllPages();
@@ -178,13 +214,12 @@ export async function seedInitialPages() {
     await savePage(null, {
         title: 'Добро пожаловать',
         slug: 'welcome',
-        faction: '',
+        type: 'general',
         tags: [],
         parentId: null,
         order: 0,
         createdBy: 'system',
-        blocks: [
-            { content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.', tags: [], faction: '', type: 'info' }
-        ]
+        content: 'Это первая страница wiki проекта BlueRed.\n\nЗдесь будет описание вселенной, фракций и правил.\n\nВы можете отредактировать эту страницу или создать новую.',
+        images: []
     });
 }

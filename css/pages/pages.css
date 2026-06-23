@@ -178,41 +178,101 @@
     font-weight: 500;
 }
 
-.page-view-page__block {
-    margin-bottom: var(--space-xl);
-    background-color: var(--color-white);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
-    overflow: hidden;
-}
+/* --- Общая страница (general) --- */
 
-.page-view-page__block-meta {
-    display: flex;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-lg);
-    background-color: var(--color-bg-secondary);
-    border-bottom: 1px solid var(--color-border);
-    flex-wrap: wrap;
-}
-
-.page-view-page__block-type-badge {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px var(--space-sm);
-    border-radius: 999px;
-    color: var(--color-white);
-    text-transform: uppercase;
-}
-
-.page-view-page__block-content {
+.page-view-page__content {
     font-size: 1rem;
     line-height: 1.7;
     color: var(--color-text);
     padding: var(--space-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-xl);
+    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
 }
 
-.page-view-page__block-content img {
+.page-view-page__content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+    display: block;
+}
+
+/* --- Фракционная страница (faction) — таблица 3×3 --- */
+
+.page-view__faction-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--space-xl);
+    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+}
+
+.page-view__ft-row {
+    display: flex;
+}
+
+.page-view__ft-row + .page-view__ft-row {
+    border-top: 1px solid var(--color-border);
+}
+
+.page-view__ft-header {
+    background-color: var(--color-bg-secondary);
+    font-weight: 700;
+}
+
+.page-view__ft-cell {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-md);
+}
+
+.page-view__ft-cell + .page-view__ft-cell {
+    border-left: 1px solid var(--color-border);
+}
+
+.page-view__ft-corner {
+    flex: 0 0 120px;
+}
+
+.page-view__ft-col-head {
+    text-align: center;
+    font-size: 0.9rem;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.page-view__ft-col-head--red { color: #dc2626; }
+.page-view__ft-col-head--blue { color: #2563eb; }
+.page-view__ft-col-head--purple { color: #7c3aed; }
+
+.page-view__ft-row-head {
+    flex: 0 0 120px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.page-view__ft-data {
+    background-color: var(--color-white);
+}
+
+.page-view__ft-data--red { border-top: 3px solid #dc2626; }
+.page-view__ft-data--blue { border-top: 3px solid #2563eb; }
+.page-view__ft-data--purple { border-top: 3px solid #7c3aed; }
+
+.page-view__ft-content {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--color-text);
+}
+
+.page-view__ft-content img {
     max-width: 100%;
     height: auto;
     border-radius: var(--radius-md);
@@ -509,6 +569,92 @@
 
 .page-edit-page__add-slot:hover {
     background-color: var(--color-primary-light);
+}
+
+/* --- Редактор матрицы 3×3 (фракционная страница) --- */
+
+.page-edit__matrix {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-top: var(--space-md);
+}
+
+.page-edit__matrix-row {
+    display: flex;
+}
+
+.page-edit__matrix-row + .page-edit__matrix-row {
+    border-top: 1px solid var(--color-border);
+}
+
+.page-edit__matrix-header {
+    background-color: var(--color-bg-secondary);
+}
+
+.page-edit__matrix-cell {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-sm);
+}
+
+.page-edit__matrix-cell + .page-edit__matrix-cell {
+    border-left: 1px solid var(--color-border);
+}
+
+.page-edit__matrix-label {
+    flex: 0 0 110px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+}
+
+.page-edit__matrix-col-head {
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: var(--space-sm);
+}
+
+.page-edit__matrix-col-head--red { color: #dc2626; }
+.page-edit__matrix-col-head--blue { color: #2563eb; }
+.page-edit__matrix-col-head--purple { color: #7c3aed; }
+
+.page-edit__matrix-editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    background-color: var(--color-white);
+}
+
+.page-edit__matrix-imgs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.page-edit__matrix-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+/* --- Редактор общей страницы --- */
+
+.page-edit__img-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-top: var(--space-xs);
+}
+
+.page-edit__img-input {
+    width: 100%;
 }
 
 /* Кнопки */
