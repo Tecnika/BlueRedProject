@@ -1,5 +1,6 @@
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
+import { translateError } from '../utils/translateError.js';
 import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
@@ -97,7 +98,7 @@ export async function PageViewPage(slug) {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Ошибка: ' + err.message }));
+        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;

@@ -10,6 +10,7 @@
  */
 
 import { createElement } from '../utils/dom.js';
+import { translateError } from '../utils/translateError.js';
 import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getCollection } from '../firebase/dbService.js';
@@ -76,7 +77,7 @@ export async function FactionPage() {
     } catch (err) {
         section.appendChild(createElement('p', {
             className: 'faction-page__error',
-            text: 'Ошибка загрузки: ' + err.message
+            text: 'Ошибка загрузки: ' + translateError(err)
         }));
     }
 

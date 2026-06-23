@@ -18,6 +18,7 @@ import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
 import { getNote, saveNote } from '../firebase/notesService.js';
 import { TagInput } from '../components/TagInput.js';
 import { getAllSubTags } from '../firebase/subtagsService.js';
+import { translateError } from '../utils/translateError.js';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {
@@ -86,7 +87,7 @@ export async function ProfilePage(targetUid, themeManager) {
     } catch (err) {
         section.appendChild(createElement('p', {
             className: 'profile-page__error',
-            text: 'Ошибка: ' + err.message
+            text: 'Ошибка: ' + translateError(err)
         }));
     }
 
@@ -211,7 +212,7 @@ function createEditSection(profile) {
             msg.textContent = 'Сохранено';
             msg.style.display = 'block';
         } catch (err) {
-            msg.textContent = 'Ошибка: ' + err.message;
+            msg.textContent = 'Ошибка: ' + translateError(err);
             msg.style.display = 'block';
         } finally {
             saveBtn.disabled = false;
@@ -411,7 +412,7 @@ async function createAdminSection(profile, targetUid, themeManager) {
             msg.textContent = 'Сохранено';
             msg.style.display = 'block';
         } catch (err) {
-            msg.textContent = 'Ошибка: ' + err.message;
+            msg.textContent = 'Ошибка: ' + translateError(err);
             msg.style.display = 'block';
         } finally {
             saveBtn.disabled = false;
@@ -500,7 +501,7 @@ async function createNotesSection(authorId, targetId) {
             msg.textContent = 'Заметка сохранена';
             msg.style.display = 'block';
         } catch (err) {
-            msg.textContent = 'Ошибка: ' + err.message;
+            msg.textContent = 'Ошибка: ' + translateError(err);
             msg.style.display = 'block';
         } finally {
             saveBtn.disabled = false;

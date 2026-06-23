@@ -3,6 +3,7 @@ import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js';
 import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js';
 import { render, createElement } from '../utils/dom.js';
+import { translateError } from '../utils/translateError.js';
 
 /**
  * AdminPage — панель управления (только для мастеров).
@@ -117,12 +118,12 @@ async function loadTagsList() {
                     await removeTag(id);
                     loadTagsList();
                 } catch (err) {
-                    alert('Ошибка удаления: ' + err.message);
+                    alert('Ошибка удаления: ' + translateError(err));
                 }
             });
         });
     } catch (err) {
-        listEl.textContent = 'Ошибка загрузки: ' + err.message;
+        listEl.textContent = 'Ошибка загрузки: ' + translateError(err);
     }
 }
 
@@ -138,7 +139,7 @@ document.addEventListener('submit', async (e) => {
         input.value = '';
         loadTagsList();
     } catch (err) {
-        alert('Ошибка: ' + err.message);
+        alert('Ошибка: ' + translateError(err));
     }
 });
 
@@ -228,12 +229,12 @@ async function loadSubTagsList() {
                     await removeSubTag(id);
                     loadSubTagsList();
                 } catch (err) {
-                    alert('Ошибка удаления: ' + err.message);
+                    alert('Ошибка удаления: ' + translateError(err));
                 }
             });
         });
     } catch (err) {
-        listEl.textContent = 'Ошибка загрузки: ' + err.message;
+        listEl.textContent = 'Ошибка загрузки: ' + translateError(err);
     }
 }
 
@@ -249,7 +250,7 @@ document.addEventListener('submit', async (e) => {
         input.value = '';
         loadSubTagsList();
     } catch (err) {
-        alert('Ошибка: ' + err.message);
+        alert('Ошибка: ' + translateError(err));
     }
 });
 
@@ -303,7 +304,7 @@ async function loadPagesTree() {
         treeEl.innerHTML = '';
         treeEl.appendChild(renderAdminTree(tree));
     } catch (err) {
-        treeEl.textContent = 'Ошибка загрузки: ' + err.message;
+        treeEl.textContent = 'Ошибка загрузки: ' + translateError(err);
     }
 }
 

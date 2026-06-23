@@ -10,6 +10,7 @@
 
 import { createElement } from '../utils/dom.js';
 import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js';
+import { translateError } from '../utils/translateError.js';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });
@@ -110,7 +111,7 @@ function buildForm(mode) {
 
             window.location.hash = '#/';
         } catch (err) {
-            errorEl.textContent = err.message;
+            errorEl.textContent = translateError(err);
             errorEl.style.display = 'block';
         } finally {
             submitBtn.disabled = false;

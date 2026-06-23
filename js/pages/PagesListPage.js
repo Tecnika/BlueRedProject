@@ -7,6 +7,7 @@
 
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
+import { translateError } from '../utils/translateError.js';
 import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js';
 
 export async function PagesListPage() {
@@ -59,7 +60,7 @@ export async function PagesListPage() {
     } catch (err) {
         section.appendChild(createElement('p', {
             className: 'pages-list-page__empty',
-            text: 'Ошибка: ' + err.message
+            text: 'Ошибка: ' + translateError(err)
         }));
     }
 

@@ -23,18 +23,9 @@ service cloud.firestore {
         && request.auth.uid == userId
         && request.resource.data.keys().hasAll(['username', 'role']);
 
-      // Читать свой профиль может авторизованный пользователь
-      // Чужие профили читают: мастер или софракционец
-      allow read: if request.auth != null && (
-        request.auth.uid == userId
-        || isMaster()
-        || (
-          exists(/databases/$(database)/documents/users/$(request.auth.uid))
-          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.faction != ''
-          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.faction
-            == get(/databases/$(database)/documents/users/$(userId)).data.faction
-        )
-      );
+      // Читать профили может кто угодно (нужно для проверки username при регистрации,
+      // просмотра профилей, списка участников фракции)
+      allow read: if true;
 
       // Обновлять свой профиль может владелец
       // Мастер может обновлять любой профиль

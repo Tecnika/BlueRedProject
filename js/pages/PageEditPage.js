@@ -2,6 +2,7 @@ import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
 import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js';
 import { getAllTags } from '../firebase/tagsService.js';
+import { translateError } from '../utils/translateError.js';
 
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 
@@ -113,7 +114,7 @@ export async function PageEditPage(slug) {
             deleteBtn.addEventListener('click', async () => {
                 if (!confirm('Удалить страницу навсегда?')) return;
                 try { await deletePage(existing.id); window.location.hash = '#/pages'; }
-                catch (err) { msg.textContent = 'Ошибка: ' + err.message; msg.className = 'page-edit-page__msg page-edit-page__msg--err'; }
+                catch (err) { msg.textContent = 'Ошибка: ' + translateError(err); msg.className = 'page-edit-page__msg page-edit-page__msg--err'; }
             });
             container.appendChild(deleteBtn);
         }
@@ -172,7 +173,7 @@ export async function PageEditPage(slug) {
                 msg.style.display = 'block';
                 setTimeout(() => window.location.hash = `#/page/view?slug=${slugVal}`, 800);
             } catch (err) {
-                msg.textContent = 'Ошибка: ' + err.message;
+                msg.textContent = 'Ошибка: ' + translateError(err);
                 msg.className = 'page-edit-page__msg page-edit-page__msg--err';
                 msg.style.display = 'block';
             } finally {
@@ -183,7 +184,7 @@ export async function PageEditPage(slug) {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'page-edit-page__error', text: 'Ошибка: ' + err.message }));
+        section.appendChild(createElement('p', { className: 'page-edit-page__error', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
