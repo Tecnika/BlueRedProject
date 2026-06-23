@@ -73,7 +73,7 @@ export async function ProfilePage(targetUid, themeManager) {
 
         // Мастер видит панель управления игроком
         if (isAdmin) {
-            container.appendChild(createAdminSection(profile, uid, themeManager));
+            container.appendChild(await createAdminSection(profile, uid, themeManager));
         }
 
         // Заметки видны софракционцам и мастеру
