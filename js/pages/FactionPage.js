@@ -3,10 +3,13 @@ import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getCollection } from '../firebase/dbService.js';
 
+const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
+
 const FACTION_LABELS = {
-    red: 'Красные',
+    purple: 'Фиолетовые',
     blue: 'Синие',
-    purple: 'Фиолетовые'
+    red: 'Красные',
+    __unassigned: 'Не распределены'
 };
 
 const ROLE_LABELS = {
@@ -27,7 +30,9 @@ export async function FactionPage() {
         return section;
     }
 
-    if (!currentUser.faction) {
+    const isAdmin = currentUser.role === 'master';
+
+    if (!isAdmin && !currentUser.faction) {
         section.appendChild(createElement('p', {
             className: 'faction-page__error',
             text: 'Вы ещё не выбрали фракцию'
@@ -35,6 +40,87 @@ export async function FactionPage() {
         return section;
     }
 
+    try {
+        if (isAdmin) {
+            const allUsers = await getCollection('users');
+            const grouped = groupByFaction(allUsers);
+            renderAdminView(section, grouped, currentUser.uid);
+        } else {
+            const members = await getCollection('users', [
+                { field: 'faction', op: '==', value: currentUser.faction }
+            ]);
+            renderFactionView(section, members, currentUser);
+        }
+    } catch (err) {
+        section.appendChild(createElement('p', {
+            className: 'faction-page__error',
+            text: 'Ошибка загрузки: ' + err.message
+        }));
+    }
+
+    return section;
+}
+
+function groupByFaction(users) {
+    const groups = {};
+
+    for (const faction of FACTION_ORDER) {
+        groups[faction] = [];
+    }
+
+    for (const user of users) {
+        const key = user.faction && FACTION_LABELS[user.faction] ? user.faction : '__unassigned';
+        groups[key].push(user);
+    }
+
+    for (const faction of FACTION_ORDER) {
+        groups[faction].sort((a, b) => {
+            const nameA = (a.username || '').toLowerCase();
+            const nameB = (b.username || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+    }
+
+    return groups;
+}
+
+function renderAdminView(section, grouped, currentUid) {
+    const header = createElement('div', { className: 'faction-page__header' });
+    header.appendChild(createElement('h1', {
+        className: 'faction-page__title',
+        text: 'Все игроки'
+    }));
+    section.appendChild(header);
+
+    for (const faction of FACTION_ORDER) {
+        const members = grouped[faction];
+        if (members.length === 0) continue;
+
+        const group = createElement('div', { className: 'faction-group' });
+
+        const title = createElement('h2', {
+            className: 'faction-group__title',
+            text: FACTION_LABELS[faction]
+        });
+
+        const count = createElement('span', {
+            className: 'faction-group__count',
+            text: `${members.length}`
+        });
+
+        title.appendChild(count);
+        group.appendChild(title);
+
+        const list = createElement('div', { className: 'faction-page__list' });
+        for (const member of members) {
+            list.appendChild(createMemberCard(member, currentUid));
+        }
+        group.appendChild(list);
+        section.appendChild(group);
+    }
+}
+
+function renderFactionView(section, members, currentUser) {
     const factionLabel = FACTION_LABELS[currentUser.faction] || currentUser.faction;
 
     const header = createElement('div', { className: 'faction-page__header' });
@@ -46,32 +132,20 @@ export async function FactionPage() {
 
     const list = createElement('div', { className: 'faction-page__list' });
 
-    try {
-        const members = await getCollection('users', [
-            { field: 'faction', op: '==', value: currentUser.faction }
-        ]);
+    sortMembers(members, currentUser.uid);
 
-        sortMembers(members, currentUser.uid);
+    for (const member of members) {
+        list.appendChild(createMemberCard(member, currentUser.uid));
+    }
 
-        for (const member of members) {
-            list.appendChild(createMemberCard(member, currentUser.uid));
-        }
-
-        if (members.length === 0) {
-            list.appendChild(createElement('p', {
-                className: 'faction-page__empty',
-                text: 'Во фракции пока никого нет'
-            }));
-        }
-    } catch (err) {
+    if (members.length === 0) {
         list.appendChild(createElement('p', {
-            className: 'faction-page__error',
-            text: 'Ошибка загрузки: ' + err.message
+            className: 'faction-page__empty',
+            text: 'Во фракции пока никого нет'
         }));
     }
 
     section.appendChild(list);
-    return section;
 }
 
 function sortMembers(members, currentUid) {
