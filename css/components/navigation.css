@@ -1,0 +1,28 @@
+.nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.nav__item {
+    display: flex;
+}
+
+.nav__link {
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav__link:hover {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.nav__link--active {
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+}
