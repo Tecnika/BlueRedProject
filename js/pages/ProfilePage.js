@@ -16,7 +16,7 @@ const ROLE_LABELS = {
     player: 'Игрок'
 };
 
-export async function ProfilePage(targetUid) {
+export async function ProfilePage(targetUid, themeManager) {
     const section = createElement('section', { className: 'profile-page' });
 
     try {
@@ -54,7 +54,7 @@ export async function ProfilePage(targetUid) {
         }
 
         if (isAdmin) {
-            container.appendChild(createAdminSection(profile, uid));
+            container.appendChild(createAdminSection(profile, uid, themeManager));
         }
 
         if (!isOwner && (sameFaction || isAdmin)) {
@@ -225,7 +225,7 @@ function createEditField(type, id, label, value) {
     return group;
 }
 
-function createAdminSection(profile, targetUid) {
+function createAdminSection(profile, targetUid, themeManager) {
     const section = createElement('div', { className: 'profile-edit' });
     const title = createElement('h3', {
         className: 'profile-edit__title',
@@ -281,6 +281,9 @@ function createAdminSection(profile, targetUid) {
             const currentUser = store.get('user');
             if (currentUser && targetUid === currentUser.uid) {
                 store.set('user', { ...currentUser, ...data });
+                if (themeManager && data.faction) {
+                    themeManager.setThemeByFaction(data.faction);
+                }
             }
 
             msg.textContent = 'Сохранено';

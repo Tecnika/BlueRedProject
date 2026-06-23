@@ -31,7 +31,8 @@ function getThemeLabel(theme) {
     const labels = {
         purple: 'Фи',
         blue: 'Си',
-        red: 'Кр'
+        red: 'Кр',
+        gray: 'Се'
     };
     return labels[theme] || theme;
 }

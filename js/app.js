@@ -46,7 +46,7 @@ async function init() {
         const hash = window.location.hash;
         const idx = hash.indexOf('?');
         const uid = idx >= 0 ? new URLSearchParams(hash.slice(idx)).get('uid') : null;
-        return ProfilePage(uid);
+        return ProfilePage(uid, themeManager);
     });
     router.start();
 
@@ -55,9 +55,11 @@ async function init() {
             const profile = await getUserProfile(firebaseUser.uid);
             if (profile) {
                 store.set('user', { uid: firebaseUser.uid, ...profile });
+                themeManager.setThemeByFaction(profile.faction);
             }
         } else {
             store.set('user', null);
+            themeManager.setThemeByFaction(null);
         }
         store.set('isAuthReady', true);
     });

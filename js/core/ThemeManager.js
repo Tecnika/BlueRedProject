@@ -1,5 +1,11 @@
 const STORAGE_KEY = 'bluered-theme';
-const THEMES = ['purple', 'blue', 'red'];
+const THEMES = ['purple', 'blue', 'red', 'gray'];
+
+const FACTION_THEME_MAP = {
+    red: 'red',
+    blue: 'blue',
+    purple: 'purple'
+};
 
 export class ThemeManager {
     constructor() {
@@ -27,20 +33,17 @@ export class ThemeManager {
         );
     }
 
+    setThemeByFaction(faction) {
+        const theme = FACTION_THEME_MAP[faction] || 'gray';
+        this.setTheme(theme);
+    }
+
     getTheme() {
         return this.currentTheme;
     }
 
     getAvailableThemes() {
         return [...THEMES];
-    }
-
-    getThemeForRole(role) {
-        switch (role) {
-            case 'admin': return 'red';
-            case 'editor': return 'blue';
-            default: return 'purple';
-        }
     }
 
     nextTheme() {
