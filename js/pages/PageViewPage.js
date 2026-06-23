@@ -75,7 +75,7 @@ export async function PageViewPage(slug) {
             const link = createElement('a', {
                 className: 'page-view-page__crumb',
                 text: crumb.title,
-                attributes: { href: `#/page?slug=${crumb.slug}` }
+                attributes: { href: `#/page/view?slug=${crumb.slug}` }
             });
             breadcrumbs.appendChild(link);
             if (crumb !== crumbs[crumbs.length - 1]) {
@@ -170,7 +170,7 @@ export async function PageViewPage(slug) {
                 const childLink = createElement('a', {
                     className: 'page-view-page__child-link',
                     text: child.title,
-                    attributes: { href: `#/page?slug=${child.slug}` }
+                    attributes: { href: `#/page/view?slug=${child.slug}` }
                 });
                 const li = createElement('li', { className: 'page-view-page__child-item', children: [childLink] });
                 childList.appendChild(li);

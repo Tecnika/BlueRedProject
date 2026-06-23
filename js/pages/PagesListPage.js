@@ -76,7 +76,7 @@ function renderTree(nodes) {
         const link = createElement('a', {
             className: 'pages-tree__link',
             text: node.page.title,
-            attributes: { href: `#/page?slug=${node.page.slug}` }
+            attributes: { href: `#/page/view?slug=${node.page.slug}` }
         });
 
         // Метка фракции

@@ -131,7 +131,7 @@ export async function PageEditPage(slug) {
         const cancelBtn = createElement('a', {
             className: 'page-edit-page__cancel',
             text: 'Отмена',
-            attributes: { href: existing ? `#/page?slug=${existing.slug}` : '#/pages' }
+            attributes: { href: existing ? `#/page/view?slug=${existing.slug}` : '#/pages' }
         });
 
         const msg = createElement('p', { className: 'page-edit-page__msg' });
@@ -207,7 +207,7 @@ export async function PageEditPage(slug) {
                 msg.className = 'page-edit-page__msg page-edit-page__msg--ok';
 
                 setTimeout(() => {
-                    window.location.hash = `#/page?slug=${formData.slug}`;
+                    window.location.hash = `#/page/view?slug=${formData.slug}`;
                 }, 800);
             } catch (err) {
                 msg.textContent = 'Ошибка: ' + err.message;

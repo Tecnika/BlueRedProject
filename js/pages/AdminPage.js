@@ -156,16 +156,13 @@ function renderPagesSection() {
         text: 'Все страницы. Создание новых, редактирование.'
     }));
 
-    container.appendChild(createElement('div', {
-        style: 'margin-bottom: var(--space-md)',
-        children: [
-            createElement('a', {
-                className: 'admin-pages__create-btn',
-                attributes: { href: '#/page/create' },
-                text: '+ Новая страница'
-            })
-        ]
+    const createBtnWrap = createElement('div', { className: 'admin-pages__create-wrap' });
+    createBtnWrap.appendChild(createElement('a', {
+        className: 'admin-pages__create-btn',
+        attributes: { href: '#/page/create' },
+        text: '+ Новая страница'
     }));
+    container.appendChild(createBtnWrap);
 
     const tree = createElement('div', {
         className: 'admin-pages__tree',

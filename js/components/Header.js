@@ -21,6 +21,7 @@ export function Header(navItems, themeManager) {
     });
 
     const nav = Navigation(navItems);
+    const navList = nav.querySelector('.nav__list');
 
     const rightGroup = createElement('div', {
         className: 'header__right',
@@ -31,15 +32,43 @@ export function Header(navItems, themeManager) {
     container.appendChild(rightGroup);
     header.appendChild(container);
 
-    // Авто-обновление блока авторизации при смене пользователя
+    // Авто-обновление блока авторизации и ссылки админки при смене пользователя
     store.subscribe('user', () => {
         const oldBlock = rightGroup.querySelector('[data-auth]');
         if (oldBlock) {
             rightGroup.replaceChild(createAuthBlock(), oldBlock);
         }
+        toggleAdminLink(navList);
     });
 
+    // Применяем сразу на случай, если пользователь уже в store
+    toggleAdminLink(navList);
+
     return header;
+}
+
+/** Добавляет или убирает пункт "Админ" в навигации в зависимости от роли */
+function toggleAdminLink(navList) {
+    if (!navList) return;
+    const user = store.get('user');
+    const existingItem = navList.querySelector('[data-admin-link]');
+
+    if (user && user.role === 'master') {
+        if (existingItem) return;
+        const link = createElement('a', {
+            className: 'nav__link',
+            text: 'Админ',
+            attributes: { href: '#/admin' }
+        });
+        const li = createElement('li', {
+            className: 'nav__item',
+            dataset: { 'admin-link': '' },
+            children: [link]
+        });
+        navList.appendChild(li);
+    } else {
+        if (existingItem) existingItem.remove();
+    }
 }
 
 /** Создаёт блок "имя + выход" или "войти" в зависимости от store */
