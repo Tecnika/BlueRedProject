@@ -1,5 +1,7 @@
 [
     { "label": "Главная", "path": "#/" },
+    { "label": "Страницы", "path": "#/pages" },
     { "label": "Фракция", "path": "#/faction" },
-    { "label": "Профиль", "path": "#/profile" }
+    { "label": "Профиль", "path": "#/profile" },
+    { "label": "Админ", "path": "#/admin" }
 ]

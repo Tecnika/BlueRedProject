@@ -13,7 +13,6 @@ import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getCollection } from '../firebase/dbService.js';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js';
 
 /** Порядок отображения групп (для админа) */
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
@@ -60,9 +59,13 @@ export async function FactionPage() {
             const allUsers = await getCollection('users');
             const grouped = groupByFaction(allUsers);
             renderAdminView(section, grouped, currentUser.uid);
-            // Панель управления каталогом тегов
-            const tagManager = await createTagManager();
-            section.appendChild(tagManager);
+            // Ссылка на панель управления (теги, страницы)
+            section.appendChild(createElement('div', {
+                className: 'faction-admin-link',
+                children: [
+                    createElement('a', { attributes: { href: '#/admin' }, text: 'Панель управления →' })
+                ]
+            }));
         } else {
             // Обычный игрок — только свою фракцию
             const members = await getCollection('users', [
@@ -249,108 +252,3 @@ function createMemberCard(member, currentUid) {
     return card;
 }
 
-/** Панель управления каталогом тегов (только для мастера) */
-async function createTagManager() {
-    const section = createElement('div', { className: 'faction-tag-manager' });
-
-    const header = createElement('div', { className: 'faction-tag-manager__header' });
-    const title = createElement('h2', {
-        className: 'faction-tag-manager__title',
-        text: 'Каталог тегов'
-    });
-    header.appendChild(title);
-    section.appendChild(header);
-
-    // Блок добавления нового тега
-    const addRow = createElement('div', { className: 'faction-tag-manager__add' });
-    const addInput = createElement('input', {
-        className: 'faction-tag-manager__input',
-        attributes: { type: 'text', placeholder: 'Название нового тега...' }
-    });
-    const addBtn = createElement('button', {
-        className: 'faction-tag-manager__add-btn',
-        text: 'Добавить',
-        attributes: { type: 'button' }
-    });
-    const addMsg = createElement('span', { className: 'faction-tag-manager__msg' });
-    addRow.appendChild(addInput);
-    addRow.appendChild(addBtn);
-    addRow.appendChild(addMsg);
-    section.appendChild(addRow);
-
-    // Список тегов
-    const list = createElement('div', { className: 'faction-tag-manager__list' });
-    section.appendChild(list);
-
-    /** Перезагрузить список тегов */
-    async function reloadTags() {
-        list.innerHTML = '';
-        const tags = await getAllTags();
-
-        if (tags.length === 0) {
-            list.appendChild(createElement('p', {
-                className: 'faction-tag-manager__empty',
-                text: 'Каталог тегов пуст'
-            }));
-            return;
-        }
-
-        for (const tag of tags) {
-            const row = createElement('div', { className: 'faction-tag-manager__row' });
-
-            const nameEl = createElement('span', {
-                className: 'faction-tag-manager__tag-name',
-                text: tag.name
-            });
-
-            const delBtn = createElement('button', {
-                className: 'faction-tag-manager__delete-btn',
-                text: '✕',
-                attributes: { type: 'button', title: 'Удалить тег' },
-                events: {
-                    click: async () => {
-                        try {
-                            await removeTag(tag.id);
-                            await reloadTags();
-                        } catch (err) {
-                            addMsg.textContent = 'Ошибка: ' + err.message;
-                        }
-                    }
-                }
-            });
-
-            row.appendChild(nameEl);
-            row.appendChild(delBtn);
-            list.appendChild(row);
-        }
-    }
-
-    // Добавление нового тега
-    addBtn.addEventListener('click', async () => {
-        const value = addInput.value.trim();
-        if (!value) return;
-
-        addBtn.disabled = true;
-        addMsg.textContent = '';
-        try {
-            await addTag(value);
-            addInput.value = '';
-            await reloadTags();
-            addMsg.textContent = 'Тег добавлен';
-            addMsg.className = 'faction-tag-manager__msg faction-tag-manager__msg--ok';
-        } catch (err) {
-            addMsg.textContent = 'Ошибка: ' + err.message;
-            addMsg.className = 'faction-tag-manager__msg faction-tag-manager__msg--err';
-        } finally {
-            addBtn.disabled = false;
-        }
-    });
-
-    // Enter в поле ввода
-    addInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') addBtn.click();
-    });
-
-    await reloadTags();
-    return section;
-}

@@ -16,6 +16,10 @@ import { HomePage } from './pages/HomePage.js';
 import { AuthPage } from './pages/AuthPage.js';
 import { ProfilePage } from './pages/ProfilePage.js';
 import { FactionPage } from './pages/FactionPage.js';
+import { AdminPage } from './pages/AdminPage.js';
+import { PagesListPage } from './pages/PagesListPage.js';
+import { PageViewPage } from './pages/PageViewPage.js';
+import { PageEditPage } from './pages/PageEditPage.js';
 import { render } from './utils/dom.js';
 import { ThemeManager } from './core/ThemeManager.js';
 import { Router } from './core/Router.js';
@@ -66,6 +70,17 @@ async function init() {
         const uid = idx >= 0 ? new URLSearchParams(hash.slice(idx)).get('uid') : null;
         return ProfilePage(uid, themeManager);
     });
+    router.register('/pages', () => PagesListPage());
+    router.register('/page/view', () => {
+        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        return PageViewPage(params.get('slug'));
+    });
+    router.register('/page/edit', () => {
+        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        return PageEditPage(params.get('slug'));
+    });
+    router.register('/page/create', () => PageEditPage(null));
+    router.register('/admin', () => AdminPage());
 
     // Ждём восстановления сессии Firebase перед первым переходом
     router.beforeEach(async () => {

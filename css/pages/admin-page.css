@@ -1,0 +1,223 @@
+/* ========================================
+   Панель управления (админка)
+   ======================================== */
+
+.admin-page {
+    min-height: calc(100vh - var(--header-height));
+    padding: calc(var(--header-height) + var(--space-2xl)) var(--space-lg) var(--space-2xl);
+}
+
+.admin-page__container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.admin-page__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-xl);
+}
+
+.admin-page__error {
+    min-height: calc(100vh - var(--header-height));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    color: var(--color-text-secondary);
+    text-align: center;
+    padding: var(--space-2xl);
+}
+
+.admin-page__error h2 {
+    font-size: 1.5rem;
+    color: var(--color-accent);
+}
+
+/* --- Секции --- */
+
+.admin-section {
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.admin-section__title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-xs);
+}
+
+.admin-section__desc {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-lg);
+}
+
+/* --- Управление тегами --- */
+
+.admin-tags {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.admin-tags__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.admin-tags__item {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.admin-tags__remove-btn {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-tags__remove-btn:hover {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.admin-tags__form {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.admin-tags__input {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    outline: none;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.admin-tags__input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.admin-tags__add-btn {
+    padding: var(--space-sm) var(--space-lg);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.admin-tags__add-btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+/* --- Дерево страниц в админке --- */
+
+.admin-pages__create-btn {
+    display: inline-block;
+    padding: var(--space-sm) var(--space-xl);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.admin-pages__create-btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.admin-tree {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.admin-tree .admin-tree {
+    margin-left: var(--space-lg);
+    margin-top: var(--space-xs);
+    border-left: 1px solid var(--color-border);
+    padding-left: var(--space-md);
+}
+
+.admin-tree__item {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-tree__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.admin-tree__link {
+    flex: 1;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    transition: background-color 0.2s;
+}
+
+.admin-tree__link:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+.admin-tree__actions {
+    display: flex;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+}
+
+.admin-tree__edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.admin-tree__edit:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
