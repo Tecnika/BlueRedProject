@@ -140,27 +140,3 @@
     border: 1px solid var(--color-border);
 }
 
-/* ========================================
-   Ссылка на панель управления (мастер)
-   ======================================== */
-
-.faction-admin-link {
-    max-width: 800px;
-    margin: var(--space-2xl) auto 0;
-    padding: var(--space-lg);
-    text-align: center;
-}
-
-.faction-admin-link a {
-    display: inline-block;
-    padding: var(--space-sm) var(--space-xl);
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-.faction-admin-link a:hover {
-    background-color: var(--color-primary-dark);
-}

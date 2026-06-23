@@ -60,13 +60,7 @@ export async function FactionPage() {
             const allUsers = await getCollection('users');
             const grouped = groupByFaction(allUsers);
             renderAdminView(section, grouped, currentUser.uid);
-            // Ссылка на панель управления (теги, страницы)
-            section.appendChild(createElement('div', {
-                className: 'faction-admin-link',
-                children: [
-                    createElement('a', { attributes: { href: '#/admin' }, text: 'Панель управления →' })
-                ]
-            }));
+
         } else {
             // Обычный игрок — только свою фракцию
             const members = await getCollection('users', [
