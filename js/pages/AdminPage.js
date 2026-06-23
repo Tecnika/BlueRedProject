@@ -9,7 +9,7 @@ import { render, createElement } from '../utils/dom.js';
  * Секции: каталог тегов, дерево страниц.
  */
 export function AdminPage() {
-    const user = store.getState().user;
+    const user = store.get('user');
     if (!user || user.role !== 'master') {
         render('#app', [createElement('div', {
             className: 'admin-page__error',
