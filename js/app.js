@@ -1,3 +1,15 @@
+/**
+ * app.js — точка входа в приложение BlueRed.
+ *
+ * Последовательность инициализации:
+ *   1. Создаём ThemeManager и восстанавливаем тему
+ *   2. Инициализируем Firebase (конфиг из data/firebase.json)
+ *   3. Загружаем навигацию из data/navigation.json
+ *   4. Собираем шапку, подвал, контентную область
+ *   5. Регистрируем маршруты в Router
+ *   6. Подписываемся на onAuthChange — обновляем store и тему
+ */
+
 import { Header } from './components/Header.js';
 import { Footer } from './components/Footer.js';
 import { HomePage } from './pages/HomePage.js';
@@ -18,10 +30,13 @@ let footerEl = null;
 async function init() {
     const app = document.getElementById('app');
 
+    // Восстанавливаем сохранённую тему или ставим 'purple'
     themeManager.init();
 
+    // Инициализируем Firebase (конфиг из data/firebase.json)
     await initFirebase();
 
+    // Загружаем пункты меню из JSON
     let navItems = [];
     try {
         const response = await fetch('data/navigation.json');
@@ -30,6 +45,7 @@ async function init() {
         console.warn('Не удалось загрузить навигацию:', error);
     }
 
+    // Собираем базовую структуру (шапка + контент + подвал)
     headerEl = Header(navItems, themeManager);
     footerEl = Footer();
 
@@ -38,6 +54,7 @@ async function init() {
 
     render(app, [headerEl, contentRoot, footerEl]);
 
+    // Регистрируем маршруты
     const router = new Router(contentRoot);
     router.register('/', () => HomePage());
     router.register('/login', () => AuthPage());
@@ -50,11 +67,14 @@ async function init() {
     });
     router.start();
 
+    // Слушаем изменения статуса авторизации
     onAuthChange(async (firebaseUser) => {
         if (firebaseUser) {
+            // Загружаем профиль из Firestore и пишем в store
             const profile = await getUserProfile(firebaseUser.uid);
             if (profile) {
                 store.set('user', { uid: firebaseUser.uid, ...profile });
+                // Тема автоматически подстраивается под фракцию
                 themeManager.setThemeByFaction(profile.faction);
             }
         } else {
@@ -65,4 +85,5 @@ async function init() {
     });
 }
 
+// Стартуем после загрузки DOM
 document.addEventListener('DOMContentLoaded', init);

@@ -1,8 +1,20 @@
+/**
+ * FactionPage — страница фракции.
+ *
+ * Для обычного игрока: показывает список участников своей фракции.
+ *   — Сортировка: сначала игрок выше, затем по роли (мастер -> игротех -> игрок).
+ *
+ * Для мастера (role === 'master'): показывает ВСЕХ игроков, сгруппированных по фракциям.
+ *   — Группы: Фиолетовые, Синие, Красные, Не распределены.
+ *   — Внутри групп — сортировка по алфавиту.
+ */
+
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getCollection } from '../firebase/dbService.js';
 
+/** Порядок отображения групп (для админа) */
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 
 const FACTION_LABELS = {
@@ -32,6 +44,7 @@ export async function FactionPage() {
 
     const isAdmin = currentUser.role === 'master';
 
+    // Если нет фракции — показываем ошибку (админу можно)
     if (!isAdmin && !currentUser.faction) {
         section.appendChild(createElement('p', {
             className: 'faction-page__error',
@@ -42,10 +55,12 @@ export async function FactionPage() {
 
     try {
         if (isAdmin) {
+            // Мастер видит всех игроков, сгруппированных по фракциям
             const allUsers = await getCollection('users');
             const grouped = groupByFaction(allUsers);
             renderAdminView(section, grouped, currentUser.uid);
         } else {
+            // Обычный игрок — только свою фракцию
             const members = await getCollection('users', [
                 { field: 'faction', op: '==', value: currentUser.faction }
             ]);
@@ -61,6 +76,11 @@ export async function FactionPage() {
     return section;
 }
 
+/**
+ * Группирует пользователей по фракциям.
+ * @param {Object[]} users
+ * @returns {Object} { factionKey: [user, ...] }
+ */
 function groupByFaction(users) {
     const groups = {};
 
@@ -73,6 +93,7 @@ function groupByFaction(users) {
         groups[key].push(user);
     }
 
+    // Сортировка по алфавиту внутри каждой группы
     for (const faction of FACTION_ORDER) {
         groups[faction].sort((a, b) => {
             const nameA = (a.username || '').toLowerCase();
@@ -84,6 +105,7 @@ function groupByFaction(users) {
     return groups;
 }
 
+/** Рендерит представление для мастера: все фракции -> группы */
 function renderAdminView(section, grouped, currentUid) {
     const header = createElement('div', { className: 'faction-page__header' });
     header.appendChild(createElement('h1', {
@@ -120,6 +142,7 @@ function renderAdminView(section, grouped, currentUid) {
     }
 }
 
+/** Рендерит представление для обычного игрока: одна фракция */
 function renderFactionView(section, members, currentUser) {
     const factionLabel = FACTION_LABELS[currentUser.faction] || currentUser.faction;
 
@@ -148,6 +171,11 @@ function renderFactionView(section, members, currentUser) {
     section.appendChild(list);
 }
 
+/**
+ * Сортировка участников:
+ *   - Сначала текущий игрок
+ *   - Затем по роли: master -> igrotech -> player -> остальные
+ */
 function sortMembers(members, currentUid) {
     members.sort((a, b) => {
         if (a.id === currentUid) return -1;
@@ -160,6 +188,7 @@ function sortMembers(members, currentUid) {
     });
 }
 
+/** Создаёт карточку игрока (ссылка на профиль) */
 function createMemberCard(member, currentUid) {
     const isCurrent = member.id === currentUid;
     const card = createElement('a', {
@@ -194,6 +223,7 @@ function createMemberCard(member, currentUid) {
         }));
     }
 
+    // Показываем до 3 тегов доступа, остальные — свёрнуты
     if (member.accessTags && member.accessTags.length) {
         const tagList = createElement('div', { className: 'faction-card__tags' });
         const tagsToShow = member.accessTags.slice(0, 3);

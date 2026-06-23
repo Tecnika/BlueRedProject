@@ -1,3 +1,11 @@
+/**
+ * dbService — обёртка над Firestore для базовых CRUD-операций.
+ *
+ * Позволяет работать с любой коллекцией без импорта Firebase SDK
+ * в каждом компоненте. Для специфических запросов (например, заметки
+ * с составным ключом) используйте специализированные сервисы.
+ */
+
 import {
     collection,
     doc,
@@ -16,12 +24,17 @@ function getDb() {
     return getFirebase().db;
 }
 
+/** Получить один документ по id */
 export async function getDocument(collectionName, docId) {
     const docRef = doc(getDb(), collectionName, docId);
     const snapshot = await getDoc(docRef);
     return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
 }
 
+/**
+ * Получить все документы коллекции (с опциональной фильтрацией).
+ * @param {Object[]} conditions — [{ field, op, value }]
+ */
 export async function getCollection(collectionName, conditions = []) {
     let q = collection(getDb(), collectionName);
 
@@ -37,15 +50,18 @@ export async function getCollection(collectionName, conditions = []) {
     return result;
 }
 
+/** Добавить документ в коллекцию (авто-id) */
 export async function addDocument(collectionName, data) {
     const docRef = await addDoc(collection(getDb(), collectionName), data);
     return docRef.id;
 }
 
+/** Обновить документ по id */
 export async function updateDocument(collectionName, docId, data) {
     await updateDoc(doc(getDb(), collectionName, docId), data);
 }
 
+/** Удалить документ по id */
 export async function deleteDocument(collectionName, docId) {
     await deleteDoc(doc(getDb(), collectionName, docId));
 }

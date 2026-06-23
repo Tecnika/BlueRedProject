@@ -1,14 +1,18 @@
+/* ========================================
+   Шапка сайта (фиксированная, поверх контента)
+   ======================================== */
+
 .header {
-    position: fixed;
+    position: fixed;                   /* Прилипает к верхнему краю */
     top: 0;
     left: 0;
     right: 0;
     height: var(--header-height);
     background-color: var(--color-white);
     border-bottom: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-accent);
+    border-top: 3px solid var(--color-accent); /* Цветная полоса сверху */
     z-index: 100;
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-sm);      /* Доп. свечение в cosmic.css */
 }
 
 .header__container {
@@ -21,6 +25,7 @@
     justify-content: space-between;
 }
 
+/* Логотип — цветной, жирный, без выделения */
 .header__logo {
     font-size: 1.5rem;
     font-weight: 700;
@@ -33,11 +38,14 @@
     color: var(--color-primary-dark);
 }
 
+/* Правая группа: навигация + блок авторизации */
 .header__right {
     display: flex;
     align-items: center;
     gap: var(--space-md);
 }
+
+/* --- Блок пользователя --- */
 
 .header__user {
     display: flex;
@@ -45,6 +53,7 @@
     gap: var(--space-sm);
 }
 
+/* Имя пользователя — ссылка на профиль */
 .header__user-link {
     font-size: 0.85rem;
     font-weight: 600;
@@ -61,6 +70,7 @@
     color: var(--color-white);
 }
 
+/* Кнопки "Войти" и "Выйти" */
 .header__user-login,
 .header__user-logout {
     font-size: 0.85rem;

@@ -1,6 +1,19 @@
+/**
+ * ThemeManager — управление цветовой темой сайта.
+ *
+ * Тема привязана к фракции пользователя:
+ *   - 'red'    -> data-theme="red"    (красный)
+ *   - 'blue'   -> data-theme="blue"   (синий)
+ *   - 'purple' -> data-theme="purple" (фиолетовый)
+ *   - null/нет -> data-theme="gray"   (серый)
+ *
+ * Ручное переключение не предусмотрено — тема следует за фракцией.
+ */
+
 const STORAGE_KEY = 'bluered-theme';
 const THEMES = ['purple', 'blue', 'red', 'gray'];
 
+/** Маппинг: название фракции -> ключ темы */
 const FACTION_THEME_MAP = {
     red: 'red',
     blue: 'blue',
@@ -12,6 +25,7 @@ export class ThemeManager {
         this.currentTheme = 'purple';
     }
 
+    /** Восстанавливает сохранённую тему из localStorage (если есть) */
     init() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved && THEMES.includes(saved)) {
@@ -21,6 +35,10 @@ export class ThemeManager {
         }
     }
 
+    /**
+     * Устанавливает тему: data-theme на <html>, localStorage, событие.
+     * @fires themechange — CustomEvent с { theme }
+     */
     setTheme(theme) {
         if (!THEMES.includes(theme)) return;
 
@@ -33,6 +51,7 @@ export class ThemeManager {
         );
     }
 
+    /** Устанавливает тему по фракции (вызывается при логине/смене фракции) */
     setThemeByFaction(faction) {
         const theme = FACTION_THEME_MAP[faction] || 'gray';
         this.setTheme(theme);
@@ -46,6 +65,7 @@ export class ThemeManager {
         return [...THEMES];
     }
 
+    /** Переключает на следующую тему по циклу */
     nextTheme() {
         const index = THEMES.indexOf(this.currentTheme);
         const next = (index + 1) % THEMES.length;

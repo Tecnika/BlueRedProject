@@ -1,15 +1,30 @@
+/**
+ * ProfilePage — страница профиля игрока.
+ *
+ * Уровни доступа:
+ *   - Владелец профиля: видит всё, может редактировать "О себе"
+ *   - Мастер (role === 'master'): видит теги, управляет фракцией/тегами/мировоззрением
+ *   - Своя фракция: видит профиль + может писать заметки
+ *   - Остальные: видят только базовую информацию
+ *
+ * URL: #/profile?uid=xxx — профиль конкретного игрока
+ *      #/profile          — свой профиль
+ */
+
 import { createElement } from '../utils/dom.js';
 import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
 import { getNote, saveNote } from '../firebase/notesService.js';
 
+/** Человеческие названия фракций */
 const FACTION_LABELS = {
     red: 'Красные',
     blue: 'Синие',
     purple: 'Фиолетовые'
 };
 
+/** Человеческие названия ролей */
 const ROLE_LABELS = {
     master: 'Мастер',
     igrotech: 'Игротех',
@@ -47,16 +62,20 @@ export async function ProfilePage(targetUid, themeManager) {
 
         const container = createElement('div', { className: 'profile-page__container' });
 
+        // Карточка профиля (видна всем)
         container.appendChild(createProfileCard(profile, isOwner, isAdmin));
 
+        // Владелец может редактировать "О себе"
         if (isOwner) {
             container.appendChild(createEditSection(profile));
         }
 
+        // Мастер видит панель управления игроком
         if (isAdmin) {
             container.appendChild(createAdminSection(profile, uid, themeManager));
         }
 
+        // Заметки видны софракционцам и мастеру
         if (!isOwner && (sameFaction || isAdmin)) {
             container.appendChild(await createNotesSection(currentUser.uid, uid));
         }
@@ -72,6 +91,7 @@ export async function ProfilePage(targetUid, themeManager) {
     return section;
 }
 
+/** Собирает карточку с аватаром, именем, ролью, фракцией, тегами */
 function createProfileCard(profile, isOwner, isAdmin) {
     const card = createElement('div', { className: 'profile-card' });
 
@@ -109,10 +129,12 @@ function createProfileCard(profile, isOwner, isAdmin) {
 
     info.appendChild(createFieldRow('Мировоззрение', profile.worldview || '—'));
 
+    // Теги доступа видны владельцу и мастеру
     if ((isOwner || isAdmin) && profile.accessTags && profile.accessTags.length) {
         info.appendChild(createTagRow('Теги доступа', profile.accessTags));
     }
 
+    // Скрытые теги видны только владельцу и мастеру
     if ((isOwner || isAdmin) && profile.hiddenTags && profile.hiddenTags.length) {
         info.appendChild(createTagRow('Скрытые теги', profile.hiddenTags));
     }
@@ -125,6 +147,7 @@ function createProfileCard(profile, isOwner, isAdmin) {
     return card;
 }
 
+/** Строка "метка: значение" */
 function createFieldRow(label, value) {
     const row = createElement('div', { className: 'profile-card__field' });
     const labelEl = createElement('span', { className: 'profile-card__field-label', text: label });
@@ -134,6 +157,7 @@ function createFieldRow(label, value) {
     return row;
 }
 
+/** Строка с тегами */
 function createTagRow(label, tags) {
     const row = createElement('div', { className: 'profile-card__field' });
     const labelEl = createElement('span', { className: 'profile-card__field-label', text: label });
@@ -146,6 +170,7 @@ function createTagRow(label, tags) {
     return row;
 }
 
+/** Секция редактирования профиля (для владельца) */
 function createEditSection(profile) {
     const section = createElement('div', { className: 'profile-edit' });
     const title = createElement('h3', { className: 'profile-edit__title', text: 'Редактировать профиль' });
@@ -198,6 +223,7 @@ function createEditSection(profile) {
     return section;
 }
 
+/** Поле редактирования (input или textarea) */
 function createEditField(type, id, label, value) {
     const group = createElement('div', { className: 'profile-edit__field' });
     const labelEl = createElement('label', {
@@ -225,6 +251,7 @@ function createEditField(type, id, label, value) {
     return group;
 }
 
+/** Админ-панель: фракция, мировоззрение, теги (только для master) */
 function createAdminSection(profile, targetUid, themeManager) {
     const section = createElement('div', { className: 'profile-edit' });
     const title = createElement('h3', {
@@ -278,6 +305,7 @@ function createAdminSection(profile, targetUid, themeManager) {
 
             await updateUserProfile(targetUid, data);
 
+            // Если админ редактирует сам себя — обновляем store и тему
             const currentUser = store.get('user');
             if (currentUser && targetUid === currentUser.uid) {
                 store.set('user', { ...currentUser, ...data });
@@ -303,6 +331,7 @@ function createAdminSection(profile, targetUid, themeManager) {
     return section;
 }
 
+/** Выпадающий список для админ-панели */
 function createAdminSelect(id, label, value, options) {
     const group = createElement('div', { className: 'profile-edit__field' });
     const labelEl = createElement('label', {
@@ -324,6 +353,7 @@ function createAdminSelect(id, label, value, options) {
     return group;
 }
 
+/** Текстовое поле для админ-панели */
 function createAdminInput(id, label, value) {
     const group = createElement('div', { className: 'profile-edit__field' });
     const labelEl = createElement('label', {
@@ -340,6 +370,7 @@ function createAdminInput(id, label, value) {
     return group;
 }
 
+/** Секция заметок об игроке (для софракционцев и мастера) */
 async function createNotesSection(authorId, targetId) {
     const section = createElement('div', { className: 'profile-notes' });
 
@@ -348,6 +379,7 @@ async function createNotesSection(authorId, targetId) {
         text: 'Заметки об игроке'
     });
 
+    // Загружаем существующую заметку, если есть
     const existing = await getNote(authorId, targetId);
 
     const textarea = createElement('textarea', {

@@ -1,3 +1,10 @@
+/**
+ * HomePage — главная страница.
+ *
+ * Содержит hero-блок с приветствием и сетку карточек-возможностей.
+ * Не требует авторизации.
+ */
+
 import { createElement } from '../utils/dom.js';
 
 export function HomePage() {
@@ -12,6 +19,7 @@ export function HomePage() {
     return main;
 }
 
+/** Герой-секция с заголовком и подзаголовком */
 function createHero() {
     const section = createElement('section', { className: 'hero' });
 
@@ -31,6 +39,7 @@ function createHero() {
     return section;
 }
 
+/** Сетка карточек с описанием возможностей */
 function createFeatures() {
     const section = createElement('section', { className: 'features' });
 
@@ -57,6 +66,7 @@ function createFeatures() {
     return section;
 }
 
+/** Одна карточка-возможность */
 function createFeatureCard(title, text) {
     const card = createElement('article', { className: 'feature-card' });
 

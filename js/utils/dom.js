@@ -1,3 +1,24 @@
+/**
+ * DOM-утилиты: создание элементов, рендеринг, очистка.
+ *
+ * Весь проект использует createElement() вместо innerHTML,
+ * чтобы избежать XSS и сохранить ссылки на узлы.
+ */
+
+/**
+ * Создаёт DOM-элемент с опциями:
+ * @param {string} tag — имя тега
+ * @param {Object} options
+ * @param {string} [options.className]
+ * @param {string} [options.id]
+ * @param {string} [options.text] — textContent
+ * @param {string} [options.html] — innerHTML (осторожно, XSS)
+ * @param {Object} [options.attributes] — { key: value }
+ * @param {Node[]} [options.children] — массив дочерних узлов
+ * @param {Object} [options.events] — { eventName: handler }
+ * @param {Object} [options.dataset] — { key: value } для data-*
+ * @returns {HTMLElement}
+ */
 export function createElement(tag, options = {}) {
     const element = document.createElement(tag);
 
@@ -46,6 +67,10 @@ export function createElement(tag, options = {}) {
     return element;
 }
 
+/**
+ * Рендерит узел (или массив узлов) в контейнер.
+ * Предварительно очищает контейнер.
+ */
 export function render(container, content) {
     container.innerHTML = '';
 
@@ -64,6 +89,9 @@ export function render(container, content) {
     }
 }
 
+/**
+ * Очищает контейнер, удаляя всех потомков.
+ */
 export function clearContainer(container) {
     while (container.firstChild) {
         container.removeChild(container.firstChild);

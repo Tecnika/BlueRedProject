@@ -1,3 +1,10 @@
+/**
+ * Header — шапка сайта.
+ *
+ * Содержит: логотип, навигацию, блок авторизации (username/logout или "Войти").
+ * При смене пользователя через store автоматически обновляет блок auth.
+ */
+
 import { createElement } from '../utils/dom.js';
 import { Navigation } from './Navigation.js';
 import { store } from '../core/Store.js';
@@ -24,6 +31,7 @@ export function Header(navItems, themeManager) {
     container.appendChild(rightGroup);
     header.appendChild(container);
 
+    // Авто-обновление блока авторизации при смене пользователя
     store.subscribe('user', () => {
         const oldBlock = rightGroup.querySelector('[data-auth]');
         if (oldBlock) {
@@ -34,6 +42,7 @@ export function Header(navItems, themeManager) {
     return header;
 }
 
+/** Создаёт блок "имя + выход" или "войти" в зависимости от store */
 function createAuthBlock() {
     const user = store.get('user');
 

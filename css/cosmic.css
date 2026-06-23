@@ -1,18 +1,23 @@
-/* Туманность (фоновая подсветка) */
+/* ========================================
+   BlueRed — Космическая тема
+   Туманность, звёздное поле, свечения
+   ======================================== */
+
+/* --- Туманность: три цветовых пятна по краям экрана --- */
 body::before {
     content: '';
-    position: fixed;
+    position: fixed;                    /* Фиксировано на весь экран */
     inset: 0;
     background:
         radial-gradient(ellipse at 15% 50%, var(--color-primary-light) 0%, transparent 55%),
         radial-gradient(ellipse at 85% 30%, var(--color-primary-light) 0%, transparent 50%),
         radial-gradient(ellipse at 50% 85%, var(--color-primary-light) 0%, transparent 45%);
-    pointer-events: none;
+    pointer-events: none;               /* Не мешает кликам */
     z-index: 0;
-    opacity: 0.6;
+    opacity: 0.6;                       /* Полупрозрачность */
 }
 
-/* Звёзды */
+/* --- Звёзды: 20 точек разного размера, разбросанных по экрану --- */
 body::after {
     content: '';
     position: fixed;
@@ -42,18 +47,18 @@ body::after {
     z-index: 0;
 }
 
-/* Контент поверх звёзд */
+/* --- Контент размещаем поверх туманности и звёзд --- */
 #app {
     position: relative;
     z-index: 1;
 }
 
-/* Свечение шапки */
+/* --- Свечение верхней границы шапки (акцентный цвет) --- */
 .header {
     box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 24px var(--color-accent-glow);
 }
 
-/* Свечение героя */
+/* --- Герой с радиальными бликами от primary --- */
 .hero {
     background:
         radial-gradient(ellipse at 25% 50%, var(--color-primary-glow) 0%, transparent 50%),
@@ -61,23 +66,23 @@ body::after {
         linear-gradient(140deg, var(--color-primary-light) 0%, var(--color-bg) 40%, var(--color-white) 100%);
 }
 
-/* Свечение карточек на главной */
+/* --- Карточки на главной подсвечиваются при наведении --- */
 .feature-card:hover {
     box-shadow: 0 4px 24px var(--color-primary-glow), var(--shadow-md);
     border-color: var(--color-primary-light);
 }
 
-/* Свечение карточек фракции */
+/* --- Карточки фракции подсвечиваются при наведении --- */
 .faction-card:hover {
     box-shadow: 0 4px 20px var(--color-primary-glow), var(--shadow-md);
 }
 
-/* Свечение карточки профиля */
+/* --- Карточка профиля всегда с мягким свечением --- */
 .profile-card {
     box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
 }
 
-/* Свечение полей ввода */
+/* --- Поля ввода подсвечиваются primary при фокусе --- */
 input:focus,
 textarea:focus,
 select:focus {

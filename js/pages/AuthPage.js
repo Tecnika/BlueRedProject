@@ -1,3 +1,13 @@
+/**
+ * AuthPage — страница входа и регистрации.
+ *
+ * Одна форма переключается между режимами "login" и "register".
+ * Валидация: поля не пустые, пароли совпадают (при регистрации).
+ * После успеха — редирект на главную (#/).
+ *
+ * buildForm экспортируется для возможного переиспользования.
+ */
+
 import { createElement } from '../utils/dom.js';
 import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js';
 
@@ -12,6 +22,11 @@ export function AuthPage() {
     return section;
 }
 
+/**
+ * Строит форму авторизации.
+ * @param {'login'|'register'} mode
+ * @returns {HTMLFormElement}
+ */
 function buildForm(mode) {
     const isLogin = mode === 'login';
 
@@ -32,6 +47,7 @@ function buildForm(mode) {
 
     const groups = [usernameGroup, passwordGroup];
 
+    // При регистрации добавляем поле подтверждения пароля
     if (!isLogin) {
         const confirmGroup = createField('password', 'confirm', 'Повторите пароль');
         groups.push(confirmGroup);
@@ -43,6 +59,7 @@ function buildForm(mode) {
         attributes: { type: 'submit' }
     });
 
+    // Переключатель между входом и регистрацией
     const toggle = createElement('p', { className: 'auth-form__toggle' });
     const toggleLink = createElement('a', {
         className: 'auth-form__toggle-link',
@@ -65,6 +82,7 @@ function buildForm(mode) {
     form.appendChild(submitBtn);
     form.appendChild(toggle);
 
+    // Обработка отправки формы
     form.addEventListener('submit', async () => {
         errorEl.style.display = 'none';
         submitBtn.disabled = true;
@@ -103,6 +121,7 @@ function buildForm(mode) {
     return form;
 }
 
+/** Создаёт группу "лейбл + поле ввода" */
 function createField(type, id, label) {
     const group = createElement('div', { className: 'auth-form__field' });
 

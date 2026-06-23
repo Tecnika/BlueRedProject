@@ -1,3 +1,7 @@
+/* ========================================
+   Страница авторизации (вход / регистрация)
+   ======================================== */
+
 .auth-page {
     min-height: calc(100vh - var(--header-height));
     display: flex;
@@ -12,6 +16,7 @@
     max-width: 420px;
 }
 
+/* Форма — карточка с тенью */
 .auth-form {
     background-color: var(--color-white);
     border: 1px solid var(--color-border);
@@ -37,6 +42,7 @@
     gap: var(--space-xs);
 }
 
+/* Поле ввода */
 .auth-form__input {
     width: 100%;
     padding: var(--space-sm) var(--space-md);
@@ -54,6 +60,7 @@
     box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
+/* Сообщение об ошибке */
 .auth-form__error {
     display: none;
     color: var(--color-accent);
@@ -64,6 +71,7 @@
     border-radius: var(--radius-sm);
 }
 
+/* Кнопка отправки */
 .auth-form__button {
     width: 100%;
     padding: var(--space-sm) var(--space-md);
@@ -86,6 +94,7 @@
     cursor: not-allowed;
 }
 
+/* Переключатель между входом и регистрацией */
 .auth-form__toggle {
     text-align: center;
     font-size: 0.9rem;

@@ -1,3 +1,7 @@
+/**
+ * Footer — подвал сайта с копирайтом и текущим годом.
+ */
+
 import { createElement } from '../utils/dom.js';
 
 export function Footer() {

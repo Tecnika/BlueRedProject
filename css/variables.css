@@ -1,20 +1,27 @@
-:root {
-    --color-primary: #7c3aed;
-    --color-primary-dark: #4c1d95;
-    --color-primary-light: #ede9fe;
-    --color-primary-glow: rgba(124, 58, 237, 0.15);
-    --color-accent: #f59e0b;
-    --color-accent-dark: #d97706;
-    --color-accent-glow: rgba(245, 158, 11, 0.2);
-    --color-bg: #ffffff;
-    --color-bg-secondary: #f8f9fa;
-    --color-text: #1a1a2e;
-    --color-text-secondary: #5f6368;
-    --color-border: #dadce0;
-    --color-white: #ffffff;
+/* ========================================
+   Глобальные CSS-переменные (фиолетовая тема по умолчанию)
+   ======================================== */
 
+:root {
+    /* --- Цвета (переопределяются в themes.css через data-theme) --- */
+    --color-primary: #7c3aed;          /* Основной цвет темы (фиолетовый) */
+    --color-primary-dark: #4c1d95;     /* Затемнённый primary для hover */
+    --color-primary-light: #ede9fe;    /* Светлый primary для фонов */
+    --color-primary-glow: rgba(124, 58, 237, 0.15); /* Свечение primary (космос) */
+    --color-accent: #f59e0b;           /* Акцентный цвет (янтарный) */
+    --color-accent-dark: #d97706;      /* Затемнённый accent */
+    --color-accent-glow: rgba(245, 158, 11, 0.2);  /* Свечение accent */
+    --color-bg: #ffffff;               /* Основной фон */
+    --color-bg-secondary: #f8f9fa;     /* Вторичный фон (например, футер) */
+    --color-text: #1a1a2e;             /* Основной текст (космический оттенок) */
+    --color-text-secondary: #5f6368;   /* Второстепенный текст */
+    --color-border: #dadce0;           /* Цвет рамок */
+    --color-white: #ffffff;            /* Белый (для карточек) */
+
+    /* --- Типографика --- */
     --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
+    /* --- Отступы (4-ступенчатая шкала) --- */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 16px;
@@ -23,17 +30,24 @@
     --space-2xl: 48px;
     --space-3xl: 64px;
 
+    /* --- Скругления --- */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
 
+    /* --- Тени --- */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
     --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.12);
     --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
 
-    --max-width: 1200px;
-    --header-height: 64px;
+    /* --- Макет --- */
+    --max-width: 1200px;               /* Максимальная ширина контента */
+    --header-height: 64px;             /* Высота фиксированной шапки */
 }
+
+/* ========================================
+   Глобальные стили body
+   ======================================== */
 
 body {
     font-family: var(--font-primary);
@@ -43,18 +57,21 @@ body {
     flex-direction: column;
 }
 
+/* Корневой контейнер приложения — растягивается на всю высоту */
 #app {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
+/* Область контента между шапкой и подвалом */
 .content {
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
+/* Плавный переход цветов при смене темы (фракции) */
 body, .header, .footer, .hero, .feature-card {
     transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }

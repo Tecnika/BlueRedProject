@@ -1,3 +1,8 @@
+/* ========================================
+   Главная страница — Hero и карточки
+   ======================================== */
+
+/* Блок-приветствие (фон переопределён в cosmic.css) */
 .hero {
     padding: calc(var(--header-height) + var(--space-3xl)) var(--space-lg) var(--space-3xl);
     text-align: center;
@@ -19,6 +24,8 @@
     margin: 0 auto;
 }
 
+/* --- Сетка возможностей --- */
+
 .features {
     max-width: var(--max-width);
     margin: 0 auto;
@@ -39,6 +46,7 @@
     gap: var(--space-lg);
 }
 
+/* Карточка-возможность */
 .feature-card {
     background-color: var(--color-white);
     border: 1px solid var(--color-border);
