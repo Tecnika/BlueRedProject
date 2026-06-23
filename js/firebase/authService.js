@@ -66,7 +66,7 @@ export async function signUpWithUsername(username, password) {
 export async function getUserProfile(uid) {
     const { db } = getFirebase();
     const snapshot = await getDoc(doc(db, 'users', uid));
-    return snapshot.exists() ? snapshot.data() : null;
+    return snapshot.exists() ? { uid, ...snapshot.data() } : null;
 }
 
 export async function updateUserProfile(uid, data) {

@@ -17,50 +17,58 @@ const ROLE_LABELS = {
 };
 
 export async function ProfilePage(targetUid) {
-    const currentUser = store.get('user');
     const section = createElement('section', { className: 'profile-page' });
 
-    if (!currentUser) {
+    try {
+        const currentUser = store.get('user');
+
+        if (!currentUser) {
+            section.appendChild(createElement('p', {
+                className: 'profile-page__error',
+                text: 'Необходимо авторизоваться'
+            }));
+            return section;
+        }
+
+        const uid = targetUid || currentUser.uid;
+        const profile = await getUserProfile(uid);
+
+        if (!profile) {
+            section.appendChild(createElement('p', {
+                className: 'profile-page__error',
+                text: 'Пользователь не найден'
+            }));
+            return section;
+        }
+
+        const isOwner = uid === currentUser.uid;
+        const isAdmin = currentUser.role === 'master';
+        const sameFaction = currentUser.faction && profile.faction && currentUser.faction === profile.faction;
+
+        const container = createElement('div', { className: 'profile-page__container' });
+
+        container.appendChild(createProfileCard(profile, isOwner, isAdmin));
+
+        if (isOwner) {
+            container.appendChild(createEditSection(profile));
+        }
+
+        if (isAdmin) {
+            container.appendChild(createAdminSection(profile, uid));
+        }
+
+        if (!isOwner && (sameFaction || isAdmin)) {
+            container.appendChild(await createNotesSection(currentUser.uid, uid));
+        }
+
+        section.appendChild(container);
+    } catch (err) {
         section.appendChild(createElement('p', {
             className: 'profile-page__error',
-            text: 'Необходимо авторизоваться'
+            text: 'Ошибка: ' + err.message
         }));
-        return section;
     }
 
-    const uid = targetUid || currentUser.uid;
-    const profile = await getUserProfile(uid);
-
-    if (!profile) {
-        section.appendChild(createElement('p', {
-            className: 'profile-page__error',
-            text: 'Пользователь не найден'
-        }));
-        return section;
-    }
-
-    const isOwner = uid === currentUser.uid;
-    const isAdmin = currentUser.role === 'master';
-    const sameFaction = currentUser.faction && profile.faction && currentUser.faction === profile.faction;
-
-    const container = createElement('div', { className: 'profile-page__container' });
-
-    const card = createProfileCard(profile, isOwner, isAdmin);
-    container.appendChild(card);
-
-    if (isOwner) {
-        container.appendChild(createEditSection(profile));
-    }
-
-    if (isAdmin) {
-        container.appendChild(createAdminSection(profile));
-    }
-
-    if (!isOwner && (sameFaction || isAdmin)) {
-        container.appendChild(await createNotesSection(currentUser.uid, uid));
-    }
-
-    section.appendChild(container);
     return section;
 }
 
@@ -217,7 +225,7 @@ function createEditField(type, id, label, value) {
     return group;
 }
 
-function createAdminSection(profile) {
+function createAdminSection(profile, targetUid) {
     const section = createElement('div', { className: 'profile-edit' });
     const title = createElement('h3', {
         className: 'profile-edit__title',
@@ -268,11 +276,10 @@ function createAdminSection(profile) {
                 hiddenTags: rawHidden ? rawHidden.split(',').map(t => t.trim()).filter(Boolean) : []
             };
 
-            const targetId = profile.id || profile.uid;
-            await updateUserProfile(targetId, data);
+            await updateUserProfile(targetUid, data);
 
             const currentUser = store.get('user');
-            if (currentUser && targetId === currentUser.uid) {
+            if (currentUser && targetUid === currentUser.uid) {
                 store.set('user', { ...currentUser, ...data });
             }
 
