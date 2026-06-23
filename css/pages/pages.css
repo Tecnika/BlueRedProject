@@ -548,74 +548,56 @@
     background-color: var(--color-primary-light);
 }
 
-/* --- Редактор фракционной страницы — таблица 3×3 --- */
+/* --- Редактор фракционной страницы — секции × колонки --- */
 
-.page-edit__faction-grid {
-    display: flex;
-    flex-direction: column;
+.page-edit__faction-section {
+    margin-top: var(--space-lg);
+    padding: var(--space-lg);
+    background-color: var(--color-bg-secondary);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-top: var(--space-md);
 }
 
-.page-edit__fg-row {
+.page-edit__faction-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: var(--space-md);
+}
+
+.page-edit__faction-cols {
     display: flex;
+    gap: var(--space-md);
 }
 
-.page-edit__fg-row + .page-edit__fg-row {
-    border-top: 1px solid var(--color-border);
-}
-
-.page-edit__fg-header {
-    background-color: var(--color-bg-secondary);
-    font-weight: 700;
-}
-
-.page-edit__fg-cell {
+.page-edit__faction-col {
     flex: 1;
     min-width: 0;
-    padding: var(--space-sm);
-}
-
-.page-edit__fg-cell + .page-edit__fg-cell {
-    border-left: 1px solid var(--color-border);
-}
-
-.page-edit__fg-label {
-    flex: 0 0 100px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--color-text-secondary);
     display: flex;
-    align-items: center;
-    padding: var(--space-sm) var(--space-md);
-}
-
-.page-edit__fg-col {
-    text-align: center;
-    font-size: 0.85rem;
+    flex-direction: column;
+    gap: var(--space-xs);
     padding: var(--space-sm);
-}
-
-.page-edit__fg-col--red { color: #dc2626; }
-.page-edit__fg-col--blue { color: #2563eb; }
-.page-edit__fg-col--purple { color: #7c3aed; }
-
-.page-edit__fg-data {
     background-color: var(--color-white);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
 }
 
-.page-edit__fg-imgs {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-xs);
+.page-edit__faction-col--red { border-top: 3px solid #dc2626; }
+.page-edit__faction-col--blue { border-top: 3px solid #2563eb; }
+.page-edit__faction-col--purple { border-top: 3px solid #7c3aed; }
+
+.page-edit__faction-col-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
 }
 
-.page-edit__fg-tags {
+.page-edit__faction-img {
+    width: 100%;
+}
+
+.page-edit__faction-tags {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-xs);

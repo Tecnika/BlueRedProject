@@ -205,43 +205,33 @@ function renderGeneralEditor(area, existing) {
 }
 
 /* ========================================
-   Фракционная страница — таблица 3×3
+   Фракционная страница — 3 секции × 3 колонки
    ======================================== */
 
 function renderFactionEditor(area, existing, allTags) {
     const matrix = existing?.matrix ? existing.matrix : createEmptyMatrix();
 
-    const grid = createElement('div', { className: 'page-edit__faction-grid' });
-
-    // Шапка: пустая ячейка + три колонки фракций
-    const header = createElement('div', { className: 'page-edit__fg-row page-edit__fg-header' });
-    header.appendChild(createElement('div', { className: 'page-edit__fg-cell page-edit__fg-label' }));
-    for (const f of ['red', 'blue', 'purple']) {
-        header.appendChild(createElement('div', { className: `page-edit__fg-cell page-edit__fg-col page-edit__fg-col--${f}`, text: FACTION_LABELS[f] }));
-    }
-    grid.appendChild(header);
-
-    // Строки: info / propaganda / hard-propaganda
     for (const row of ['info', 'propaganda', 'hard-propaganda']) {
-        const rowEl = createElement('div', { className: 'page-edit__fg-row' });
-        rowEl.appendChild(createElement('div', { className: 'page-edit__fg-cell page-edit__fg-label', text: MATRIX_ROW_LABELS[row] }));
+        const section = createElement('div', { className: 'page-edit__faction-section' });
+        section.appendChild(createElement('h3', { className: 'page-edit__faction-section-title', text: MATRIX_ROW_LABELS[row] }));
+
+        const cols = createElement('div', { className: 'page-edit__faction-cols' });
 
         for (const f of ['red', 'blue', 'purple']) {
             const cell = matrix[f]?.[row] || { content: '', tags: [], images: [] };
-            const cellEl = createElement('div', { className: 'page-edit__fg-cell page-edit__fg-data' });
+            const col = createElement('div', { className: `page-edit__faction-col page-edit__faction-col--${f}` });
 
-            cellEl.appendChild(createElement('textarea', {
+            col.appendChild(createElement('div', { className: 'page-edit__faction-col-label', text: FACTION_LABELS[f] }));
+            col.appendChild(createElement('textarea', {
                 className: 'page-edit-page__textarea',
                 text: cell.content || '',
-                attributes: { id: `cell-${f}-${row}`, rows: 3, placeholder: '{{img:https://...}}' }
+                attributes: { id: `cell-${f}-${row}`, rows: 4, placeholder: '{{img:https://...}}' }
             }));
 
-            const imgRow = createElement('div', { className: 'page-edit__fg-imgs' });
             const imgs = cell.images?.length ? cell.images : [''];
-            imgs.forEach(url => imgRow.appendChild(createElement('input', { className: 'page-edit-page__input', attributes: { type: 'url', id: `cell-img-${f}-${row}`, value: url || '', placeholder: 'URL картинки' } })));
-            cellEl.appendChild(imgRow);
+            imgs.forEach(url => col.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__faction-img', attributes: { type: 'url', id: `cell-img-${f}-${row}`, value: url || '', placeholder: 'URL картинки' } })));
 
-            const tagRow = createElement('div', { className: 'page-edit__fg-tags', id: `cell-tags-${f}-${row}` });
+            const tagRow = createElement('div', { className: 'page-edit__faction-tags', id: `cell-tags-${f}-${row}` });
             allTags.forEach(tag => {
                 const checked = cell.tags?.includes(tag.name);
                 const label = createElement('label', { className: 'page-edit-page__tag-label' });
@@ -249,15 +239,14 @@ function renderFactionEditor(area, existing, allTags) {
                 label.appendChild(createElement('span', { text: tag.name }));
                 tagRow.appendChild(label);
             });
-            cellEl.appendChild(tagRow);
+            col.appendChild(tagRow);
 
-            rowEl.appendChild(cellEl);
+            cols.appendChild(col);
         }
 
-        grid.appendChild(rowEl);
+        section.appendChild(cols);
+        area.appendChild(section);
     }
-
-    area.appendChild(grid);
 }
 
 /* ========================================
