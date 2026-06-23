@@ -29,16 +29,17 @@ export class Router {
     }
 
     async _resolve() {
-        const path = window.location.hash.slice(1) || '/';
+        const fullPath = window.location.hash.slice(1) || '/';
+        const path = fullPath.split('?')[0];
 
         for (const hook of this.beforeHooks) {
-            const result = await hook(path, this.currentPath);
+            const result = await hook(fullPath, this.currentPath);
             if (result === false) return;
         }
 
         const renderFn = this.routes[path];
         if (renderFn) {
-            this.currentPath = path;
+            this.currentPath = fullPath;
             this.contentRoot.innerHTML = '';
             const element = await renderFn();
             if (element) {
