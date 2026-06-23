@@ -16,6 +16,7 @@ import { store } from '../core/Store.js';
 import { getAvatarUrl } from '../core/Avatar.js';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
 import { getNote, saveNote } from '../firebase/notesService.js';
+import { TagInput } from '../components/TagInput.js';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {
@@ -252,7 +253,7 @@ function createEditField(type, id, label, value) {
 }
 
 /** Админ-панель: фракция, мировоззрение, теги (только для master) */
-function createAdminSection(profile, targetUid, themeManager) {
+async function createAdminSection(profile, targetUid, themeManager) {
     const section = createElement('div', { className: 'profile-edit' });
     const title = createElement('h3', {
         className: 'profile-edit__title',
@@ -273,8 +274,34 @@ function createAdminSection(profile, targetUid, themeManager) {
     form.appendChild(factionGroup);
 
     form.appendChild(createAdminInput('admin-worldview', 'Мировоззрение', profile.worldview || ''));
-    form.appendChild(createAdminInput('admin-tags', 'Теги доступа (через запятую)', (profile.accessTags || []).join(', ')));
-    form.appendChild(createAdminInput('admin-hidden', 'Скрытые теги (через запятую)', (profile.hiddenTags || []).join(', ')));
+
+    // Теги доступа — автокомплит из каталога
+    const accessLabel = createElement('label', {
+        className: 'profile-edit__label',
+        text: 'Теги доступа'
+    });
+    form.appendChild(accessLabel);
+    const currentAccess = [...(profile.accessTags || [])];
+    const accessTagInput = await TagInput({
+        initialTags: currentAccess,
+        onChange: (tags) => { currentAccess.length = 0; currentAccess.push(...tags); },
+        placeholder: 'Добавить тег доступа...'
+    });
+    form.appendChild(accessTagInput);
+
+    // Скрытые теги — автокомплит из каталога
+    const hiddenLabel = createElement('label', {
+        className: 'profile-edit__label',
+        text: 'Скрытые теги'
+    });
+    form.appendChild(hiddenLabel);
+    const currentHidden = [...(profile.hiddenTags || [])];
+    const hiddenTagInput = await TagInput({
+        initialTags: currentHidden,
+        onChange: (tags) => { currentHidden.length = 0; currentHidden.push(...tags); },
+        placeholder: 'Добавить скрытый тег...'
+    });
+    form.appendChild(hiddenTagInput);
 
     const saveBtn = createElement('button', {
         className: 'profile-edit__save',
@@ -293,14 +320,11 @@ function createAdminSection(profile, targetUid, themeManager) {
         msg.style.display = 'none';
 
         try {
-            const rawTags = form.querySelector('#admin-tags').value;
-            const rawHidden = form.querySelector('#admin-hidden').value;
-
             const data = {
                 faction: form.querySelector('#admin-faction').value,
                 worldview: form.querySelector('#admin-worldview').value.trim(),
-                accessTags: rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [],
-                hiddenTags: rawHidden ? rawHidden.split(',').map(t => t.trim()).filter(Boolean) : []
+                accessTags: [...currentAccess],
+                hiddenTags: [...currentHidden]
             };
 
             await updateUserProfile(targetUid, data);

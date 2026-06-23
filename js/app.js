@@ -22,6 +22,7 @@ import { Router } from './core/Router.js';
 import { store } from './core/Store.js';
 import { initFirebase } from './firebase/firebase.js';
 import { onAuthChange, getUserProfile } from './firebase/authService.js';
+import { seedInitialTags } from './firebase/tagsService.js';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -35,6 +36,9 @@ async function init() {
 
     // Инициализируем Firebase (конфиг из data/firebase.json)
     await initFirebase();
+
+    // Сидируем начальные теги, если каталог пуст
+    await seedInitialTags();
 
     // Загружаем пункты меню из JSON
     let navItems = [];

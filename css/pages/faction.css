@@ -139,3 +139,142 @@
     border-radius: 999px;
     border: 1px solid var(--color-border);
 }
+
+/* ========================================
+   Панель управления каталогом тегов (мастер)
+   ======================================== */
+
+.faction-tag-manager {
+    max-width: 800px;
+    margin: var(--space-2xl) auto 0;
+    padding: var(--space-xl);
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+}
+
+.faction-tag-manager__header {
+    margin-bottom: var(--space-md);
+}
+
+.faction-tag-manager__title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+/* Строка добавления */
+.faction-tag-manager__add {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+    margin-bottom: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.faction-tag-manager__input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    outline: none;
+}
+
+.faction-tag-manager__input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.faction-tag-manager__add-btn {
+    padding: var(--space-sm) var(--space-lg);
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+}
+
+.faction-tag-manager__add-btn:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.faction-tag-manager__add-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.faction-tag-manager__msg {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.faction-tag-manager__msg--ok {
+    color: var(--color-primary);
+}
+
+.faction-tag-manager__msg--err {
+    color: var(--color-accent);
+}
+
+/* Список тегов */
+.faction-tag-manager__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.faction-tag-manager__empty {
+    text-align: center;
+    color: var(--color-text-secondary);
+    padding: var(--space-lg);
+    font-size: 0.9rem;
+}
+
+.faction-tag-manager__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s;
+}
+
+.faction-tag-manager__row:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+.faction-tag-manager__tag-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.faction-tag-manager__delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: none;
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.faction-tag-manager__delete-btn:hover {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
