@@ -52,7 +52,7 @@ export async function ProfilePage(targetUid) {
         container.appendChild(createEditSection(profile));
     }
 
-    if (isAdmin && !isOwner) {
+    if (isAdmin) {
         container.appendChild(createAdminSection(profile));
     }
 
@@ -270,6 +270,11 @@ function createAdminSection(profile) {
 
             const targetId = profile.id || profile.uid;
             await updateUserProfile(targetId, data);
+
+            const currentUser = store.get('user');
+            if (currentUser && targetId === currentUser.uid) {
+                store.set('user', { ...currentUser, ...data });
+            }
 
             msg.textContent = 'Сохранено';
             msg.style.display = 'block';
