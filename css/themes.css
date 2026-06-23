@@ -1,23 +1,29 @@
 [data-theme="blue"] {
-    --color-primary: #1a73e8;
-    --color-primary-dark: #1557b0;
-    --color-primary-light: #e8f0fe;
-    --color-accent: #ea4335;
-    --color-accent-dark: #c5221f;
+    --color-primary: #2563eb;
+    --color-primary-dark: #1d4ed8;
+    --color-primary-light: #dbeafe;
+    --color-primary-glow: rgba(37, 99, 235, 0.15);
+    --color-accent: #ec4899;
+    --color-accent-dark: #db2777;
+    --color-accent-glow: rgba(236, 72, 153, 0.2);
 }
 
 [data-theme="red"] {
     --color-primary: #dc2626;
     --color-primary-dark: #b91c1c;
     --color-primary-light: #fee2e2;
-    --color-accent: #1a73e8;
-    --color-accent-dark: #1557b0;
+    --color-primary-glow: rgba(220, 38, 38, 0.15);
+    --color-accent: #3b82f6;
+    --color-accent-dark: #2563eb;
+    --color-accent-glow: rgba(59, 130, 246, 0.2);
 }
 
 [data-theme="gray"] {
     --color-primary: #6b7280;
     --color-primary-dark: #4b5563;
     --color-primary-light: #f3f4f6;
-    --color-accent: #9ca3af;
-    --color-accent-dark: #6b7280;
+    --color-primary-glow: rgba(107, 114, 128, 0.12);
+    --color-accent: #8b5cf6;
+    --color-accent-dark: #7c3aed;
+    --color-accent-glow: rgba(139, 92, 246, 0.15);
 }

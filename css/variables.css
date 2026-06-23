@@ -1,12 +1,14 @@
 :root {
     --color-primary: #7c3aed;
-    --color-primary-dark: #5b21b6;
+    --color-primary-dark: #4c1d95;
     --color-primary-light: #ede9fe;
+    --color-primary-glow: rgba(124, 58, 237, 0.15);
     --color-accent: #f59e0b;
     --color-accent-dark: #d97706;
+    --color-accent-glow: rgba(245, 158, 11, 0.2);
     --color-bg: #ffffff;
     --color-bg-secondary: #f8f9fa;
-    --color-text: #202124;
+    --color-text: #1a1a2e;
     --color-text-secondary: #5f6368;
     --color-border: #dadce0;
     --color-white: #ffffff;
@@ -53,6 +55,6 @@ body {
     flex-direction: column;
 }
 
-body, .header, .footer, .hero, .feature-card, .theme-toggle {
+body, .header, .footer, .hero, .feature-card {
     transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }

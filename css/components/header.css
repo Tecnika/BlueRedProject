@@ -39,29 +39,6 @@
     gap: var(--space-md);
 }
 
-.theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-    font-size: 0.75rem;
-    font-weight: 600;
-    cursor: pointer;
-    user-select: none;
-    padding: 0;
-}
-
-.theme-toggle:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    border-color: var(--color-primary);
-}
-
 .header__user {
     display: flex;
     align-items: center;

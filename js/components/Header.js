@@ -1,6 +1,5 @@
 import { createElement } from '../utils/dom.js';
 import { Navigation } from './Navigation.js';
-import { ThemeToggle } from './ThemeToggle.js';
 import { store } from '../core/Store.js';
 import { signOutUser } from '../firebase/authService.js';
 
@@ -15,11 +14,10 @@ export function Header(navItems, themeManager) {
     });
 
     const nav = Navigation(navItems);
-    const themeToggle = ThemeToggle(themeManager);
 
     const rightGroup = createElement('div', {
         className: 'header__right',
-        children: [nav, createAuthBlock(), themeToggle]
+        children: [nav, createAuthBlock()]
     });
 
     container.appendChild(logo);

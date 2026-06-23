@@ -1,0 +1,86 @@
+/* Туманность (фоновая подсветка) */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 50%, var(--color-primary-light) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 30%, var(--color-primary-light) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 85%, var(--color-primary-light) 0%, transparent 45%);
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+}
+
+/* Звёзды */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 5% 10%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1px 1px at 15% 45%, rgba(0,0,0,0.08) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 22% 78%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 30% 25%, rgba(0,0,0,0.07) 100%, transparent),
+        radial-gradient(1px 1px at 40% 65%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 48% 15%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 55% 55%, rgba(0,0,0,0.08) 100%, transparent),
+        radial-gradient(1px 1px at 63% 35%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 72% 82%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 80% 50%, rgba(0,0,0,0.07) 100%, transparent),
+        radial-gradient(1px 1px at 88% 20%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 95% 70%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 7% 92%, rgba(0,0,0,0.07) 100%, transparent),
+        radial-gradient(1px 1px at 35% 5%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 68% 60%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 92% 90%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1px 1px at 50% 40%, rgba(0,0,0,0.07) 100%, transparent),
+        radial-gradient(1.5px 1.5px at 78% 10%, rgba(0,0,0,0.05) 100%, transparent),
+        radial-gradient(1px 1px at 12% 60%, rgba(0,0,0,0.06) 100%, transparent),
+        radial-gradient(1px 1px at 60% 48%, rgba(0,0,0,0.07) 100%, transparent);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Контент поверх звёзд */
+#app {
+    position: relative;
+    z-index: 1;
+}
+
+/* Свечение шапки */
+.header {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 24px var(--color-accent-glow);
+}
+
+/* Свечение героя */
+.hero {
+    background:
+        radial-gradient(ellipse at 25% 50%, var(--color-primary-glow) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 30%, var(--color-primary-glow) 0%, transparent 50%),
+        linear-gradient(140deg, var(--color-primary-light) 0%, var(--color-bg) 40%, var(--color-white) 100%);
+}
+
+/* Свечение карточек на главной */
+.feature-card:hover {
+    box-shadow: 0 4px 24px var(--color-primary-glow), var(--shadow-md);
+    border-color: var(--color-primary-light);
+}
+
+/* Свечение карточек фракции */
+.faction-card:hover {
+    box-shadow: 0 4px 20px var(--color-primary-glow), var(--shadow-md);
+}
+
+/* Свечение карточки профиля */
+.profile-card {
+    box-shadow: 0 2px 16px var(--color-primary-glow), var(--shadow-sm);
+}
+
+/* Свечение полей ввода */
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--color-primary-glow) !important;
+}

@@ -7,5 +7,5 @@ const COLORS = {
 export function getAvatarUrl(username, faction) {
     const bgColor = COLORS[faction] || COLORS.purple;
     const seed = encodeURIComponent(username || 'user');
-    return `https://api.dicebear.com/9.x/identicon/svg?seed=${seed}&backgroundColor=${bgColor}&backgroundType=gradientLinear&radius=50`;
+    return `https://api.dicebear.com/9.x/personas/svg?seed=${seed}&backgroundColor=${bgColor}&backgroundType=gradientLinear&radius=50`;
 }
