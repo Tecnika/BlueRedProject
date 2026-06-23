@@ -25,11 +25,16 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy Firestore Rules
-        uses: w9jds/firebase-action@v13
-        with:
-          args: deploy --only firestore:rules
         env:
-          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then
+            echo "No FIREBASE_SERVICE_ACCOUNT secret — skipping Firestore deploy"
+            exit 0
+          fi
+          echo "$FIREBASE_SERVICE_ACCOUNT" > $HOME/gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=$HOME/gcp-key.json
+          npx -y firebase-tools deploy --only firestore:rules --project bluered-46f6c
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
