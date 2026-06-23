@@ -10,7 +10,8 @@
 const COLORS = {
     purple: '7c3aed',
     blue: '2563eb',
-    red: 'dc2626'
+    red: 'dc2626',
+    none: '6b7280'
 };
 
 /**
@@ -19,7 +20,7 @@ const COLORS = {
  * @returns {string} URL SVG-аватарки
  */
 export function getAvatarUrl(username, faction) {
-    const bgColor = COLORS[faction] || COLORS.purple;
+    const bgColor = COLORS[faction] || COLORS.none;
     const seed = encodeURIComponent(username || 'user');
     return `https://api.dicebear.com/9.x/personas/svg?seed=${seed}&backgroundColor=${bgColor}&backgroundType=gradientLinear&radius=50`;
 }

@@ -71,6 +71,20 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ========== Коллекция subtags (технические субтеги) ==========
+    match /subtags/{subtagId} {
+
+      // Читать субтеги могут все авторизованные
+      allow read: if request.auth != null;
+
+      // Создавать субтеги может любой авторизованный
+      allow create: if request.auth != null;
+
+      // Удалять субтеги может только мастер
+      allow delete: if isMaster();
+      allow update: if false;
+    }
+
     // ========== Коллекция pages (страницы) ==========
     match /pages/{pageId} {
 

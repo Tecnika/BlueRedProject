@@ -2,34 +2,36 @@ import { store } from '../core/Store.js';
 import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js';
 import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js';
-import { render, createElement } from '../utils/dom.js';
+import { createElement } from '../utils/dom.js';
 import { translateError } from '../utils/translateError.js';
 
 /**
  * AdminPage — панель управления (только для мастеров).
- * Секции: каталог тегов, дерево страниц.
+ * Секции: каталог тегов, субтегов, дерево страниц.
  */
 export function AdminPage() {
+    const section = createElement('section', { className: 'admin-page' });
     const user = store.get('user');
+
     if (!user || user.role !== 'master') {
-        render('#app', [createElement('div', {
+        section.appendChild(createElement('div', {
             className: 'admin-page__error',
             children: [
                 createElement('h2', { text: 'Доступ запрещён' }),
                 createElement('p', { text: 'Только мастера могут управлять тегами и страницами.' })
             ]
-        })]);
-        return;
+        }));
+        return section;
     }
 
-    render('#app', [createElement('div', { className: 'admin-page' }, [
-        createElement('div', { className: 'admin-page__container' }, [
-            createElement('h1', { className: 'admin-page__title', text: 'Панель управления' }),
-            renderTagsSection(),
-            renderSubTagsSection(),
-            renderPagesSection()
-        ])
-    ])]);
+    const container = createElement('div', { className: 'admin-page__container' });
+    container.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Панель управления' }));
+    container.appendChild(renderTagsSection());
+    container.appendChild(renderSubTagsSection());
+    container.appendChild(renderPagesSection());
+    section.appendChild(container);
+
+    return section;
 }
 
 /* ========================================
