@@ -99,9 +99,7 @@ function createProfileCard(profile, isOwner, isAdmin) {
     info.appendChild(name);
     info.appendChild(meta);
 
-    if (profile.worldview) {
-        info.appendChild(createFieldRow('Мировоззрение', profile.worldview));
-    }
+    info.appendChild(createFieldRow('Мировоззрение', profile.worldview || '—'));
 
     if ((isOwner || isAdmin) && profile.accessTags && profile.accessTags.length) {
         info.appendChild(createTagRow('Теги доступа', profile.accessTags));
@@ -111,9 +109,7 @@ function createProfileCard(profile, isOwner, isAdmin) {
         info.appendChild(createTagRow('Скрытые теги', profile.hiddenTags));
     }
 
-    if (profile.about) {
-        info.appendChild(createFieldRow('О себе', profile.about));
-    }
+    info.appendChild(createFieldRow('О себе', profile.about || '—'));
 
     card.appendChild(avatar);
     card.appendChild(info);
