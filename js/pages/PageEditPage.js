@@ -83,7 +83,7 @@ export async function PageEditPage(slug) {
         function renderContentByType(typeVal) {
             contentArea.innerHTML = '';
             if (typeVal === 'faction') {
-                renderFactionEditor(contentArea, existing, allTags);
+                renderFactionEditor(contentArea, existing);
             } else {
                 renderGeneralEditor(contentArea, existing);
             }
@@ -151,11 +151,9 @@ export async function PageEditPage(slug) {
                         const fGroup = {};
                         for (const row of ['info', 'propaganda', 'hard-propaganda']) {
                             const content = form.querySelector(`#cell-${f}-${row}`)?.value || '';
-                            const tags = [];
-                            form.querySelectorAll(`#cell-tags-${f}-${row} input[type="checkbox"]:checked`).forEach(cb => tags.push(cb.value));
                             const images = [];
                             form.querySelectorAll(`#cell-img-${f}-${row}`).forEach(inp => { if (inp.value.trim()) images.push(inp.value.trim()); });
-                            fGroup[row] = { content, tags, images };
+                            fGroup[row] = { content, images };
                         }
                         matrix[f] = fGroup;
                     }
@@ -210,7 +208,7 @@ function renderGeneralEditor(area, existing) {
    Фракционная страница — 3 секции × 3 колонки
    ======================================== */
 
-function renderFactionEditor(area, existing, allTags) {
+function renderFactionEditor(area, existing) {
     const matrix = existing?.matrix ? existing.matrix : createEmptyMatrix();
 
     for (const row of ['info', 'propaganda', 'hard-propaganda']) {
@@ -220,7 +218,7 @@ function renderFactionEditor(area, existing, allTags) {
         const cols = createElement('div', { className: 'page-edit__faction-cols' });
 
         for (const f of ['red', 'blue', 'purple']) {
-            const cell = matrix[f]?.[row] || { content: '', tags: [], images: [] };
+            const cell = matrix[f]?.[row] || { content: '', images: [] };
             const col = createElement('div', { className: `page-edit__faction-col page-edit__faction-col--${f}` });
 
             col.appendChild(createElement('div', { className: 'page-edit__faction-col-label', text: FACTION_LABELS[f] }));
@@ -232,16 +230,6 @@ function renderFactionEditor(area, existing, allTags) {
 
             const imgs = cell.images?.length ? cell.images : [''];
             imgs.forEach(url => col.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__faction-img', attributes: { type: 'url', id: `cell-img-${f}-${row}`, value: url || '', placeholder: 'URL картинки' } })));
-
-            const tagRow = createElement('div', { className: 'page-edit__faction-tags', id: `cell-tags-${f}-${row}` });
-            allTags.forEach(tag => {
-                const checked = cell.tags?.includes(tag.name);
-                const label = createElement('label', { className: 'page-edit-page__tag-label' });
-                label.appendChild(createElement('input', { attributes: { type: 'checkbox', value: tag.name, checked } }));
-                label.appendChild(createElement('span', { text: tag.name }));
-                tagRow.appendChild(label);
-            });
-            col.appendChild(tagRow);
 
             cols.appendChild(col);
         }

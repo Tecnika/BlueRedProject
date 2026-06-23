@@ -112,7 +112,7 @@ function renderGeneralView(container, page) {
 }
 
 function renderFactionView(container, page, user) {
-    const filtered = filterVisibleCells(page.matrix, user);
+    const filtered = filterVisibleCells(page.matrix, user, page.tags || []);
     let anyContent = false;
 
     for (const f of FACTION_COLUMNS) {

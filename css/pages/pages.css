@@ -597,12 +597,6 @@
     width: 100%;
 }
 
-.page-edit__faction-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-}
-
 /* --- Панель инструментов тегов --- */
 
 .page-edit-page__tag-toolbar {

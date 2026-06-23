@@ -132,32 +132,39 @@ export function filterVisiblePages(pages, user) {
 
 /**
  * Отфильтровать ячейки матрицы фракционной страницы.
- * Возвращает { faction: { row: { content, tags, images } } }
- * только для тех ячеек, куда у пользователя есть доступ.
- * Ячейка без тегов — видна всем.
+ * Доступ к строке info — по тегу страницы или тегу_0.
+ * К propaganda — по тегу_1, к hard-propaganda — по тегу_2.
+ * pageTags — массив тегов самой страницы.
  */
-export function filterVisibleCells(matrix, user) {
+export function filterVisibleCells(matrix, user, pageTags = []) {
     if (!matrix) return {};
     if (user.role === 'master') return matrix;
 
     const userTags = (user.accessTags || []).map(t => t.toLowerCase());
+    const tags = pageTags.map(t => t.toLowerCase());
     const result = {};
-    const factions = ['red', 'blue', 'purple'];
-    const rows = ['info', 'propaganda', 'hard-propaganda'];
 
-    for (const f of factions) {
+    for (const f of FACTION_COLUMNS) {
         if (!matrix[f]) continue;
         const cellGroup = {};
-        for (const r of rows) {
+        for (const r of MATRIX_ROWS) {
             const cell = matrix[f][r];
             if (!cell) continue;
-            if (!cell.tags || cell.tags.length === 0) {
-                cellGroup[r] = cell;
-                continue;
+
+            let hasAccess = false;
+            if (r === 'info') {
+                // info: base tag или tag_0
+                hasAccess = tags.some(t => userTags.includes(t) || userTags.includes(t + '_0'));
+            } else if (r === 'propaganda') {
+                // propaganda: tag_1
+                hasAccess = tags.some(t => userTags.includes(t + '_1'));
+            } else if (r === 'hard-propaganda') {
+                // hard-propaganda: tag_2
+                hasAccess = tags.some(t => userTags.includes(t + '_2'));
             }
-            const cellTags = cell.tags.map(t => t.toLowerCase());
-            if (cellTags.some(t => userTags.includes(t))) {
-                cellGroup[r] = cell;
+
+            if (hasAccess) {
+                cellGroup[r] = { content: cell.content, images: cell.images || [] };
             }
         }
         if (Object.keys(cellGroup).length > 0) {
@@ -201,7 +208,7 @@ export function createEmptyMatrix() {
     for (const f of FACTION_COLUMNS) {
         m[f] = {};
         for (const r of MATRIX_ROWS) {
-            m[f][r] = { content: '', tags: [], images: [] };
+            m[f][r] = { content: '', images: [] };
         }
     }
     return m;
