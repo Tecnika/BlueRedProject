@@ -1,0 +1,81 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Функция-помощник: проверяет, что пользователь — мастер
+    function isMaster() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'master';
+    }
+
+    // Функция-помощник: проверяет, что документ принадлежит текущему пользователю
+    function isOwner() {
+      return request.auth != null && request.auth.uid == resource.id;
+    }
+
+    // ========== Коллекция users ==========
+    match /users/{userId} {
+
+      // Создать профиль может только сам пользователь при регистрации
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasAll(['username', 'role']);
+
+      // Читать свой профиль может авторизованный пользователь
+      // Чужие профили читают: мастер или софракционец
+      allow read: if request.auth != null && (
+        request.auth.uid == userId
+        || isMaster()
+        || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid))
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.faction != ''
+          && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.faction
+            == get(/databases/$(database)/documents/users/$(userId)).data.faction
+        )
+      );
+
+      // Обновлять свой профиль может владелец
+      // Мастер может обновлять любой профиль
+      allow update: if request.auth != null && (
+        request.auth.uid == userId
+        || isMaster()
+      );
+
+      allow delete: if false; // Удаление через консоль Firebase
+    }
+
+    // ========== Коллекция notes ==========
+    match /notes/{noteId} {
+
+      // Создавать заметку может авторизованный пользователь
+      allow create: if request.auth != null
+        && request.resource.data.authorId == request.auth.uid;
+
+      // Читать заметку может её автор или мастер
+      allow read: if request.auth != null && (
+        resource.data.authorId == request.auth.uid
+        || isMaster()
+      );
+
+      // Обновлять заметку может только её автор
+      allow update: if request.auth != null
+        && resource.data.authorId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    // ========== Коллекция tags ==========
+    match /tags/{tagId} {
+
+      // Читать теги могут все авторизованные пользователи
+      allow read: if request.auth != null;
+
+      // Создавать и удалять теги может только мастер
+      allow create: if isMaster();
+      allow delete: if isMaster();
+      allow update: if false;
+    }
+  }
+}

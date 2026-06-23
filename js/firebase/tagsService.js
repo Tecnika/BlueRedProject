@@ -8,7 +8,7 @@
  * При вводе нового тега в UI он автоматически сохраняется в каталог.
  */
 
-import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, limit, where } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, deleteDoc, query, limit } from 'firebase/firestore';
 import { getFirebase } from './firebase.js';
 
 /** Стартовый пул тегов (космические навыки / должности) */
@@ -25,14 +25,13 @@ const INITIAL_TAGS = [
     'Штурман'
 ];
 
-/** Получить все теги из каталога */
+/** Получить все теги из каталога (сортировка на клиенте) */
 export async function getAllTags() {
     const { db } = getFirebase();
-    const snapshot = await getDocs(
-        query(collection(db, 'tags'), orderBy('name'))
-    );
+    const snapshot = await getDocs(collection(db, 'tags'));
     const tags = [];
     snapshot.forEach(d => tags.push({ id: d.id, ...d.data() }));
+    tags.sort((a, b) => a.name.localeCompare(b.name));
     return tags;
 }
 
