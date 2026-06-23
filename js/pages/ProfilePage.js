@@ -17,7 +17,6 @@ import { getAvatarUrl } from '../core/Avatar.js';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
 import { getNote, saveNote } from '../firebase/notesService.js';
 import { TagInput } from '../components/TagInput.js';
-import { getAllSubTags } from '../firebase/subtagsService.js';
 import { translateError } from '../utils/translateError.js';
 
 /** Человеческие названия фракций */
@@ -315,43 +314,84 @@ async function createAdminSection(profile, targetUid, themeManager) {
 
     // Субтеги фракционных страниц (только мастера)
     const currentFactionTags = [...(profile.factionAccessTags || [])];
-    try {
-        const allSubTags = await getAllSubTags();
-        if (allSubTags.length > 0) {
-            const subLabel = createElement('label', {
-                className: 'profile-edit__label',
-                text: 'Субтеги фракций'
-            });
-            form.appendChild(subLabel);
+    const subLabel = createElement('label', { className: 'profile-edit__label', text: 'Субтеги фракций' });
+    form.appendChild(subLabel);
 
-            const subToolbar = createElement('div', { className: 'page-edit-page__tag-toolbar' });
-            const selectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Выбрать все', attributes: { type: 'button' } });
-            const deselectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Сбросить', attributes: { type: 'button' } });
-            subToolbar.appendChild(selectAllBtn);
-            subToolbar.appendChild(deselectAllBtn);
-            form.appendChild(subToolbar);
+    const subChips = createElement('div', { className: 'tag-input__chips', id: 'admin-faction-tags-chips' });
+    form.appendChild(subChips);
 
-            const subContainer = createElement('div', { className: 'page-edit-page__tags', id: 'admin-faction-tags' });
-            allSubTags.forEach(st => {
-                const checked = currentFactionTags.includes(st.name);
-                const label = createElement('label', { className: 'page-edit-page__tag-label' });
-                label.appendChild(createElement('input', { attributes: { type: 'checkbox', value: st.name, checked } }));
-                label.appendChild(createElement('span', { text: st.name }));
-                subContainer.appendChild(label);
+    function renderSubChips() {
+        subChips.innerHTML = '';
+        for (const tag of currentFactionTags) {
+            const chip = createElement('span', { className: 'tag-input__chip', text: tag });
+            const removeBtn = createElement('button', {
+                className: 'tag-input__chip-remove', text: '✕',
+                attributes: { type: 'button' },
+                events: { click: () => { currentFactionTags.splice(currentFactionTags.indexOf(tag), 1); renderSubChips(); } }
             });
-
-            selectAllBtn.addEventListener('click', () => {
-                subContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
-            });
-            deselectAllBtn.addEventListener('click', () => {
-                subContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            });
-
-            form.appendChild(subContainer);
+            chip.appendChild(removeBtn);
+            subChips.appendChild(chip);
         }
-    } catch (e) {
-        // Если Firestore недоступен — пропускаем
     }
+    renderSubChips();
+
+    // Строитель субтега: тег + фракция + уровень
+    const builder = createElement('div', { className: 'profile-edit__subtag-builder' });
+
+    const baseInput = createElement('input', {
+        className: 'profile-edit__input',
+        attributes: { type: 'text', id: 'subtag-base', placeholder: 'Тег (техник)' }
+    });
+    builder.appendChild(baseInput);
+
+    let selFaction = '';
+    let selLevel = '';
+    const factionKeys = ['к', 'с', 'ф'];
+    const levelKeys = ['0', '1', '2'];
+
+    const fGroup = createElement('div', { className: 'profile-edit__subtag-group' });
+    for (const k of factionKeys) {
+        const btn = createElement('button', {
+            className: 'profile-edit__subtag-btn', text: k,
+            attributes: { type: 'button', 'data-value': k },
+            events: { click: () => { selFaction = k; fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
+        });
+        fGroup.appendChild(btn);
+    }
+    builder.appendChild(fGroup);
+
+    const lGroup = createElement('div', { className: 'profile-edit__subtag-group' });
+    for (const k of levelKeys) {
+        const btn = createElement('button', {
+            className: 'profile-edit__subtag-btn', text: k,
+            attributes: { type: 'button', 'data-value': k },
+            events: { click: () => { selLevel = k; lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
+        });
+        lGroup.appendChild(btn);
+    }
+    builder.appendChild(lGroup);
+
+    const addBtn = createElement('button', {
+        className: 'profile-edit__subtag-add', text: '+',
+        attributes: { type: 'button' },
+        events: {
+            click: () => {
+                const base = baseInput.value.trim();
+                if (!base || !selFaction || selLevel === '') return;
+                const tag = `${base}_${selFaction}_${selLevel}`;
+                if (!currentFactionTags.includes(tag)) {
+                    currentFactionTags.push(tag);
+                    renderSubChips();
+                }
+                baseInput.value = '';
+                selFaction = ''; selLevel = '';
+                fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
+                lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
+            }
+        }
+    });
+    builder.appendChild(addBtn);
+    form.appendChild(builder);
 
     const saveBtn = createElement('button', {
         className: 'profile-edit__save',
@@ -384,18 +424,12 @@ async function createAdminSection(profile, targetUid, themeManager) {
                 currentHidden.push(...(raw ? raw.split(',').map(t => t.trim()).filter(Boolean) : []));
             }
 
-            const factionTags = [];
-            const subContainer = form.querySelector('#admin-faction-tags');
-            if (subContainer) {
-                subContainer.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => factionTags.push(cb.value));
-            }
-
             const data = {
                 faction: form.querySelector('#admin-faction').value,
                 worldview: form.querySelector('#admin-worldview').value.trim(),
                 accessTags: [...currentAccess],
                 hiddenTags: [...currentHidden],
-                factionAccessTags: factionTags
+                factionAccessTags: [...currentFactionTags]
             };
 
             await updateUserProfile(targetUid, data);
