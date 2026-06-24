@@ -1,12 +1,13 @@
 ﻿/**
- * Avatar — генерация URL для DiceBear-аватарок.
+ * Avatar — создание элемента аватарки.
  *
- * Стиль: personas (люди).
- * Цвет фона — по фракции, seed — по имени пользователя.
- * Результат: стабильная уникальная аватарка без загрузки файлов.
+ * Приоритет:
+ *   1. Пытаемся загрузить DiceBear (personas)
+ *   2. Если не загрузился за 3 сек — показываем ui-avatars (инициалы)
  */
 
-/** Цвета фона для каждой фракции (hex без #) */
+import { createElement } from '../utils/dom.js?v=3';
+
 const COLORS = {
     purple: '7c3aed',
     blue: '2563eb',
@@ -14,25 +15,48 @@ const COLORS = {
     none: '6b7280'
 };
 
-/**
- * @param {string} username — для генерации уникального seed
- * @param {string} faction — определяет цвет фона
- * @returns {string} URL SVG-аватарки (DiceBear)
- */
-export function getAvatarUrl(username, faction) {
-    const bgColor = COLORS[faction] || COLORS.none;
+function bgColor(faction) {
+    return COLORS[faction] || COLORS.none;
+}
+
+/** DiceBear URL */
+function dicebearUrl(username, faction) {
     const seed = encodeURIComponent(username || 'user');
-    return `https://api.dicebear.com/10.x/personas/svg?seed=${seed}&backgroundColor=${bgColor}&backgroundType=gradientLinear&radius=50`;
+    return `https://api.dicebear.com/9.x/personas/svg?seed=${seed}&backgroundColor=${bgColor(faction)}&backgroundType=gradientLinear&radius=50`;
+}
+
+/** ui-avatars URL (запасной) */
+function fallbackUrl(username, faction) {
+    const name = encodeURIComponent(username || '?');
+    return `https://ui-avatars.com/api/?name=${name}&background=${bgColor(faction)}&color=fff&rounded=true&bold=true&size=128`;
 }
 
 /**
- * Запасной URL (ui-avatars) — если DiceBear не отвечает.
- * @param {string} username
- * @param {string} faction
- * @returns {string}
+ * Создать <img> с аватаркой.
+ * Сразу ставим ui-avatars, параллельно пробуем DiceBear.
+ * Если DiceBear загрузился — заменяем src.
  */
-export function getFallbackAvatarUrl(username, faction) {
-    const bg = COLORS[faction] || COLORS.none;
-    const name = encodeURIComponent(username || '?');
-    return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&rounded=true&bold=true&size=128`;
+export function createAvatar(username, faction, className) {
+    const img = createElement('img', {
+        className,
+        attributes: { alt: username || 'avatar' }
+    });
+
+    // Сразу показываем запасной вариант (инициалы)
+    img.src = fallbackUrl(username, faction);
+
+    // Пробуем загрузить DiceBear
+    const test = new Image();
+    test.onload = () => { img.src = test.src; };
+    test.onerror = () => { /* остаётся fallback */ };
+    test.src = dicebearUrl(username, faction);
+
+    // Таймаут 3 сек — если DiceBear не ответил, остаётся fallback
+    setTimeout(() => {
+        if (!test.complete || test.naturalWidth === 0) {
+            test.src = ''; /* отменяем */
+        }
+    }, 3000);
+
+    return img;
 }

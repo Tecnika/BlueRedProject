@@ -13,7 +13,7 @@
 
 import { createElement } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
-import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=3';
+import { createAvatar } from '../core/Avatar.js?v=3';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=3';
 import { getNote, saveNote } from '../firebase/notesService.js?v=3';
 import { TagInput } from '../components/TagInput.js?v=3';
@@ -98,14 +98,7 @@ export async function ProfilePage(targetUid, themeManager) {
 function createProfileCard(profile, isOwner, isAdmin) {
     const card = createElement('div', { className: 'profile-card' });
 
-    const avatarUrl = getAvatarUrl(profile.username, profile.faction);
-
-    const avatar = createElement('img', {
-        className: 'profile-card__avatar',
-        attributes: { alt: profile.username }
-    });
-    avatar.onerror = () => { avatar.src = getFallbackAvatarUrl(profile.username, profile.faction); };
-    avatar.src = avatarUrl;
+    const avatar = createAvatar(profile.username, profile.faction, 'profile-card__avatar');
 
     const info = createElement('div', { className: 'profile-card__info' });
 

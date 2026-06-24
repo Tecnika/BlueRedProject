@@ -12,7 +12,7 @@
 import { createElement } from '../utils/dom.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 import { store } from '../core/Store.js?v=3';
-import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=3';
+import { createAvatar } from '../core/Avatar.js?v=3';
 import { getCollection } from '../firebase/dbService.js?v=3';
 
 /** Порядок отображения групп (для админа) */
@@ -198,14 +198,7 @@ function createMemberCard(member, currentUid) {
         attributes: { href: `#/profile?uid=${member.id}` }
     });
 
-    const avatarUrl = getAvatarUrl(member.username, member.faction);
-
-    const avatar = createElement('img', {
-        className: 'faction-card__avatar',
-        attributes: { alt: member.username }
-    });
-    avatar.onerror = () => { avatar.src = getFallbackAvatarUrl(member.username, member.faction); };
-    avatar.src = avatarUrl;
+    const avatar = createAvatar(member.username, member.faction, 'faction-card__avatar');
 
     const info = createElement('div', { className: 'faction-card__info' });
 
