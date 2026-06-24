@@ -1,11 +1,12 @@
-/**
- * Avatar — генерация URL для аватарок через ui-avatars.com.
+﻿/**
+ * Avatar — генерация URL для DiceBear-аватарок.
  *
- * Формат: инициалы пользователя на цветном фоне фракции.
+ * Стиль: personas (люди).
+ * Цвет фона — по фракции, seed — по имени пользователя.
  * Результат: стабильная уникальная аватарка без загрузки файлов.
  */
 
-/** Цвета фона для каждой фракции (hex) */
+/** Цвета фона для каждой фракции (hex без #) */
 const COLORS = {
     purple: '7c3aed',
     blue: '2563eb',
@@ -14,12 +15,12 @@ const COLORS = {
 };
 
 /**
- * @param {string} username — отображается на аватарке
+ * @param {string} username — для генерации уникального seed
  * @param {string} faction — определяет цвет фона
- * @returns {string} URL PNG-аватарки
+ * @returns {string} URL SVG-аватарки
  */
 export function getAvatarUrl(username, faction) {
-    const bg = COLORS[faction] || COLORS.none;
-    const name = encodeURIComponent(username || '?');
-    return `https://ui-avatars.com/api/?name=${name}&background=${bg}&color=fff&rounded=true&bold=true&size=128`;
+    const bgColor = COLORS[faction] || COLORS.none;
+    const seed = encodeURIComponent(username || 'user');
+    return `https://api.dicebear.com/9.x/personas/svg?seed=${seed}&backgroundColor=${bgColor}&backgroundType=gradientLinear&radius=50`;
 }
