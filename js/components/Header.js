@@ -83,7 +83,7 @@ function toggleAdminLink(navList) {
         if (existingItem) return;
         const link = createElement('a', {
             className: 'nav__link',
-            text: 'Админ',
+            text: 'Мастерская',
             attributes: { href: '#/admin' }
         });
         const li = createElement('li', {
@@ -112,7 +112,7 @@ function createAuthBlock() {
 
         const logoutBtn = createElement('button', {
             className: 'header__user-logout',
-            text: 'Выйти',
+            text: 'Отключиться',
             attributes: { type: 'button' },
             events: {
                 click: async () => {
@@ -129,7 +129,7 @@ function createAuthBlock() {
 
     const link = createElement('a', {
         className: 'header__user-login',
-        text: 'Войти',
+        text: 'Войти в систему',
         attributes: { href: '#/login' },
         dataset: { auth: '' }
     });

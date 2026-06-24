@@ -18,14 +18,14 @@ export function AdminPage() {
             className: 'admin-page__error',
             children: [
                 createElement('h2', { text: 'Доступ запрещён' }),
-                createElement('p', { text: 'Только мастера могут управлять тегами и страницами.' })
+                createElement('p', { text: 'Только для мастерской.' })
             ]
         }));
         return section;
     }
 
     const container = createElement('div', { className: 'admin-page__container' });
-    container.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Панель управления' }));
+    container.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Мастерская' }));
     container.appendChild(renderTagsSection());
     container.appendChild(renderSubTagsSection());
     container.appendChild(renderPagesSection());
@@ -43,11 +43,11 @@ function renderTagsSection() {
 
     container.appendChild(createElement('h2', {
         className: 'admin-section__title',
-        text: 'Каталог тегов'
+        text: 'Каталог грифов'
     }));
     container.appendChild(createElement('p', {
         className: 'admin-section__desc',
-        text: 'Управление глобальным каталогом тегов.'
+        text: 'Управление реестром грифов доступа.'
     }));
 
     const tagsWrap = createElement('div', { className: 'admin-tags' });
@@ -67,7 +67,7 @@ function renderTagsSection() {
                 type: 'text',
                 id: 'admin-tags-input',
                 className: 'admin-tags__input',
-                placeholder: 'Название нового тега'
+                placeholder: 'Название нового грифа'
             }),
             createElement('button', {
                 type: 'submit',
@@ -91,7 +91,7 @@ async function loadTagsList() {
     try {
         const tags = await getAllTags();
         if (!tags || tags.length === 0) {
-            listEl.textContent = 'Нет тегов';
+            listEl.textContent = 'Нет грифов';
             return;
         }
         listEl.innerHTML = '';
@@ -104,7 +104,7 @@ async function loadTagsList() {
             }));
             const delBtn = createElement('button', {
                 className: 'admin-tags__remove-btn',
-                attributes: { 'data-id': tag.id, title: 'Удалить тег' },
+                attributes: { 'data-id': tag.id, title: 'Удалить гриф' },
                 text: '✕'
             });
             item.appendChild(delBtn);
@@ -115,7 +115,7 @@ async function loadTagsList() {
         listEl.querySelectorAll('.admin-tags__remove-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.dataset.id;
-                if (!confirm('Удалить тег?')) return;
+                if (!confirm('Удалить гриф?')) return;
                 try {
                     await removeTag(id);
                     loadTagsList();
@@ -158,7 +158,7 @@ function renderSubTagsSection() {
     }));
     container.appendChild(createElement('p', {
         className: 'admin-section__desc',
-        text: 'Авто-создаются из тегов фракционных страниц. Только для мастеров.'
+        text: 'Авто-создаются из грифов фракционных страниц.'
     }));
 
     const wrap = createElement('div', { className: 'admin-tags' });
@@ -265,18 +265,18 @@ function renderPagesSection() {
 
     container.appendChild(createElement('h2', {
         className: 'admin-section__title',
-        text: 'Страницы'
+        text: 'Архив досье'
     }));
     container.appendChild(createElement('p', {
         className: 'admin-section__desc',
-        text: 'Все страницы. Создание новых, редактирование.'
+        text: 'Управление архивом досье.'
     }));
 
     const createBtnWrap = createElement('div', { className: 'admin-pages__create-wrap' });
     createBtnWrap.appendChild(createElement('a', {
         className: 'admin-pages__create-btn',
         attributes: { href: '#/page/create' },
-        text: '+ Новая страница'
+        text: '+ Новое досье'
     }));
     container.appendChild(createBtnWrap);
 
@@ -299,7 +299,7 @@ async function loadPagesTree() {
     try {
         const pages = await getAllPages();
         if (!pages || pages.length === 0) {
-            treeEl.textContent = 'Нет страниц';
+            treeEl.textContent = 'Нет досье';
             return;
         }
         const tree = buildPageTree(pages);

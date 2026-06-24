@@ -11,7 +11,7 @@ export async function PageEditPage(slug) {
     const user = store.get('user');
 
     if (!user || user.role !== 'master') {
-        section.appendChild(createElement('p', { className: 'page-edit-page__error', text: 'Доступно только мастеру' }));
+        section.appendChild(createElement('p', { className: 'page-edit-page__error', text: 'Только для мастерской' }));
         return section;
     }
 
@@ -22,31 +22,31 @@ export async function PageEditPage(slug) {
         const allTags = await getAllTags();
 
         const container = createElement('div', { className: 'page-edit-page__container' });
-        container.appendChild(createElement('h1', { className: 'page-edit-page__title', text: isNew ? 'Создать страницу' : `Редактировать: ${existing.title}` }));
+        container.appendChild(createElement('h1', { className: 'page-edit-page__title', text: isNew ? 'Новое досье' : `Редактирование: ${existing.title}` }));
 
         const form = createElement('form', { className: 'page-edit-page__form', events: { submit: (e) => e.preventDefault() } });
 
         // === Заголовок ===
-        form.appendChild(createField('text', 'p-title', 'Название страницы', existing ? existing.title : ''));
+        form.appendChild(createField('text', 'p-title', 'Кодовое название', existing ? existing.title : ''));
 
         // === URL (авто, но редактируемый) ===
         const defaultSlug = existing ? existing.slug : '';
-        form.appendChild(createField('text', 'p-slug', 'URL', defaultSlug, 'Очистите чтобы сгенерировать из названия'));
+        form.appendChild(createField('text', 'p-slug', 'Идентификатор', defaultSlug, 'Очистите чтобы сгенерировать из названия'));
 
         // === Тип ===
         const pageType = existing ? existing.type || 'faction' : 'faction';
-        form.appendChild(createSelect('p-type', 'Тип страницы', pageType, [
-            { value: 'general', text: 'Общая' },
-            { value: 'faction', text: 'Фракционная' }
+        form.appendChild(createSelect('p-type', 'Категория досье', pageType, [
+            { value: 'general', text: 'Общего доступа' },
+            { value: 'faction', text: 'Фракционное' }
         ]));
 
         // === Теги доступа ===
-        const tagLabel = createElement('label', { className: 'page-edit-page__label', text: 'Теги доступа' });
+        const tagLabel = createElement('label', { className: 'page-edit-page__label', text: 'Гриф доступа' });
         form.appendChild(tagLabel);
 
         const tagToolbar = createElement('div', { className: 'page-edit-page__tag-toolbar' });
-        const selectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Выбрать все', attributes: { type: 'button' } });
-        const deselectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Сбросить', attributes: { type: 'button' } });
+        const selectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Выбрать всё', attributes: { type: 'button' } });
+        const deselectAllBtn = createElement('button', { className: 'page-edit-page__tag-select-all', text: 'Сброс', attributes: { type: 'button' } });
         tagToolbar.appendChild(selectAllBtn);
         tagToolbar.appendChild(deselectAllBtn);
         form.appendChild(tagToolbar);
@@ -71,8 +71,8 @@ export async function PageEditPage(slug) {
         form.appendChild(pageTagContainer);
 
         // === Родитель ===
-        form.appendChild(createSelect('p-parent', 'Родительская страница', existing ? existing.parentId || '' : '', [
-            { value: '', text: '— Корневая страница —' },
+        form.appendChild(createSelect('p-parent', 'Вышестоящее досье', existing ? existing.parentId || '' : '', [
+            { value: '', text: '— Корневой узел —' },
             ...allPages.filter(p => p.id !== (existing ? existing.id : null)).map(p => ({ value: p.id, text: p.title }))
         ]));
 
@@ -100,7 +100,7 @@ export async function PageEditPage(slug) {
         // === Кнопки ===
         const actions = createElement('div', { className: 'page-edit-page__actions' });
         const saveBtn = createElement('button', { className: 'page-edit-page__save', text: isNew ? 'Создать' : 'Сохранить', attributes: { type: 'submit' } });
-        const cancelBtn = createElement('a', { className: 'page-edit-page__cancel', text: 'Отмена', attributes: { href: existing ? `#/page/view?slug=${existing.slug}` : '#/pages' } });
+        const cancelBtn = createElement('a', { className: 'page-edit-page__cancel', text: 'Назад', attributes: { href: existing ? `#/page/view?slug=${existing.slug}` : '#/pages' } });
         const msg = createElement('p', { className: 'page-edit-page__msg' });
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
@@ -110,9 +110,9 @@ export async function PageEditPage(slug) {
 
         // === Удаление ===
         if (!isNew) {
-            const deleteBtn = createElement('button', { className: 'page-edit-page__delete', text: 'Удалить страницу', attributes: { type: 'button' } });
+            const deleteBtn = createElement('button', { className: 'page-edit-page__delete', text: 'Стереть досье', attributes: { type: 'button' } });
             deleteBtn.addEventListener('click', async () => {
-                if (!confirm('Удалить страницу навсегда?')) return;
+                if (!confirm('Досье будет стёрто. Продолжить?')) return;
                 try { await deletePage(existing.id); window.location.hash = '#/pages'; }
                 catch (err) { msg.textContent = 'Ошибка: ' + translateError(err); msg.className = 'page-edit-page__msg page-edit-page__msg--err'; }
             });
@@ -122,12 +122,12 @@ export async function PageEditPage(slug) {
         // === Сохранение ===
         form.addEventListener('submit', async () => {
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Сохранение...';
+            saveBtn.textContent = 'Запись...';
             msg.style.display = 'none';
 
             try {
                 const title = form.querySelector('#p-title').value.trim();
-                if (!title) throw new Error('Название обязательно');
+                if (!title) throw new Error('Кодовое название обязательно');
 
                 let slugVal = form.querySelector('#p-slug').value.trim();
                 if (!slugVal) {
@@ -168,7 +168,7 @@ export async function PageEditPage(slug) {
                     ensureFactionSubTags(pageTags).catch(() => {});
                 }
 
-                msg.textContent = 'Сохранено!';
+                msg.textContent = 'Данные записаны!';
                 msg.className = 'page-edit-page__msg page-edit-page__msg--ok';
                 msg.style.display = 'block';
                 setTimeout(() => window.location.hash = `#/page/view?slug=${slugVal}`, 800);
@@ -195,14 +195,14 @@ export async function PageEditPage(slug) {
    ======================================== */
 
 function renderGeneralEditor(area, existing) {
-    area.appendChild(createElement('label', { className: 'page-edit-page__label', text: 'Содержимое', attributes: { for: 'p-content' } }));
+    area.appendChild(createElement('label', { className: 'page-edit-page__label', text: 'Содержимое сводки', attributes: { for: 'p-content' } }));
     area.appendChild(createElement('textarea', { className: 'page-edit-page__textarea', text: existing ? existing.content || '' : '', attributes: { id: 'p-content', rows: 10, placeholder: '{{img:https://...}}' } }));
 
-    area.appendChild(createElement('label', { className: 'page-edit-page__label', text: 'Изображения', attributes: { style: 'margin-top:var(--space-md);display:block' } }));
+    area.appendChild(createElement('label', { className: 'page-edit-page__label', text: 'Визуальные данные', attributes: { style: 'margin-top:var(--space-md);display:block' } }));
     const imgList = createElement('div', { className: 'page-edit__img-list' });
     const urls = existing && existing.images?.length ? existing.images : [''];
     urls.forEach(url => imgList.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__img-input', attributes: { type: 'url', value: url || '', placeholder: 'https://...' } })));
-    const addBtn = createElement('button', { className: 'page-edit-page__add-img', text: '+ Ещё', attributes: { type: 'button' } });
+    const addBtn = createElement('button', { className: 'page-edit-page__add-img', text: '+ Добавить', attributes: { type: 'button' } });
     addBtn.addEventListener('click', () => {
         imgList.insertBefore(createElement('input', { className: 'page-edit-page__input page-edit__img-input', attributes: { type: 'url', placeholder: 'https://...' } }), addBtn);
     });
@@ -235,7 +235,7 @@ function renderFactionEditor(area, existing) {
             }));
 
             const imgs = cell.images?.length ? cell.images : [''];
-            imgs.forEach(url => col.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__faction-img', attributes: { type: 'url', id: `cell-img-${f}-${row}`, value: url || '', placeholder: 'URL картинки' } })));
+            imgs.forEach(url => col.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__faction-img', attributes: { type: 'url', id: `cell-img-${f}-${row}`, value: url || '', placeholder: 'URL изображения' } })));
 
             cols.appendChild(col);
         }

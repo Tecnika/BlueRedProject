@@ -47,7 +47,7 @@ export async function searchTags(prefix) {
 export async function addTag(name) {
     const { db } = getFirebase();
     const trimmed = name.trim();
-    if (!trimmed) throw new Error('Имя тега не может быть пустым');
+    if (!trimmed) throw new Error('Название грифа не может быть пустым');
 
     // Нормализуем id: уникальный ключ на основе имени
     const id = trimmed.toLowerCase().replace(/\s+/g, '_');

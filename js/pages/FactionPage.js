@@ -38,7 +38,7 @@ export async function FactionPage() {
     if (!currentUser) {
         section.appendChild(createElement('p', {
             className: 'faction-page__error',
-            text: 'Необходимо авторизоваться'
+            text: 'Требуется идентификация'
         }));
         return section;
     }
@@ -49,7 +49,7 @@ export async function FactionPage() {
     if (!isAdmin && !currentUser.faction) {
         section.appendChild(createElement('p', {
             className: 'faction-page__error',
-            text: 'Вы ещё не выбрали фракцию'
+            text: 'Вы ещё не приписаны к фракции'
         }));
         return section;
     }
@@ -112,7 +112,7 @@ function renderAdminView(section, grouped, currentUid) {
     const header = createElement('div', { className: 'faction-page__header' });
     header.appendChild(createElement('h1', {
         className: 'faction-page__title',
-        text: 'Все игроки'
+        text: 'Личный состав'
     }));
     section.appendChild(header);
 
@@ -166,7 +166,7 @@ function renderFactionView(section, members, currentUser) {
     if (members.length === 0) {
         list.appendChild(createElement('p', {
             className: 'faction-page__empty',
-            text: 'Во фракции пока никого нет'
+            text: 'В секции пока никого нет'
         }));
     }
 

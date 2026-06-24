@@ -11,7 +11,7 @@ export function Footer() {
     const year = new Date().getFullYear();
     const copyright = createElement('p', {
         className: 'footer__copyright',
-        text: `© ${year} BlueRed. Все права защищены.`
+        text: `© ${year} BlueRed. Штаб сектора. Все права защищены.`
     });
 
     container.appendChild(copyright);

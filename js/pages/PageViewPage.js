@@ -21,20 +21,20 @@ export async function PageViewPage(slug) {
     const user = store.get('user');
 
     if (!user) {
-        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Необходимо авторизоваться' }));
+        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Требуется идентификация' }));
         return section;
     }
 
     try {
         const page = await getPageBySlug(slug);
         if (!page) {
-            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Страница не найдена' }));
+            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Досье не найдено' }));
             return section;
         }
 
         const visible = filterVisiblePages([page], user);
         if (visible.length === 0 && user.role !== 'master') {
-            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Нет доступа к этой странице' }));
+            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Недостаточно прав доступа' }));
             return section;
         }
 
@@ -78,14 +78,14 @@ export async function PageViewPage(slug) {
 
         // Кнопка редактирования
         if (isAdmin) {
-            container.appendChild(createElement('a', { className: 'page-view-page__edit-btn', text: 'Редактировать', attributes: { href: `#/page/edit?slug=${page.slug}` } }));
+            container.appendChild(createElement('a', { className: 'page-view-page__edit-btn', text: 'Редактировать досье', attributes: { href: `#/page/edit?slug=${page.slug}` } }));
         }
 
         // Дочерние страницы
         const children = allPages.filter(p => p.parentId === page.id);
         if (children.length > 0) {
             const childBlock = createElement('div', { className: 'page-view-page__children' });
-            childBlock.appendChild(createElement('h3', { className: 'page-view-page__children-title', text: 'Подстраницы' }));
+            childBlock.appendChild(createElement('h3', { className: 'page-view-page__children-title', text: 'Вложенные сводки' }));
             const childList = createElement('ul', { className: 'page-view-page__child-list' });
             children.forEach(child => {
                 childList.appendChild(createElement('li', { className: 'page-view-page__child-item', children: [
@@ -108,7 +108,7 @@ function renderGeneralView(container, page) {
     if (page.content) {
         container.appendChild(createElement('div', { className: 'page-view-page__content', html: renderContent(page.content, page.images) }));
     } else {
-        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Страница пуста' }));
+        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Сводка пуста' }));
     }
 }
 
@@ -133,7 +133,7 @@ function renderFactionView(container, page, user) {
             if (isAdmin) {
                 meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: MATRIX_ROW_LABELS[row] }));
             } else {
-                meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: 'О фракции' }));
+                meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: 'Сводка по фракции' }));
             }
             card.appendChild(meta);
 
@@ -144,7 +144,7 @@ function renderFactionView(container, page, user) {
     }
 
     if (!anyContent) {
-        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Нет доступного контента' }));
+        container.appendChild(createElement('p', { className: 'page-view-page__empty', text: 'Нет доступных данных' }));
     }
 }
 

@@ -65,7 +65,7 @@ export async function signUpWithUsername(username, password) {
     );
 
     if (!existing.empty) {
-        throw new Error('Имя пользователя уже занято');
+        throw new Error('Позывной уже зарегистрирован в системе');
     }
 
     const email = makeEmail(username);

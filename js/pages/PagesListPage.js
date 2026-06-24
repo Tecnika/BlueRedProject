@@ -17,7 +17,7 @@ export async function PagesListPage() {
     if (!user) {
         section.appendChild(createElement('p', {
             className: 'pages-list-page__empty',
-            text: 'Необходимо авторизоваться'
+            text: 'Требуется идентификация'
         }));
         return section;
     }
@@ -32,13 +32,13 @@ export async function PagesListPage() {
         const header = createElement('div', { className: 'pages-list-page__header' });
         header.appendChild(createElement('h1', {
             className: 'pages-list-page__title',
-            text: 'Страницы'
+            text: 'Архив'
         }));
 
         if (user.role === 'master') {
             const createBtn = createElement('a', {
                 className: 'pages-list-page__create-btn',
-                text: '+ Создать страницу',
+                text: '+ Новое досье',
                 attributes: { href: '#/page/create' }
             });
             header.appendChild(createBtn);
@@ -49,7 +49,7 @@ export async function PagesListPage() {
         if (tree.length === 0) {
             container.appendChild(createElement('p', {
                 className: 'pages-list-page__empty',
-                text: 'Нет доступных страниц'
+                text: 'Нет доступных досье'
             }));
         } else {
             const list = renderTree(tree);

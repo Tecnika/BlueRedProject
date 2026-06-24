@@ -25,12 +25,12 @@ function createHero() {
 
     const title = createElement('h1', {
         className: 'hero__title',
-        text: 'Добро пожаловать на BlueRed'
+        text: 'Добро пожаловать в сектор BlueRed'
     });
 
     const text = createElement('p', {
         className: 'hero__text',
-        text: 'Информационный портал с системой управления доступом'
+        text: 'Информационный портал с грифованной системой доступа'
     });
 
     section.appendChild(title);
@@ -45,15 +45,15 @@ function createFeatures() {
 
     const title = createElement('h2', {
         className: 'features__title',
-        text: 'Возможности'
+        text: 'Функции сектора'
     });
 
     const grid = createElement('div', { className: 'features__grid' });
 
     const cards = [
-        { title: 'Управление доступом', text: 'Гибкая система прав для разных пользователей' },
-        { title: 'Редактор страниц', text: 'Создавайте и редактируйте страницы в удобном редакторе' },
-        { title: 'База знаний', text: 'Структурированное хранение информации' }
+        { title: 'Грифы доступа', text: 'Многоуровневая система допуска для агентов сектора' },
+        { title: 'Редактор досье', text: 'Создавайте и редактируйте оперативные сводки' },
+        { title: 'Архив данных', text: 'Категоризированное хранилище разведданных' }
     ];
 
     for (const card of cards) {

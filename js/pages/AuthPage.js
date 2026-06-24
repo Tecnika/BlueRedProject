@@ -38,25 +38,25 @@ function buildForm(mode) {
 
     const title = createElement('h2', {
         className: 'auth-form__title',
-        text: isLogin ? 'Вход' : 'Регистрация'
+        text: isLogin ? 'Запрос доступа' : 'Регистрация в секторе'
     });
 
     const errorEl = createElement('p', { className: 'auth-form__error' });
 
-    const usernameGroup = createField('text', 'username', 'Имя пользователя');
-    const passwordGroup = createField('password', 'password', 'Пароль');
+    const usernameGroup = createField('text', 'username', 'Позывной');
+    const passwordGroup = createField('password', 'password', 'Код доступа');
 
     const groups = [usernameGroup, passwordGroup];
 
     // При регистрации добавляем поле подтверждения пароля
     if (!isLogin) {
-        const confirmGroup = createField('password', 'confirm', 'Повторите пароль');
+            const confirmGroup = createField('password', 'confirm', 'Подтверждение кода');
         groups.push(confirmGroup);
     }
 
     const submitBtn = createElement('button', {
         className: 'auth-form__button',
-        text: isLogin ? 'Войти' : 'Зарегистрироваться',
+        text: isLogin ? 'Авторизоваться' : 'Подать заявку',
         attributes: { type: 'submit' }
     });
 
@@ -64,7 +64,7 @@ function buildForm(mode) {
     const toggle = createElement('p', { className: 'auth-form__toggle' });
     const toggleLink = createElement('a', {
         className: 'auth-form__toggle-link',
-        text: isLogin ? 'Создать аккаунт' : 'Уже есть аккаунт? Войти',
+        text: isLogin ? 'Запросить допуск' : 'Уже зарегистрированы? Авторизоваться',
         attributes: { href: '#' },
         events: {
             click: (e) => {
@@ -87,7 +87,7 @@ function buildForm(mode) {
     form.addEventListener('submit', async () => {
         errorEl.style.display = 'none';
         submitBtn.disabled = true;
-        submitBtn.textContent = isLogin ? 'Вход...' : 'Регистрация...';
+        submitBtn.textContent = isLogin ? 'Авторизация...' : 'Отправка запроса...';
 
         try {
             const username = usernameGroup.querySelector('input').value.trim();
@@ -115,7 +115,7 @@ function buildForm(mode) {
             errorEl.style.display = 'block';
         } finally {
             submitBtn.disabled = false;
-            submitBtn.textContent = isLogin ? 'Войти' : 'Зарегистрироваться';
+            submitBtn.textContent = isLogin ? 'Авторизоваться' : 'Подать заявку';
         }
     });
 
