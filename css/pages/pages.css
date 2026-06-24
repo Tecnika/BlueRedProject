@@ -120,6 +120,19 @@
     font-size: 1.1rem;
 }
 
+.page-view-page__back {
+    display: inline-block;
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+    transition: padding-left 0.2s;
+}
+
+.page-view-page__back:hover {
+    padding-left: var(--space-xs);
+}
+
 .page-view-page__breadcrumbs {
     display: flex;
     align-items: center;

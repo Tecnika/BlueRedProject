@@ -49,6 +49,14 @@ export async function PageViewPage(slug) {
             if (fc) document.body.style.backgroundColor = fc + '08';
         }
 
+        // Кнопка «Назад к архиву»
+        const backLink = createElement('a', {
+            className: 'page-view-page__back',
+            text: '←  Назад к архиву',
+            attributes: { href: '#/pages' }
+        });
+        container.appendChild(backLink);
+
         // Хлебные крошки
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
         const allPages = await getAllPages();
