@@ -16,7 +16,7 @@ export function Header(navItems, themeManager) {
 
     const logo = createElement('a', {
         className: 'header__logo',
-        text: 'BlueRed',
+        html: '<span class="header__logo-b">B</span>lue<span class="header__logo-r">R</span>ed',
         attributes: { href: '#/' }
     });
 

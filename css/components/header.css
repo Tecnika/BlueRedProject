@@ -43,6 +43,9 @@
     color: var(--color-primary-dark);
 }
 
+.header__logo-b { color: #dc2626; }
+.header__logo-r { color: #2563eb; }
+
 /* Правая группа: навигация + блок авторизации */
 .header__right {
     display: flex;
