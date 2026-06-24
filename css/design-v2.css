@@ -255,8 +255,8 @@
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    color: var(--color-text-secondary);
-    font-size: 1.4rem;
+    color: var(--color-text);
+    font-size: 1.5rem;
     padding: var(--space-xs) var(--space-sm);
     cursor: pointer;
     transition: all 0.25s;
@@ -268,6 +268,23 @@
     color: var(--color-primary);
     background: rgba(124, 58, 237, 0.1);
     box-shadow: 0 0 16px var(--color-primary-glow);
+}
+
+/* Мобильное меню в тёмной теме */
+@media (max-width: 768px) {
+    .design-v2 .header__right {
+        background-color: var(--color-bg-secondary);
+        border-bottom: 1px solid var(--color-border);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    .design-v2 .header__hamburger {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
 }
 
 /* ========================================
@@ -893,21 +910,42 @@
     color: var(--color-text);
 }
 
+.design-v2 .pages-tree {
+    gap: var(--space-sm);
+}
+
+.design-v2 .pages-tree .pages-tree {
+    border-left-color: var(--color-border);
+    margin-left: var(--space-lg);
+    padding-left: var(--space-md);
+}
+
 .design-v2 .pages-tree__link {
-    color: var(--color-text-secondary);
+    background: linear-gradient(145deg, #1a1a3a, var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-left: 3px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-text);
     font-weight: 600;
-    transition: color 0.2s, padding-left 0.2s;
+    padding: var(--space-sm) var(--space-md);
+    transition: all 0.25s;
 }
 
 .design-v2 .pages-tree__link:hover {
+    background: linear-gradient(145deg, rgba(124, 58, 237, 0.12), #1a1a3a);
+    border-color: var(--color-primary);
+    border-left-color: var(--color-primary);
     color: var(--color-primary);
-    padding-left: var(--space-xs);
+    padding-left: var(--space-md);
+    box-shadow: 0 0 16px var(--color-primary-glow);
 }
 
 .design-v2 .pages-tree__badge {
     font-weight: 700;
     font-size: 0.7rem;
     letter-spacing: 0.5px;
+    border-radius: 10px;
+    padding: 1px 8px;
 }
 
 /* ========================================
