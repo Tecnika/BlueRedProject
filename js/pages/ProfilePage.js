@@ -13,7 +13,7 @@
 
 import { createElement } from '../utils/dom.js?v=2';
 import { store } from '../core/Store.js?v=2';
-import { getAvatarUrl } from '../core/Avatar.js?v=2';
+import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=2';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=2';
 import { getNote, saveNote } from '../firebase/notesService.js?v=2';
 import { TagInput } from '../components/TagInput.js?v=2';
@@ -102,7 +102,10 @@ function createProfileCard(profile, isOwner, isAdmin) {
 
     const avatar = createElement('img', {
         className: 'profile-card__avatar',
-        attributes: { src: avatarUrl, alt: profile.username }
+        attributes: { src: avatarUrl, alt: profile.username },
+        events: {
+            error: () => { avatar.src = getFallbackAvatarUrl(profile.username, profile.faction); }
+        }
     });
 
     const info = createElement('div', { className: 'profile-card__info' });
