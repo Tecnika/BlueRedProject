@@ -102,11 +102,10 @@ function createProfileCard(profile, isOwner, isAdmin) {
 
     const avatar = createElement('img', {
         className: 'profile-card__avatar',
-        attributes: { src: avatarUrl, alt: profile.username },
-        events: {
-            error: () => { avatar.src = getFallbackAvatarUrl(profile.username, profile.faction); }
-        }
+        attributes: { alt: profile.username }
     });
+    avatar.onerror = () => { avatar.src = getFallbackAvatarUrl(profile.username, profile.faction); };
+    avatar.src = avatarUrl;
 
     const info = createElement('div', { className: 'profile-card__info' });
 

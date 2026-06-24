@@ -202,11 +202,10 @@ function createMemberCard(member, currentUid) {
 
     const avatar = createElement('img', {
         className: 'faction-card__avatar',
-        attributes: { src: avatarUrl, alt: member.username },
-        events: {
-            error: () => { avatar.src = getFallbackAvatarUrl(member.username, member.faction); }
-        }
+        attributes: { alt: member.username }
     });
+    avatar.onerror = () => { avatar.src = getFallbackAvatarUrl(member.username, member.faction); };
+    avatar.src = avatarUrl;
 
     const info = createElement('div', { className: 'faction-card__info' });
 
