@@ -16,7 +16,11 @@ export async function setDesign(version) {
 
 export function subscribeDesign(callback) {
     const { db } = getFirebase();
-    return onSnapshot(doc(db, SETTINGS_PATH), (snap) => {
-        callback(snap.exists() ? snap.data().version || 'v1' : 'v1');
-    });
+    return onSnapshot(doc(db, SETTINGS_PATH),
+        (snap) => callback(snap.exists() ? snap.data().version || 'v1' : 'v1'),
+        (err) => {
+            console.warn('design: fallback to v1', err.code);
+            callback('v1');
+        }
+    );
 }
