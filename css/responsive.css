@@ -136,8 +136,26 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: var(--space-lg);
   }
   .profile-card__meta { justify-content: center; }
+  .profile-card__name { font-size: 1.2rem; }
+  .profile-card__avatar { width: 72px; height: 72px; }
+
+  .profile-edit,
+  .profile-notes {
+    padding: var(--space-lg);
+  }
+  .profile-edit__input,
+  .profile-notes__textarea {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: 0.9rem;
+  }
+  .profile-edit__save,
+  .profile-notes__save {
+    width: 100%;
+    text-align: center;
+  }
 
   .admin-section { padding: var(--space-lg); }
   .admin-tags__form { flex-direction: column; }
@@ -207,6 +225,14 @@
   }
 
   .admin-section { padding: var(--space-md); }
+
+  .profile-card { padding: var(--space-md); }
+  .profile-card__avatar { width: 56px; height: 56px; }
+  .profile-card__name { font-size: 1.1rem; }
+  .profile-edit,
+  .profile-notes { padding: var(--space-md); }
+  .profile-edit__title,
+  .profile-notes__title { font-size: 1rem; }
 
   .profile-edit__subtag-btn {
     font-size: 0.7rem;
