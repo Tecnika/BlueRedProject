@@ -112,50 +112,75 @@ export function buildPageTree(pages) {
 }
 
 /**
+ * Правила доступа к страницам и ячейкам.
+ *
+ * У игрока есть два типа тегов:
+ *   accessTags       — теги доступа (выдаёт мастер в профиле)
+ *   factionAccessTags — скрытые теги (выдаёт мастер, хранятся отдельно)
+ *
+ * В обоих списках могут быть:
+ *   • Базовые теги  — например «техник»
+ *   • Составные теги — например «техник_к_1» (фракция_уровень)
+ *
+ * Правило 1: базовый тег открывает info-ячейки ВСЕХ фракций
+ *   Пример: синий с тегом «техник» видит «О фракции» про красных,
+ *           синих и фиолетовых (если у них есть техник-контент).
+ *
+ * Правило 2: составной тег открывает ТОЛЬКО свою ячейку,
+ *            дополнительно к правилу 1
+ *   Пример: синий с «техник_к_1» видит красную пропаганду.
+ *           Синий с «техник_к_1» + «техник» видит красную info
+ *           (по правилу 1) + красную пропаганду (по правилу 2).
+ *
+ * Правило 3: без базового тега составной тег даёт только свою ячейку
+ *   Пример: синий с «техник_к_1» без «техник» видит ТОЛЬКО
+ *           красную пропаганду, info-ячейки не видны.
+ */
+
+/** Объединить accessTags и factionAccessTags в единый массив */
+function getUserTags(user) {
+    return [
+        ...(user.accessTags || []).map(t => t.toLowerCase()),
+        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
+    ];
+}
+
+/**
  * Отфильтровать страницы по тегам пользователя.
- * Общие страницы — по тегам. Фракционные — по тегам + фракция автоматом.
- * @param {Array} pages
- * @param {Object} user — { accessTags }
- * @returns {Array}
+ * Страница видна, если у пользователя есть хотя бы один тег,
+ * совпадающий с тегом страницы (базовый) или являющийся
+ * составным от него.
  */
 export function filterVisiblePages(pages, user) {
     if (!user) return [];
     if (user.role === 'master') return pages;
 
-    const allUserTags = [
-        ...(user.accessTags || []).map(t => t.toLowerCase()),
-        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
-    ];
+    const userTags = getUserTags(user);
 
     return pages.filter(p => {
         if (!p.tags || p.tags.length === 0) return true;
         const pageTags = p.tags.map(t => t.toLowerCase());
         return pageTags.some(t =>
-            allUserTags.some(ut => ut === t || ut.startsWith(t + '_'))
+            userTags.some(ut => ut === t || ut.startsWith(t + '_'))
         );
     });
 }
 
 /**
  * Отфильтровать ячейки матрицы фракционной страницы.
- * Доступ к ячейке — по составному тегу {pageTag}_{abbr}_{level}
+ *
+ * Составной тег: {тег}_{abbr}_{level}
  *   abbr: к / с / ф  (red / blue / purple)
  *   level: 0 (info) / 1 (propaganda) / 2 (hard-propaganda)
  *
- * Например: техник_к_0 — доступ к красной колонке info,
- *           техник_с_1 — доступ к синей колонке propaganda.
- *
- * Игрок не видит разницы между уровнями — propaganda и
- * hard-propaganda отображаются как обычная информация.
+ *   техник_к_0 — красная колонка, info
+ *   техник_с_1 — синяя колонка, propaganda
  */
 export function filterVisibleCells(matrix, user, pageTags = []) {
     if (!matrix) return {};
     if (user.role === 'master') return matrix;
 
-    const userTags = [
-        ...(user.accessTags || []).map(t => t.toLowerCase()),
-        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
-    ];
+    const userTags = getUserTags(user);
     const tags = pageTags.map(t => t.toLowerCase());
     const result = {};
 
@@ -166,12 +191,14 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
             const cell = matrix[f][r];
             if (!cell) continue;
 
-            // Составной тег: техник_к_0
-            const required = tags.map(t => `${t}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`);
-            const hasAccess = required.some(tag => userTags.includes(tag))
-                || (r === 'info' && tags.some(t => userTags.includes(t)));
+            // Правило 2: составной тег даёт доступ к конкретной ячейке
+            const compoundTags = tags.map(t => `${t}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`);
+            const hasCompound = compoundTags.some(tag => userTags.includes(tag));
 
-            if (hasAccess) {
+            // Правило 1: базовый тег открывает info-ячейки всех фракций
+            const hasBaseInfo = r === 'info' && tags.some(t => userTags.includes(t));
+
+            if (hasCompound || hasBaseInfo) {
                 cellGroup[r] = { content: cell.content, images: cell.images || [] };
             }
         }
