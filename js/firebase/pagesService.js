@@ -122,14 +122,13 @@ export function buildPageTree(pages) {
  *   • Базовые теги  — например «техник»
  *   • Составные теги — например «техник_к_1» (фракция_уровень)
  *
- * Правило 1: базовый тег открывает info-ячейки ВСЕХ фракций
- *   Пример: синий с тегом «техник» видит «О фракции» про красных,
- *           синих и фиолетовых (если у них есть техник-контент).
+ * Правило 1: базовый тег открывает info-ячейки фракции игрока
+ *   Пример: синий с тегом «техник» видит «О фракции» синих (своя фракция).
  *
  * Правило 2: составной тег открывает ТОЛЬКО свою ячейку,
  *            дополнительно к правилу 1
  *   Пример: синий с «техник_к_1» видит красную пропаганду.
- *           Синий с «техник_к_1» + «техник» видит красную info
+ *           Синий с «техник_к_1» + «техник» видит синюю info
  *           (по правилу 1) + красную пропаганду (по правилу 2).
  *
  * Правило 3: без базового тега составной тег даёт только свою ячейку
@@ -195,8 +194,10 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
             const compoundTags = tags.map(t => `${t}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`);
             const hasCompound = compoundTags.some(tag => userTags.includes(tag));
 
-            // Правило 1: базовый тег открывает info-ячейки всех фракций
-            const hasBaseInfo = r === 'info' && tags.some(t => userTags.includes(t));
+            // Правило 1: базовый тег открывает info-ячейки фракции игрока
+            const hasBaseInfo = r === 'info'
+                && f === (user.faction || '').toLowerCase()
+                && tags.some(t => userTags.includes(t));
 
             if (hasCompound || hasBaseInfo) {
                 cellGroup[r] = { content: cell.content, images: cell.images || [] };
