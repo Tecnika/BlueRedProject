@@ -168,7 +168,8 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
 
             // Составной тег: техник_к_0
             const required = tags.map(t => `${t}_${FACTION_ABBR[f]}_${LEVEL_ABBR[r]}`);
-            const hasAccess = required.some(tag => userTags.includes(tag));
+            const hasAccess = required.some(tag => userTags.includes(tag))
+                || (r === 'info' && tags.some(t => userTags.includes(t)));
 
             if (hasAccess) {
                 cellGroup[r] = { content: cell.content, images: cell.images || [] };
