@@ -122,12 +122,17 @@ export function filterVisiblePages(pages, user) {
     if (!user) return [];
     if (user.role === 'master') return pages;
 
-    const userTags = (user.accessTags || []).map(t => t.toLowerCase());
+    const allUserTags = [
+        ...(user.accessTags || []).map(t => t.toLowerCase()),
+        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
+    ];
 
     return pages.filter(p => {
         if (!p.tags || p.tags.length === 0) return true;
         const pageTags = p.tags.map(t => t.toLowerCase());
-        return pageTags.some(t => userTags.includes(t));
+        return pageTags.some(t =>
+            allUserTags.some(ut => ut === t || ut.startsWith(t + '_'))
+        );
     });
 }
 

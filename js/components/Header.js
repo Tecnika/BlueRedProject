@@ -62,7 +62,7 @@ function toggleAdminLink(navList) {
         });
         const li = createElement('li', {
             className: 'nav__item',
-            dataset: { 'admin-link': '' },
+            attributes: { 'data-admin-link': '' },
             children: [link]
         });
         navList.appendChild(li);

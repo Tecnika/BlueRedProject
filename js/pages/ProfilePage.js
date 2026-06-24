@@ -17,6 +17,7 @@ import { getAvatarUrl } from '../core/Avatar.js?v=2';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=2';
 import { getNote, saveNote } from '../firebase/notesService.js?v=2';
 import { TagInput } from '../components/TagInput.js?v=2';
+import { searchTags } from '../firebase/tagsService.js?v=2';
 import { translateError } from '../utils/translateError.js?v=2';
 
 /** Человеческие названия фракций */
@@ -338,21 +339,42 @@ async function createAdminSection(profile, targetUid, themeManager) {
     // Строитель субтега: тег + фракция + уровень
     const builder = createElement('div', { className: 'profile-edit__subtag-builder' });
 
+    const inputWrap = createElement('div', { className: 'profile-edit__subtag-input-wrap' });
     const baseInput = createElement('input', {
         className: 'profile-edit__input',
-        attributes: { type: 'text', id: 'subtag-base', placeholder: 'Тег (техник)' }
+        attributes: { type: 'text', id: 'subtag-base', placeholder: 'Тег (техник)', autocomplete: 'off' }
     });
-    builder.appendChild(baseInput);
+    inputWrap.appendChild(baseInput);
+    const suggestions = createElement('ul', { className: 'tag-input__dropdown' });
+    inputWrap.appendChild(suggestions);
+    builder.appendChild(inputWrap);
+
+    baseInput.addEventListener('input', () => {
+        const q = baseInput.value.trim();
+        if (!q) { suggestions.innerHTML = ''; return; }
+        searchTags(q).then(results => {
+            suggestions.innerHTML = '';
+            for (const t of results) {
+                const li = createElement('li', {
+                    className: 'tag-input__option',
+                    text: t.name,
+                    events: { click: () => { baseInput.value = t.name; suggestions.innerHTML = ''; } }
+                });
+                suggestions.appendChild(li);
+            }
+        }).catch(() => { suggestions.innerHTML = ''; });
+    });
 
     let selFaction = '';
     let selLevel = '';
-    const factionKeys = ['к', 'с', 'ф'];
-    const levelKeys = ['0', '1', '2'];
+
+    const FACTION_MAP = { к: 'Красные', с: 'Синие', ф: 'Фиолетовые' };
+    const LEVEL_MAP = { '0': 'Инфо', '1': 'Пропаганда', '2': 'Жёсткая' };
 
     const fGroup = createElement('div', { className: 'profile-edit__subtag-group' });
-    for (const k of factionKeys) {
+    for (const [k, label] of Object.entries(FACTION_MAP)) {
         const btn = createElement('button', {
-            className: 'profile-edit__subtag-btn', text: k,
+            className: 'profile-edit__subtag-btn', text: label,
             attributes: { type: 'button', 'data-value': k },
             events: { click: () => { selFaction = k; fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
         });
@@ -361,9 +383,9 @@ async function createAdminSection(profile, targetUid, themeManager) {
     builder.appendChild(fGroup);
 
     const lGroup = createElement('div', { className: 'profile-edit__subtag-group' });
-    for (const k of levelKeys) {
+    for (const [k, label] of Object.entries(LEVEL_MAP)) {
         const btn = createElement('button', {
-            className: 'profile-edit__subtag-btn', text: k,
+            className: 'profile-edit__subtag-btn', text: label,
             attributes: { type: 'button', 'data-value': k },
             events: { click: () => { selLevel = k; lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
         });
@@ -373,7 +395,7 @@ async function createAdminSection(profile, targetUid, themeManager) {
 
     const addBtn = createElement('button', {
         className: 'profile-edit__subtag-add', text: '+',
-        attributes: { type: 'button' },
+        attributes: { type: 'button', title: 'Добавить субтег' },
         events: {
             click: () => {
                 const base = baseInput.value.trim();
@@ -385,6 +407,7 @@ async function createAdminSection(profile, targetUid, themeManager) {
                 }
                 baseInput.value = '';
                 selFaction = ''; selLevel = '';
+                suggestions.innerHTML = '';
                 fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
                 lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
             }
