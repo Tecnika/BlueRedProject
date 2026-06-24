@@ -2,6 +2,7 @@
 import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=3';
 import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=3';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=3';
+import { getDesign, setDesign } from '../firebase/settingsService.js?v=3';
 import { createElement } from '../utils/dom.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
@@ -26,12 +27,67 @@ export function AdminPage() {
 
     const container = createElement('div', { className: 'admin-page__container' });
     container.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Мастерская' }));
+    container.appendChild(renderDesignSection());
     container.appendChild(renderTagsSection());
     container.appendChild(renderSubTagsSection());
     container.appendChild(renderPagesSection());
     section.appendChild(container);
 
     return section;
+}
+
+/* ========================================
+   Секция переключалки дизайна
+   ======================================== */
+
+function renderDesignSection() {
+    const container = createElement('div', { className: 'admin-section' });
+
+    container.appendChild(createElement('h2', {
+        className: 'admin-section__title',
+        text: 'Дизайн сектора'
+    }));
+    container.appendChild(createElement('p', {
+        className: 'admin-section__desc',
+        text: 'Выберите оформление для всех агентов.'
+    }));
+
+    const current = store.get('design') || 'v1';
+    const wrap = createElement('div', { className: 'admin-design' });
+
+    const btnV1 = createElement('button', {
+        className: `admin-design__btn${current === 'v1' ? ' admin-design__btn--active' : ''}`,
+        text: 'Версия 1',
+        attributes: { type: 'button', 'data-version': 'v1' }
+    });
+
+    const btnV2 = createElement('button', {
+        className: `admin-design__btn${current === 'v2' ? ' admin-design__btn--active' : ''}`,
+        text: 'Версия 2',
+        attributes: { type: 'button', 'data-version': 'v2' }
+    });
+
+    const msg = createElement('p', { className: 'admin-design__msg', text: '' });
+
+    function switchDesign(version) {
+        setDesign(version).then(() => {
+            btnV1.classList.toggle('admin-design__btn--active', version === 'v1');
+            btnV2.classList.toggle('admin-design__btn--active', version === 'v2');
+            msg.textContent = `Дизайн "${version}" применён`;
+        }).catch(err => {
+            msg.textContent = 'Ошибка: ' + translateError(err);
+        });
+    }
+
+    btnV1.addEventListener('click', () => switchDesign('v1'));
+    btnV2.addEventListener('click', () => switchDesign('v2'));
+
+    wrap.appendChild(btnV1);
+    wrap.appendChild(btnV2);
+    container.appendChild(wrap);
+    container.appendChild(msg);
+
+    return container;
 }
 
 /* ========================================

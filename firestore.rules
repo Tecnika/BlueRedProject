@@ -85,6 +85,16 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ========== Коллекция settings (глобальные настройки) ==========
+    match /settings/{docId} {
+
+      // Читать настройки могут все авторизованные (дизайн для всех)
+      allow read: if request.auth != null;
+
+      // Изменять настройки может только мастер
+      allow write: if isMaster();
+    }
+
     // ========== Коллекция pages (страницы) ==========
     match /pages/{pageId} {
 

@@ -28,13 +28,18 @@ import { initFirebase } from './firebase/firebase.js?v=3';
 import { onAuthChange, getUserProfile } from './firebase/authService.js?v=3';
 import { seedInitialTags } from './firebase/tagsService.js?v=3';
 import { seedInitialPages } from './firebase/pagesService.js?v=3';
+import { subscribeDesign } from './firebase/settingsService.js?v=3';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
 let footerEl = null;
+let designUnsub = null;
 
 async function init() {
     const app = document.getElementById('app');
+
+    // По умолчанию v1, переключится после авторизации
+    document.documentElement.classList.add('design-v1');
 
     // Восстанавливаем сохранённую тему или ставим 'purple'
     themeManager.init();
@@ -114,8 +119,20 @@ async function init() {
                     try { await seedInitialPages(); } catch (e) { /* страница уже есть */ }
                 }
             }
+
+            // Подписываемся на глобальный дизайн (только после авторизации)
+            if (designUnsub) designUnsub();
+            designUnsub = subscribeDesign((version) => {
+                document.documentElement.classList.remove('design-v1', 'design-v2');
+                document.documentElement.classList.add('design-' + (version || 'v1'));
+                store.set('design', version || 'v1');
+            });
         } else {
+            document.documentElement.classList.remove('design-v1', 'design-v2');
+            document.documentElement.classList.add('design-v1');
+            store.set('design', 'v1');
             store.set('user', null);
+            if (designUnsub) { designUnsub(); designUnsub = null; }
             themeManager.setThemeByFaction(null);
         }
         store.set('isAuthReady', true);

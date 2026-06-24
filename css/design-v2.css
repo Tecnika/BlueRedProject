@@ -1,0 +1,283 @@
+/* ========================================
+   Дизайн v2 — больше цвета и контрастности
+   Срабатывает при .design-v2 на <html>
+   ======================================== */
+
+/* --- Глобальные переменные: насыщеннее, контрастнее --- */
+.design-v2 {
+    --color-bg: #f0f2f5;
+    --color-bg-secondary: #e2e5ea;
+    --color-text: #0a0a1a;
+    --color-text-secondary: #3d4048;
+    --color-border: #9ca3af;
+    --color-primary: #7c3aed;
+    --color-primary-dark: #5b21b6;
+    --color-primary-light: #ddd6fe;
+    --color-primary-glow: rgba(124, 58, 237, 0.25);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+/* --- Туманность ярче и контрастнее --- */
+.design-v2 body::before {
+    opacity: 0.85;
+}
+
+/* --- Звёзды темнее и заметнее --- */
+.design-v2 body::after {
+    opacity: 0.6;
+}
+
+/* --- Шапка: толще свечение, сильнее тень --- */
+.design-v2 .header {
+    border-top-width: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12), 0 0 32px var(--color-primary-glow);
+    background-color: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+}
+
+/* --- Навигация: активный пункт с подчёркиванием --- */
+.design-v2 .nav__link {
+    font-weight: 600;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.design-v2 .nav__link:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+}
+
+/* --- Герой: градиент с цветным наложением --- */
+.design-v2 .hero {
+    background:
+        radial-gradient(ellipse at 20% 40%, var(--color-primary-glow) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 60%, var(--color-accent-glow) 0%, transparent 50%),
+        linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 50%, var(--color-white) 100%);
+    border-bottom: 3px solid var(--color-primary);
+}
+
+.design-v2 .hero__title {
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 12px var(--color-primary-glow);
+}
+
+.design-v2 .hero__text {
+    font-size: 1.15rem;
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+/* --- Карточки на главной --- */
+.design-v2 .feature-card {
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    background: linear-gradient(135deg, var(--color-white) 0%, var(--color-bg) 100%);
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.design-v2 .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px var(--color-primary-glow), var(--shadow-lg);
+    border-left-color: var(--color-accent);
+}
+
+/* --- Карточка профиля --- */
+.design-v2 .profile-card {
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    background: var(--color-white);
+}
+
+/* --- Поля ввода --- */
+.design-v2 input,
+.design-v2 textarea,
+.design-v2 select {
+    border: 2px solid var(--color-border);
+    background-color: var(--color-white);
+}
+
+.design-v2 input:focus,
+.design-v2 textarea:focus,
+.design-v2 select:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 4px var(--color-primary-glow) !important;
+}
+
+/* --- Кнопки --- */
+.design-v2 .auth-form__button,
+.design-v2 .profile-edit__save,
+.design-v2 .profile-notes__save,
+.design-v2 .page-edit-page__save {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border: none;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.design-v2 .auth-form__button:hover,
+.design-v2 .profile-edit__save:hover,
+.design-v2 .profile-notes__save:hover,
+.design-v2 .page-edit-page__save:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--color-primary-glow);
+}
+
+.design-v2 .auth-form__button:active,
+.design-v2 .profile-edit__save:active,
+.design-v2 .profile-notes__save:active,
+.design-v2 .page-edit-page__save:active {
+    transform: translateY(0);
+}
+
+/* --- Карточки на странице фракции --- */
+.design-v2 .faction-card {
+    border: 1px solid var(--color-border);
+    border-left: 4px solid transparent;
+    transition: border-left-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.design-v2 .faction-card:hover {
+    border-left-color: var(--color-primary);
+    transform: translateX(4px);
+}
+
+/* --- Форма авторизации --- */
+.design-v2 .auth-form {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-lg);
+}
+
+.design-v2 .auth-form__title {
+    font-size: 1.5rem;
+    color: var(--color-primary);
+}
+
+/* --- Заголовки секций --- */
+.design-v2 .features__title,
+.design-v2 .profile-edit__title,
+.design-v2 .profile-notes__title,
+.design-v2 .page-view-page__title {
+    border-bottom: 3px solid var(--color-primary);
+    padding-bottom: var(--space-sm);
+    display: inline-block;
+}
+
+/* --- Теги и чипсы --- */
+.design-v2 .profile-card__tag,
+.design-v2 .page-view-page__tag {
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: 600;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* --- Бейджи фракций --- */
+.design-v2 .page-view__faction-badge {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: var(--space-xs) var(--space-md);
+}
+
+/* --- Карточки ячеек матрицы --- */
+.design-v2 .page-view__faction-card {
+    border: 1px solid var(--color-border);
+    border-left: 5px solid var(--color-primary);
+    background: var(--color-white);
+    transition: box-shadow 0.25s;
+}
+
+.design-v2 .page-view__faction-card:hover {
+    box-shadow: 0 4px 20px var(--color-primary-glow);
+}
+
+/* --- Подвал --- */
+.design-v2 .footer {
+    border-top: 3px solid var(--color-primary);
+    background-color: var(--color-bg-secondary);
+}
+
+.design-v2 .footer__copyright {
+    color: var(--color-text);
+    font-weight: 500;
+}
+
+/* --- Редактор страниц — секции матрицы --- */
+.design-v2 .page-edit__faction-section {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    background: var(--color-white);
+    margin-bottom: var(--space-lg);
+}
+
+.design-v2 .page-edit__faction-section-title {
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+}
+
+/* --- Админка: секции --- */
+.design-v2 .admin-section {
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+/* --- Переключалка дизайна в админке --- */
+.design-v2 .admin-design__btn {
+    padding: var(--space-md) var(--space-xl);
+    font-size: 1rem;
+}
+
+.design-v2 .admin-design__btn--active {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    border-color: transparent;
+}
+
+/* --- Хлебные крошки --- */
+.design-v2 .page-view-page__crumb {
+    font-weight: 600;
+}
+
+.design-v2 .page-view-page__crumb-sep {
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+/* --- Кнопка удаления --- */
+.design-v2 .page-edit-page__delete {
+    border: 2px solid #dc2626;
+    color: #dc2626;
+    background: transparent;
+    font-weight: 700;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.design-v2 .page-edit-page__delete:hover {
+    background-color: #dc2626;
+    color: var(--color-white);
+}
+
+/* --- Ссылки в досье --- */
+.design-v2 .page-view-page__edit-btn {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    font-weight: 700;
+    padding: var(--space-sm) var(--space-xl);
+    border-radius: var(--radius-md);
+}
+
+.design-v2 .page-view-page__edit-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 16px var(--color-primary-glow);
+}
