@@ -1,4 +1,4 @@
-/**
+﻿/**
  * tagsService — каталог тегов в Firestore.
  *
  * Коллекция 'tags': { name, createdAt }
@@ -9,7 +9,7 @@
  */
 
 import { collection, doc, getDocs, setDoc, deleteDoc, query, limit } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=2';
+import { getFirebase } from './firebase.js?v=3';
 
 /** Стартовый пул тегов (космические навыки / должности) */
 const INITIAL_TAGS = [

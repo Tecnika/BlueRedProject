@@ -1,4 +1,4 @@
-/**
+﻿/**
  * subtagsService — технические субтеги для доступа к ячейкам
  * фракционных страниц. Хранятся в коллекции 'subtags'.
  *
@@ -10,7 +10,7 @@
  */
 
 import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=2';
+import { getFirebase } from './firebase.js?v=3';
 
 /** Получить все субтеги */
 export async function getAllSubTags() {

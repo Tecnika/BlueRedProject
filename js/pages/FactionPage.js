@@ -1,4 +1,4 @@
-/**
+﻿/**
  * FactionPage — страница фракции.
  *
  * Для обычного игрока: показывает список участников своей фракции.
@@ -9,11 +9,11 @@
  *   — Внутри групп — сортировка по алфавиту.
  */
 
-import { createElement } from '../utils/dom.js?v=2';
-import { translateError } from '../utils/translateError.js?v=2';
-import { store } from '../core/Store.js?v=2';
-import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=2';
-import { getCollection } from '../firebase/dbService.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=3';
+import { getCollection } from '../firebase/dbService.js?v=3';
 
 /** Порядок отображения групп (для админа) */
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];

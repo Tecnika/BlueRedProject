@@ -1,4 +1,4 @@
-/**
+﻿/**
  * dbService — обёртка над Firestore для базовых CRUD-операций.
  *
  * Позволяет работать с любой коллекцией без импорта Firebase SDK
@@ -18,7 +18,7 @@ import {
     where
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=2';
+import { getFirebase } from './firebase.js?v=3';
 
 function getDb() {
     return getFirebase().db;

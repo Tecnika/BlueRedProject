@@ -1,4 +1,4 @@
-/**
+﻿/**
  * notesService — заметки об игроках.
  *
  * Каждая заметка хранится в коллекции 'notes' с составным id:
@@ -9,7 +9,7 @@
  */
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=2';
+import { getFirebase } from './firebase.js?v=3';
 
 /** Составной id: автор + цель */
 function noteId(authorId, targetId) {

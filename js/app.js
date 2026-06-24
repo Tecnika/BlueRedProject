@@ -1,4 +1,4 @@
-/**
+﻿/**
  * app.js — точка входа в приложение BlueRed.
  *
  * Последовательность инициализации:
@@ -10,24 +10,24 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=2';
-import { Footer } from './components/Footer.js?v=2';
-import { HomePage } from './pages/HomePage.js?v=2';
-import { AuthPage } from './pages/AuthPage.js?v=2';
-import { ProfilePage } from './pages/ProfilePage.js?v=2';
-import { FactionPage } from './pages/FactionPage.js?v=2';
-import { AdminPage } from './pages/AdminPage.js?v=2';
-import { PagesListPage } from './pages/PagesListPage.js?v=2';
-import { PageViewPage } from './pages/PageViewPage.js?v=2';
-import { PageEditPage } from './pages/PageEditPage.js?v=2';
-import { render } from './utils/dom.js?v=2';
-import { ThemeManager } from './core/ThemeManager.js?v=2';
-import { Router } from './core/Router.js?v=2';
-import { store } from './core/Store.js?v=2';
-import { initFirebase } from './firebase/firebase.js?v=2';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=2';
-import { seedInitialTags } from './firebase/tagsService.js?v=2';
-import { seedInitialPages } from './firebase/pagesService.js?v=2';
+import { Header } from './components/Header.js?v=3';
+import { Footer } from './components/Footer.js?v=3';
+import { HomePage } from './pages/HomePage.js?v=3';
+import { AuthPage } from './pages/AuthPage.js?v=3';
+import { ProfilePage } from './pages/ProfilePage.js?v=3';
+import { FactionPage } from './pages/FactionPage.js?v=3';
+import { AdminPage } from './pages/AdminPage.js?v=3';
+import { PagesListPage } from './pages/PagesListPage.js?v=3';
+import { PageViewPage } from './pages/PageViewPage.js?v=3';
+import { PageEditPage } from './pages/PageEditPage.js?v=3';
+import { render } from './utils/dom.js?v=3';
+import { ThemeManager } from './core/ThemeManager.js?v=3';
+import { Router } from './core/Router.js?v=3';
+import { store } from './core/Store.js?v=3';
+import { initFirebase } from './firebase/firebase.js?v=3';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=3';
+import { seedInitialTags } from './firebase/tagsService.js?v=3';
+import { seedInitialPages } from './firebase/pagesService.js?v=3';
 
 const themeManager = new ThemeManager();
 let headerEl = null;

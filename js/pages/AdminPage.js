@@ -1,9 +1,9 @@
-import { store } from '../core/Store.js?v=2';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=2';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=2';
-import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=2';
-import { createElement } from '../utils/dom.js?v=2';
-import { translateError } from '../utils/translateError.js?v=2';
+﻿import { store } from '../core/Store.js?v=3';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=3';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=3';
+import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=3';
+import { createElement } from '../utils/dom.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 /**
  * AdminPage — панель управления (только для мастеров).

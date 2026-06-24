@@ -1,4 +1,4 @@
-/**
+﻿/**
  * authService — сервис авторизации через Firebase Auth + Firestore.
  *
  * Особенности:
@@ -26,7 +26,7 @@ import {
     updateDoc
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=2';
+import { getFirebase } from './firebase.js?v=3';
 
 /** Домен-заглушка для email (Firebase Auth требует email) */
 const FAKE_DOMAIN = '@bluered.project';

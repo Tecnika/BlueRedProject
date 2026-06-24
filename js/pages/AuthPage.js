@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AuthPage — страница входа и регистрации.
  *
  * Одна форма переключается между режимами "login" и "register".
@@ -8,9 +8,9 @@
  * buildForm экспортируется для возможного переиспользования.
  */
 
-import { createElement } from '../utils/dom.js?v=2';
-import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=2';
-import { translateError } from '../utils/translateError.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
+import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });

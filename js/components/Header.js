@@ -1,14 +1,14 @@
-/**
+﻿/**
  * Header — шапка сайта.
  *
  * Содержит: логотип, навигацию, блок авторизации (username/logout или "Войти").
  * При смене пользователя через store автоматически обновляет блок auth.
  */
 
-import { createElement } from '../utils/dom.js?v=2';
-import { Navigation } from './Navigation.js?v=2';
-import { store } from '../core/Store.js?v=2';
-import { signOutUser } from '../firebase/authService.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
+import { Navigation } from './Navigation.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { signOutUser } from '../firebase/authService.js?v=3';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });

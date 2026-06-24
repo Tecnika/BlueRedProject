@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ProfilePage — страница профиля игрока.
  *
  * Уровни доступа:
@@ -11,14 +11,14 @@
  *      #/profile          — свой профиль
  */
 
-import { createElement } from '../utils/dom.js?v=2';
-import { store } from '../core/Store.js?v=2';
-import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=2';
-import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=2';
-import { getNote, saveNote } from '../firebase/notesService.js?v=2';
-import { TagInput } from '../components/TagInput.js?v=2';
-import { searchTags } from '../firebase/tagsService.js?v=2';
-import { translateError } from '../utils/translateError.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { getAvatarUrl, getFallbackAvatarUrl } from '../core/Avatar.js?v=3';
+import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=3';
+import { getNote, saveNote } from '../firebase/notesService.js?v=3';
+import { TagInput } from '../components/TagInput.js?v=3';
+import { searchTags } from '../firebase/tagsService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {

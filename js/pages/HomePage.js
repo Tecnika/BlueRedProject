@@ -1,11 +1,11 @@
-/**
+﻿/**
  * HomePage — главная страница.
  *
  * Содержит hero-блок с приветствием и сетку карточек-возможностей.
  * Не требует авторизации.
  */
 
-import { createElement } from '../utils/dom.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
 
 export function HomePage() {
     const main = createElement('main', { className: 'main' });

@@ -1,11 +1,11 @@
-/**
+﻿/**
  * Navigation — горизонтальное меню из массива пунктов.
  *
  * Каждый пункт: { label: 'Название', path: '#/путь' }
  * Данные загружаются из data/navigation.json.
  */
 
-import { createElement } from '../utils/dom.js?v=2';
+import { createElement } from '../utils/dom.js?v=3';
 
 export function Navigation(items) {
     const nav = createElement('nav', { className: 'nav' });
