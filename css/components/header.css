@@ -25,6 +25,11 @@
     justify-content: space-between;
 }
 
+/* Гамбургер-кнопка — скрыта на десктопе, показывается на мобилках */
+.header__hamburger {
+    display: none;
+}
+
 /* Логотип — цветной, жирный, без выделения */
 .header__logo {
     font-size: 1.5rem;

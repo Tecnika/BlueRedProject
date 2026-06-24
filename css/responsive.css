@@ -3,46 +3,77 @@
     padding: 0 var(--space-sm);
   }
 
-  .header__right {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    flex-shrink: 1;
-    min-width: 0;
+  .header__hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    transition: background-color 0.2s;
+    flex-shrink: 0;
   }
-  .header__right::-webkit-scrollbar { display: none; }
-  .header__right > * { flex-shrink: 0; }
+  .header__hamburger:hover {
+    background-color: var(--color-bg-secondary);
+  }
 
-  .nav {
-    flex-shrink: 0;
+  .header__right {
+    display: none;
+    position: absolute;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    z-index: 99;
+    padding: var(--space-sm) 0;
   }
+  .header--menu-open .header__right {
+    display: flex;
+  }
+
+  .header__right > nav { flex-shrink: 0; }
+
   .nav__list {
-    flex-shrink: 0;
+    flex-direction: column;
+    gap: 0;
   }
 
   .nav__link {
-    padding: var(--space-sm) var(--space-sm);
-    font-size: 0.82rem;
-    white-space: nowrap;
+    display: block;
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 0.95rem;
+    border-radius: 0;
+  }
+
+  .header__user {
+    padding: var(--space-sm) var(--space-lg);
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .header__user-link {
+    font-size: 0.85rem;
+    padding: var(--space-xs) var(--space-sm);
+  }
+  .header__user-login,
+  .header__user-logout {
+    font-size: 0.85rem;
+    padding: var(--space-xs) var(--space-sm);
   }
 
   .header__logo {
     font-size: 1.1rem;
     flex-shrink: 0;
   }
-
-  .header__user-link {
-    font-size: 0.75rem;
-    padding: 2px var(--space-sm);
-  }
-  .header__user-login,
-  .header__user-logout {
-    font-size: 0.72rem;
-    padding: 2px var(--space-sm);
-  }
-
-  .header__right { gap: var(--space-sm); }
-  .nav__list { gap: 2px; }
 
   .hero { padding: calc(var(--header-height) + var(--space-xl)) var(--space-md) var(--space-xl); }
   .hero__title { font-size: 1.8rem; }

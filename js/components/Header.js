@@ -23,14 +23,40 @@ export function Header(navItems, themeManager) {
     const nav = Navigation(navItems);
     const navList = nav.querySelector('.nav__list');
 
+    const hamburger = createElement('button', {
+        className: 'header__hamburger',
+        attributes: { type: 'button', 'aria-label': 'Меню' },
+        text: '☰'
+    });
+
     const rightGroup = createElement('div', {
         className: 'header__right',
         children: [nav, createAuthBlock()]
     });
 
     container.appendChild(logo);
+    container.appendChild(hamburger);
     container.appendChild(rightGroup);
     header.appendChild(container);
+
+    function toggleMenu(open) {
+        const isOpen = open !== undefined ? open : !header.classList.contains('header--menu-open');
+        header.classList.toggle('header--menu-open', isOpen);
+        hamburger.textContent = isOpen ? '✕' : '☰';
+    }
+
+    hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleMenu();
+    });
+
+    rightGroup.addEventListener('click', (e) => e.stopPropagation());
+
+    document.addEventListener('click', () => toggleMenu(false));
+
+    rightGroup.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => toggleMenu(false));
+    });
 
     // Авто-обновление блока авторизации и ссылки админки при смене пользователя
     store.subscribe('user', () => {
