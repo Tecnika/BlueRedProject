@@ -5,7 +5,7 @@
  * Не требует авторизации.
  */
 
-import { createElement } from '../utils/dom.js';
+import { createElement } from '../utils/dom.js?v=2';
 
 export function HomePage() {
     const main = createElement('main', { className: 'main' });

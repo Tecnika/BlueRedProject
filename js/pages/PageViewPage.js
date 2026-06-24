@@ -1,7 +1,7 @@
-import { createElement } from '../utils/dom.js';
-import { store } from '../core/Store.js';
-import { translateError } from '../utils/translateError.js';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=2';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };

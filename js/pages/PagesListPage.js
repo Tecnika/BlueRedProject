@@ -5,10 +5,10 @@
  * Для игрока: только те, что совпадают по фракции и тегу.
  */
 
-import { createElement } from '../utils/dom.js';
-import { store } from '../core/Store.js';
-import { translateError } from '../utils/translateError.js';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=2';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });

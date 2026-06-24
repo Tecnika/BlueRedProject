@@ -9,11 +9,11 @@
  *   — Внутри групп — сортировка по алфавиту.
  */
 
-import { createElement } from '../utils/dom.js';
-import { translateError } from '../utils/translateError.js';
-import { store } from '../core/Store.js';
-import { getAvatarUrl } from '../core/Avatar.js';
-import { getCollection } from '../firebase/dbService.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { getAvatarUrl } from '../core/Avatar.js?v=2';
+import { getCollection } from '../firebase/dbService.js?v=2';
 
 /** Порядок отображения групп (для админа) */
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];

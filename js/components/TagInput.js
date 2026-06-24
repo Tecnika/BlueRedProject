@@ -15,8 +15,8 @@
  * @returns {HTMLElement}
  */
 
-import { createElement } from '../utils/dom.js';
-import { searchTags, addTag } from '../firebase/tagsService.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { searchTags, addTag } from '../firebase/tagsService.js?v=2';
 
 export async function TagInput({ initialTags = [], onChange, placeholder = 'Добавить тег...' }) {
     const container = createElement('div', { className: 'tag-input' });

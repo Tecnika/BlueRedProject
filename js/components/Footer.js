@@ -2,7 +2,7 @@
  * Footer — подвал сайта с копирайтом и текущим годом.
  */
 
-import { createElement } from '../utils/dom.js';
+import { createElement } from '../utils/dom.js?v=2';
 
 export function Footer() {
     const footer = createElement('footer', { className: 'footer' });

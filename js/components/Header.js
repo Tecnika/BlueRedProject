@@ -5,10 +5,10 @@
  * При смене пользователя через store автоматически обновляет блок auth.
  */
 
-import { createElement } from '../utils/dom.js';
-import { Navigation } from './Navigation.js';
-import { store } from '../core/Store.js';
-import { signOutUser } from '../firebase/authService.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { Navigation } from './Navigation.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { signOutUser } from '../firebase/authService.js?v=2';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });

@@ -11,13 +11,13 @@
  *      #/profile          — свой профиль
  */
 
-import { createElement } from '../utils/dom.js';
-import { store } from '../core/Store.js';
-import { getAvatarUrl } from '../core/Avatar.js';
-import { getUserProfile, updateUserProfile } from '../firebase/authService.js';
-import { getNote, saveNote } from '../firebase/notesService.js';
-import { TagInput } from '../components/TagInput.js';
-import { translateError } from '../utils/translateError.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { getAvatarUrl } from '../core/Avatar.js?v=2';
+import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=2';
+import { getNote, saveNote } from '../firebase/notesService.js?v=2';
+import { TagInput } from '../components/TagInput.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {

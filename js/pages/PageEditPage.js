@@ -1,8 +1,8 @@
-import { createElement } from '../utils/dom.js';
-import { store } from '../core/Store.js';
-import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js';
-import { getAllTags } from '../firebase/tagsService.js';
-import { translateError } from '../utils/translateError.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { store } from '../core/Store.js?v=2';
+import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js?v=2';
+import { getAllTags } from '../firebase/tagsService.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
 
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 

@@ -8,9 +8,9 @@
  * buildForm экспортируется для возможного переиспользования.
  */
 
-import { createElement } from '../utils/dom.js';
-import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js';
-import { translateError } from '../utils/translateError.js';
+import { createElement } from '../utils/dom.js?v=2';
+import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=2';
+import { translateError } from '../utils/translateError.js?v=2';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });

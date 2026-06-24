@@ -22,8 +22,8 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js';
-import { addSubTag } from './subtagsService.js';
+import { getFirebase } from './firebase.js?v=2';
+import { addSubTag } from './subtagsService.js?v=2';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
