@@ -57,6 +57,14 @@ export class Router {
             if (result === false) return;  // Хук отменил переход
         }
 
+        // Очищаем глобальные сайд-эффекты предыдущей страницы
+        if (this._currentLeaveHook) {
+            this._currentLeaveHook();
+            this._currentLeaveHook = null;
+        }
+        document.body.style.backgroundColor = '';
+        document.body.style.background = '';
+
         const renderFn = this.routes[path];
         if (renderFn) {
             this.currentPath = fullPath;
@@ -66,5 +74,10 @@ export class Router {
                 this.contentRoot.appendChild(element);
             }
         }
+    }
+
+    /** Регистрирует хук очистки для текущей страницы */
+    setLeaveHook(hook) {
+        this._currentLeaveHook = hook;
     }
 }

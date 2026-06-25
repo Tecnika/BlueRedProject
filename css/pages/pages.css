@@ -108,6 +108,38 @@
     padding: calc(var(--header-height) + var(--space-2xl)) var(--space-lg) var(--space-2xl);
 }
 
+.page-view-page--general {
+    background-color: rgba(245, 245, 245, 0.06);
+}
+
+.page-view-page--faction-red {
+    background-color: rgba(220, 38, 38, 0.03);
+}
+
+.page-view-page--faction-blue {
+    background-color: rgba(37, 99, 235, 0.03);
+}
+
+.page-view-page--faction-purple {
+    background-color: rgba(124, 58, 237, 0.03);
+}
+
+.design-v2 .page-view-page--general {
+    background-color: rgba(255, 255, 255, 0.015);
+}
+
+.design-v2 .page-view-page--faction-red {
+    background-color: rgba(220, 38, 38, 0.04);
+}
+
+.design-v2 .page-view-page--faction-blue {
+    background-color: rgba(37, 99, 235, 0.04);
+}
+
+.design-v2 .page-view-page--faction-purple {
+    background-color: rgba(124, 58, 237, 0.04);
+}
+
 .page-view-page__container {
     max-width: 800px;
     margin: 0 auto;
