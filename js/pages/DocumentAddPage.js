@@ -14,11 +14,19 @@ export function DocumentAddPage() {
     }
 
     const container = createElement('div', { className: 'document-add-page__container' });
-    container.appendChild(createElement('a', {
+    const backBtn = createElement('button', {
         className: 'document-view-page__back',
-        text: '← К списку',
-        attributes: { href: '#/documents' }
-    }));
+        text: '← Назад',
+        attributes: { type: 'button' }
+    });
+    backBtn.addEventListener('click', () => {
+        if (document.referrer && document.referrer !== window.location.href) {
+            window.history.back();
+        } else {
+            window.location.hash = '#/documents';
+        }
+    });
+    container.appendChild(backBtn);
 
     container.appendChild(createElement('h1', { className: 'document-add-page__title', text: 'Добавить документ' }));
 

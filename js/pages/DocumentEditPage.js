@@ -43,7 +43,14 @@ export async function DocumentEditPage(docId) {
 
         const actions = createElement('div', { className: 'document-edit-page__actions' });
         const saveBtn = createElement('button', { className: 'document-edit-page__save', text: isNew ? 'Создать' : 'Сохранить', attributes: { type: 'submit' } });
-        const cancelBtn = createElement('a', { className: 'document-edit-page__cancel', text: 'Назад', attributes: { href: '#/documents' } });
+        const cancelBtn = createElement('button', { className: 'document-edit-page__cancel', text: 'Назад', attributes: { type: 'button' } });
+        cancelBtn.addEventListener('click', () => {
+            if (document.referrer && document.referrer !== window.location.href) {
+                window.history.back();
+            } else {
+                window.location.hash = '#/documents';
+            }
+        });
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
         form.appendChild(actions);
