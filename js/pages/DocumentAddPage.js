@@ -1,8 +1,8 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=4';
-import { updateUserProfile } from '../firebase/authService.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
+import { createElement } from '../utils/dom.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=3';
+import { updateUserProfile } from '../firebase/authService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 export function DocumentAddPage() {
     const section = createElement('section', { className: 'document-add-page' });

@@ -1,7 +1,7 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { getDocument, createDocument, updateDocument } from '../firebase/documentsService.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
+import { createElement } from '../utils/dom.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { getDocument, createDocument, updateDocument } from '../firebase/documentsService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 const FACTION_OPTIONS = [
     { value: 'red', text: 'Красные' },

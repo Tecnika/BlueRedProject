@@ -11,15 +11,15 @@
  *      #/profile          — свой профиль
  */
 
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { createAvatar } from '../core/Avatar.js?v=4';
-import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=4';
-import { getNote, saveNote } from '../firebase/notesService.js?v=4';
-import { TagInput } from '../components/TagInput.js?v=4';
-import { searchTags } from '../firebase/tagsService.js?v=4';
-import { getAllDocuments } from '../firebase/documentsService.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
+import { createElement } from '../utils/dom.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { createAvatar } from '../core/Avatar.js?v=3';
+import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=3';
+import { getNote, saveNote } from '../firebase/notesService.js?v=3';
+import { TagInput } from '../components/TagInput.js?v=3';
+import { searchTags } from '../firebase/tagsService.js?v=3';
+import { getAllDocuments } from '../firebase/documentsService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {

@@ -1,7 +1,7 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { getAllDocuments } from '../firebase/documentsService.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
+import { createElement } from '../utils/dom.js?v=3';
+import { store } from '../core/Store.js?v=3';
+import { getAllDocuments } from '../firebase/documentsService.js?v=3';
+import { translateError } from '../utils/translateError.js?v=3';
 
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 const FACTION_CLASS = { red: 'documents-list__badge--red', blue: 'documents-list__badge--blue', purple: 'documents-list__badge--purple' };
