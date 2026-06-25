@@ -244,10 +244,10 @@
 }
 
 .design-v2 .header__user-logout:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-    background: rgba(239, 68, 68, 0.1);
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.2);
+    border-color: #f97316;
+    color: #f97316;
+    background: rgba(249, 115, 22, 0.1);
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.2);
 }
 
 /* Гамбургер в стиле v2 */
@@ -732,7 +732,7 @@
 }
 
 .design-v2 .admin-tags__remove-btn:hover {
-    background-color: #ef4444;
+    background-color: #f97316;
     color: white;
 }
 
@@ -981,8 +981,8 @@
 }
 
 .design-v2 .page-edit-page__delete {
-    border: 2px solid #ef4444;
-    color: #ef4444;
+    border: 2px solid #f97316;
+    color: #f97316;
     background: transparent;
     font-weight: 700;
     border-radius: var(--radius-md);
@@ -990,7 +990,7 @@
 }
 
 .design-v2 .page-edit-page__delete:hover {
-    background-color: #ef4444;
+    background-color: #f97316;
     color: var(--color-white);
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
 }
@@ -1046,7 +1046,7 @@
 }
 
 .design-v2 .tag-input__chip-remove:hover {
-    color: #ef4444;
+    color: #f97316;
 }
 
 .design-v2 .tag-input__dropdown {
@@ -1163,13 +1163,13 @@
 
 .design-v2 .document-view-page__master-btn--danger {
     background: transparent;
-    border: 2px solid #ef4444;
-    color: #ef4444;
+    border: 2px solid #f97316;
+    color: #f97316;
     box-shadow: none;
 }
 
 .design-v2 .document-view-page__master-btn--danger:hover {
-    background-color: #ef4444;
+    background-color: #f97316;
     color: var(--color-white);
     box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
     filter: none;
@@ -1350,6 +1350,37 @@
 .design-v2 .documents-list-page__container,
 .design-v2 .document-view-page__container,
 .design-v2 .document-add-page__container,
-.design-v2 .document-edit-page__container {
+.design-v2 .document-edit-page__container,
+.design-v2 .document-print-page__container {
     animation: fade-in-up 0.4s ease-out;
+}
+
+.design-v2 .document-print-page__doc {
+    border-bottom-color: var(--color-border);
+}
+
+.design-v2 .document-print-page__access-key {
+    color: var(--color-text-secondary);
+}
+
+.design-v2 .document-print-page__print-btn {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+}
+
+.design-v2 .document-print-page__print-btn:hover {
+    filter: brightness(1.2);
+    transform: translateY(-1px);
+    box-shadow: 0 0 20px var(--color-primary-glow);
+}
+
+.design-v2 .documents-list-page__print-selected {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--radius-md);
 }

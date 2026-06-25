@@ -20,7 +20,6 @@ export async function DocumentsListPage() {
 
     try {
         const allDocs = await getAllDocuments();
-
         const visible = isMaster ? allDocs : allDocs.filter(d => userDocs.includes(d.id));
 
         const container = createElement('div', { className: 'documents-list-page__container' });
@@ -50,18 +49,32 @@ export async function DocumentsListPage() {
         if (visible.length === 0) {
             container.appendChild(createElement('p', {
                 className: 'documents-list-page__empty',
-                text: isMaster ? 'Нет документов' : 'У вас нет документов. Чтобы получить доступ, отсканируйте QR-код или введите код у мастера.'
+                text: isMaster ? 'Нет документов' : 'У вас нет документов.'
             }));
         } else {
+            const selectedIds = [];
+
+            if (isMaster) {
+                const toolbar = createElement('div', { className: 'documents-list-page__toolbar' });
+                const printSelectedBtn = createElement('button', {
+                    className: 'documents-list-page__print-selected',
+                    text: 'Печать выбранных',
+                    attributes: { type: 'button' }
+                });
+                printSelectedBtn.addEventListener('click', () => {
+                    if (selectedIds.length === 0) { alert('Выберите документы'); return; }
+                    window.location.hash = '#/documents/print?ids=' + selectedIds.join(',');
+                });
+                toolbar.appendChild(printSelectedBtn);
+                container.appendChild(toolbar);
+            }
+
             const list = createElement('div', { className: 'documents-list' });
             for (const doc of visible) {
-                list.appendChild(createDocumentCard(doc));
+                const card = createDocumentCard(doc, isMaster, selectedIds);
+                list.appendChild(card);
             }
             container.appendChild(list);
-        }
-
-        if (isMaster) {
-            container.appendChild(createElement('div', { className: 'documents-list-page__master-note' }));
         }
 
         section.appendChild(container);
@@ -72,11 +85,30 @@ export async function DocumentsListPage() {
     return section;
 }
 
-function createDocumentCard(doc) {
+function createDocumentCard(doc, isMaster, selectedIds) {
     const card = createElement('a', {
         className: `documents-list__card documents-list__card--${doc.faction || 'none'}`,
         attributes: { href: `#/documents/view?id=${doc.id}` }
     });
+
+    if (isMaster) {
+        const checkbox = createElement('input', {
+            className: 'documents-list__checkbox',
+            attributes: { type: 'checkbox' }
+        });
+        checkbox.addEventListener('change', (e) => {
+            e.stopPropagation();
+            if (checkbox.checked) {
+                if (!selectedIds.includes(doc.id)) selectedIds.push(doc.id);
+            } else {
+                const idx = selectedIds.indexOf(doc.id);
+                if (idx >= 0) selectedIds.splice(idx, 1);
+            }
+        });
+        // Prevent navigation when clicking checkbox
+        checkbox.addEventListener('click', (e) => e.stopPropagation());
+        card.insertBefore(checkbox, card.firstChild);
+    }
 
     const number = createElement('span', {
         className: 'documents-list__number',

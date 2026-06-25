@@ -17,10 +17,15 @@ export async function setDesign(version) {
 export function subscribeDesign(callback) {
     const { db } = getFirebase();
     return onSnapshot(doc(db, SETTINGS_PATH),
-        (snap) => callback(snap.exists() ? snap.data().version || 'v1' : 'v1'),
+        (snap) => {
+            const version = snap.exists() ? snap.data().version || 'v1' : 'v1';
+            localStorage.setItem('bluered_design', version);
+            callback(version);
+        },
         (err) => {
-            console.warn('design: fallback to v1', err.code);
-            callback('v1');
+            console.warn('design: fallback to cached', err.code);
+            const cached = localStorage.getItem('bluered_design') || 'v1';
+            callback(cached);
         }
     );
 }

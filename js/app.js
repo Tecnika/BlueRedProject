@@ -24,6 +24,7 @@ import { DocumentsListPage } from './pages/DocumentsListPage.js?v=3';
 import { DocumentViewPage } from './pages/DocumentViewPage.js?v=3';
 import { DocumentEditPage } from './pages/DocumentEditPage.js?v=3';
 import { DocumentAddPage } from './pages/DocumentAddPage.js?v=3';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=3';
 import { render, createElement } from './utils/dom.js?v=3';
 import { ThemeManager } from './core/ThemeManager.js?v=3';
 import { Router } from './core/Router.js?v=3';
@@ -42,8 +43,9 @@ let designUnsub = null;
 async function init() {
     const app = document.getElementById('app');
 
-    // По умолчанию v1, переключится после авторизации
-    document.documentElement.classList.add('design-v1');
+    // Сначала применяем закешированный дизайн (если есть), иначе v1
+    const cachedDesign = localStorage.getItem('bluered_design');
+    document.documentElement.classList.add(cachedDesign ? 'design-' + cachedDesign : 'design-v1');
 
     // Восстанавливаем сохранённую тему или ставим 'purple'
     themeManager.init();
@@ -103,6 +105,7 @@ async function init() {
         return DocumentEditPage(params.get('id'));
     });
     router.register('/documents/add', () => DocumentAddPage());
+    router.register('/documents/print', () => DocumentPrintPage());
     router.register('/admin', () => AdminPage());
 
     // Ждём восстановления сессии Firebase перед первым переходом

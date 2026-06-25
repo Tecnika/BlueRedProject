@@ -43,7 +43,6 @@ export async function DocumentViewPage(docId) {
 
         const container = createElement('div', { className: 'document-view-page__container' });
 
-        // Back button
         const backBtn = createElement('button', {
             className: 'document-view-page__back',
             text: '← Назад',
@@ -52,7 +51,6 @@ export async function DocumentViewPage(docId) {
         backBtn.addEventListener('click', goBack);
         container.appendChild(backBtn);
 
-        // Title row
         const titleRow = createElement('div', { className: 'document-view-page__title-row' });
         titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Документ № ${doc.number}` }));
         titleRow.appendChild(createElement('span', {
@@ -61,7 +59,6 @@ export async function DocumentViewPage(docId) {
         }));
         container.appendChild(titleRow);
 
-        // Master: actions row
         if (isMaster) {
             const actionsRow = createElement('div', { className: 'document-view-page__master-actions' });
 
@@ -77,8 +74,10 @@ export async function DocumentViewPage(docId) {
                 text: isSameFaction ? 'Показать шифр' : 'Показать оригинал',
                 attributes: { type: 'button' }
             });
+            const contentBlockRef = {}; // ref for toggle
             toggleBtn.addEventListener('click', () => {
-                const el = contentBlock.querySelector('p');
+                const el = contentBlockRef.el;
+                if (!el) return;
                 if (el.textContent === doc.content) {
                     el.textContent = encrypt(doc.content);
                     toggleBtn.textContent = 'Показать оригинал';
@@ -116,7 +115,6 @@ export async function DocumentViewPage(docId) {
             container.appendChild(actionsRow);
         }
 
-        // Cipher note for non-master different faction
         if (!isSameFaction && !isMaster) {
             const cipherNote = createElement('div', { className: 'document-view-page__cipher' });
             cipherNote.appendChild(createElement('span', { className: 'document-view-page__cipher-icon', text: '🔒' }));
@@ -125,18 +123,14 @@ export async function DocumentViewPage(docId) {
             container.appendChild(cipherNote);
         }
 
-        // Content block
+        // Body: text + QR side by side
+        const body = createElement('div', { className: 'document-view-page__body' });
+
         const contentBlock = createElement('div', { className: 'document-view-page__content' });
         contentBlock.appendChild(createElement('p', { text: content }));
-        container.appendChild(contentBlock);
+        contentBlockRef.el = contentBlock.querySelector('p');
+        body.appendChild(contentBlock);
 
-        // Master: access key
-        if (isMaster) {
-            const keyLine = createElement('p', { className: 'document-view-page__meta', text: 'Код доступа: ' + doc.accessKey });
-            container.appendChild(keyLine);
-        }
-
-        // QR code
         const qrContainer = createElement('div', { className: 'document-view-page__qr' });
         const addPageUrl = window.location.origin + window.location.pathname
             + '#/documents/add?id=' + doc.id + '&number=' + doc.number + '&key=' + encodeURIComponent(doc.accessKey);
@@ -158,9 +152,14 @@ export async function DocumentViewPage(docId) {
             }));
         }
 
-        container.appendChild(qrContainer);
+        body.appendChild(qrContainer);
+        container.appendChild(body);
 
-        // Master: compact readers list
+        if (isMaster) {
+            const keyLine = createElement('p', { className: 'document-view-page__meta', text: 'Код доступа: ' + doc.accessKey });
+            container.appendChild(keyLine);
+        }
+
         if (isMaster) {
             try {
                 const readers = await getDocumentReaders(docId);
