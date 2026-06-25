@@ -20,6 +20,8 @@ import { AdminPage } from './pages/AdminPage.js?v=3';
 import { PagesListPage } from './pages/PagesListPage.js?v=3';
 import { PageViewPage } from './pages/PageViewPage.js?v=3';
 import { PageEditPage } from './pages/PageEditPage.js?v=3';
+import { RulesPage } from './pages/RulesPage.js?v=3';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=3';
 import { DocumentsListPage } from './pages/DocumentsListPage.js?v=3';
 import { DocumentViewPage } from './pages/DocumentViewPage.js?v=3';
 import { DocumentEditPage } from './pages/DocumentEditPage.js?v=3';
@@ -33,6 +35,7 @@ import { initFirebase } from './firebase/firebase.js?v=3';
 import { onAuthChange, getUserProfile } from './firebase/authService.js?v=3';
 import { seedInitialTags } from './firebase/tagsService.js?v=3';
 import { seedInitialPages } from './firebase/pagesService.js?v=3';
+import { seedInitialRules } from './firebase/rulesService.js?v=3';
 import { subscribeDesign } from './firebase/settingsService.js?v=3';
 
 const themeManager = new ThemeManager();
@@ -106,6 +109,10 @@ async function init() {
     });
     router.register('/documents/add', () => DocumentAddPage());
     router.register('/documents/print', () => DocumentPrintPage());
+    router.register('/rules', () => RulesPage());
+    router.register('/rules/article', () => RulesPage());
+    router.register('/rules/create', () => RulesEditPage());
+    router.register('/rules/edit', () => RulesEditPage());
     router.register('/admin', () => AdminPage());
 
     // Ждём восстановления сессии Firebase перед первым переходом
@@ -137,6 +144,7 @@ async function init() {
                 // Сидируем стартовую страницу, если пусто (только для мастеров)
                 if (profile.role === 'master') {
                     try { await seedInitialPages(); } catch (e) { /* страница уже есть */ }
+                    try { await seedInitialRules(); } catch (e) { /* правила уже есть */ }
                 }
             }
 

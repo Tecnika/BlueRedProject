@@ -107,6 +107,18 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
 
+    // ========== Коллекция rules (правила) ==========
+    match /rules/{ruleId} {
+
+      // Читать могут все авторизованные
+      allow read: if request.auth != null;
+
+      // Создавать, редактировать и удалять может только мастер
+      allow create: if isMaster();
+      allow update: if isMaster();
+      allow delete: if isMaster();
+    }
+
     // ========== Коллекция pages (страницы) ==========
     match /pages/{pageId} {
 

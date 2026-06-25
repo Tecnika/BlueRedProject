@@ -1,0 +1,406 @@
+/* ========================================
+   Rules Page — сайдбар + контент
+   ======================================== */
+
+.rules-page {
+    min-height: 100vh;
+}
+
+.rules-page__empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-text-muted, #999);
+    padding-top: calc(var(--header-height) + var(--space-2xl));
+}
+
+.rules-page__layout {
+    display: flex;
+    padding-top: calc(var(--header-height) + var(--space-2xl));
+    min-height: 100vh;
+}
+
+/* ========================================
+   Sidebar
+   ======================================== */
+
+.rules-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.rules-sidebar__nav {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-xl));
+    max-height: calc(100vh - var(--header-height) - var(--space-2xl));
+    overflow-y: auto;
+    padding: 0 0.5rem;
+    border-right: 1px solid var(--color-border, #e0e0e0);
+}
+
+.rules-sidebar__groups {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rules-sidebar__group {
+    margin-bottom: 0.5rem;
+}
+
+.rules-sidebar__group-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted, #999);
+    padding: 0.5rem 0.75rem 0.25rem;
+    border-bottom: 1px solid var(--color-border, #e0e0e0);
+    margin-bottom: 0.25rem;
+}
+
+.rules-sidebar__item {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--color-text, #333);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.15s;
+    cursor: pointer;
+}
+
+.rules-sidebar__item:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.rules-sidebar__item--active {
+    background: var(--color-primary);
+    color: #fff;
+    font-weight: 600;
+}
+
+.rules-sidebar__item--active:hover {
+    background: var(--color-primary);
+    opacity: 0.9;
+}
+
+/* ========================================
+   Mobile drawer
+   ======================================== */
+
+.rules-sidebar__toggle {
+    display: none;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 1rem;
+}
+
+.rules-sidebar__toggle:hover {
+    opacity: 0.9;
+}
+
+.rules-sidebar__overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+}
+
+.rules-sidebar__overlay--open {
+    display: block;
+}
+
+.rules-sidebar__drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    max-width: 80vw;
+    background: var(--color-bg, #fff);
+    z-index: 1000;
+    padding: 1rem;
+    overflow-y: auto;
+    border-right: 1px solid var(--color-border, #e0e0e0);
+    animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.rules-sidebar__close {
+    display: block;
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--color-text, #333);
+    padding: 0.25rem;
+    line-height: 1;
+}
+
+/* ========================================
+   Content
+   ======================================== */
+
+.rules-content {
+    flex: 1;
+    padding: 0 var(--space-xl) var(--space-xl);
+    max-width: 800px;
+}
+
+.rules-content__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.rules-content__title {
+    font-size: 1.6rem;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.rules-content__actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.rules-content__edit-btn,
+.rules-content__delete-btn {
+    padding: 0.4rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rules-content__edit-btn {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.rules-content__edit-btn:hover {
+    opacity: 0.9;
+}
+
+.rules-content__delete-btn {
+    background: #f97316;
+    color: #fff;
+}
+
+.rules-content__delete-btn:hover {
+    background: #ea580c;
+}
+
+.rules-content__body {
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.rules-content__line {
+    margin: 0 0 0.5rem;
+}
+
+/* ========================================
+   Edit Page
+   ======================================== */
+
+.rules-edit-page__container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: calc(var(--header-height) + var(--space-2xl)) var(--space-lg) var(--space-xl);
+}
+
+.rules-edit-page__title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.rules-edit-page__error {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--color-text-muted, #999);
+    padding-top: calc(var(--header-height) + var(--space-2xl));
+}
+
+.rules-edit-page__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.rules-edit-page__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.rules-edit-page__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text, #333);
+}
+
+.rules-edit-page__input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    background: var(--color-bg, #fff);
+    color: var(--color-text, #333);
+}
+
+.rules-edit-page__input--short {
+    width: 100px;
+}
+
+.rules-edit-page__select {
+    cursor: pointer;
+}
+
+.rules-edit-page__textarea {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-border, #ccc);
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 200px;
+    background: var(--color-bg, #fff);
+    color: var(--color-text, #333);
+}
+
+.rules-edit-page__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.rules-edit-page__save-btn,
+.rules-edit-page__cancel-btn {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rules-edit-page__save-btn {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.rules-edit-page__save-btn:hover {
+    opacity: 0.9;
+}
+
+.rules-edit-page__cancel-btn {
+    background: var(--color-border, #ccc);
+    color: var(--color-text, #333);
+}
+
+.rules-edit-page__cancel-btn:hover {
+    opacity: 0.8;
+}
+
+.rules-edit-page__shortcuts {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border, #eee);
+}
+
+.rules-edit-page__shortcuts-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #999);
+    margin-bottom: 0.5rem;
+}
+
+.rules-edit-page__shortcuts-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.rules-edit-page__shortcut-btn {
+    display: inline-block;
+    padding: 0.4rem 1rem;
+    background: var(--color-primary);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.rules-edit-page__shortcut-btn:hover {
+    opacity: 0.9;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+    .rules-sidebar {
+        width: 100%;
+        padding: 0 var(--space-sm);
+    }
+
+    .rules-sidebar__nav {
+        display: none;
+    }
+
+    .rules-sidebar__toggle {
+        display: block;
+    }
+
+    .rules-page__layout {
+        flex-direction: column;
+    }
+
+    .rules-content {
+        padding: 0 var(--space-sm) var(--space-xl);
+    }
+
+    .rules-content__title {
+        font-size: 1.3rem;
+    }
+
+    .rules-content__header {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .rules-content__title {
+        font-size: 1.15rem;
+    }
+
+    .rules-edit-page__title {
+        font-size: 1.3rem;
+    }
+
+    .rules-edit-page__actions {
+        flex-direction: column;
+    }
+}
