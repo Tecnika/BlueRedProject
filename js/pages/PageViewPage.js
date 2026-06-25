@@ -43,10 +43,9 @@ export async function PageViewPage(slug) {
 
         // Фон: для general — серый, для faction — цвет фракции пользователя
         if (page.type === 'general') {
-            document.body.style.backgroundColor = '#f5f5f510';
-        } else {
-            const fc = FACTION_COLORS[user.faction];
-            if (fc) document.body.style.backgroundColor = fc + '08';
+            section.classList.add('page-view-page--general');
+        } else if (user.faction && FACTION_COLORS[user.faction]) {
+            section.classList.add('page-view-page--faction-' + user.faction);
         }
 
         // Кнопка «Назад к архиву»
