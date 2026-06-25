@@ -1,7 +1,6 @@
 import { createElement } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
 import { getAllDocuments } from '../firebase/documentsService.js?v=3';
-import { encrypt } from '../utils/cipher.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
@@ -27,20 +26,29 @@ export async function DocumentPrintPage() {
         const allDocs = await getAllDocuments();
         const docs = allDocs.filter(d => ids.includes(d.id));
 
+        if (docs.length === 0) {
+            section.appendChild(createElement('p', { className: 'document-print-page__error', text: 'Документы не найдены' }));
+            return section;
+        }
+
         const container = createElement('div', { className: 'document-print-page__container' });
-        container.appendChild(createElement('h1', { className: 'document-print-page__title', text: 'Печать документов' }));
+        container.appendChild(createElement('h1', { className: 'document-print-page__title', text: 'Печать документов (' + docs.length + ')' }));
+
+        const grid = createElement('div', { className: 'document-print-page__grid' });
 
         for (const doc of docs) {
             const block = createElement('div', { className: 'document-print-page__doc' });
+
             const header = createElement('div', { className: 'document-print-page__doc-header' });
-            header.appendChild(createElement('strong', { text: `Документ № ${doc.number}` }));
+            header.appendChild(createElement('span', { text: '№ ' + doc.number }));
             header.appendChild(createElement('span', { text: FACTION_LABELS[doc.faction] || '—' }));
             block.appendChild(header);
 
-            const textEl = createElement('p', { className: 'document-print-page__doc-text', text: doc.content });
+            const textEl = createElement('div', { className: 'document-print-page__doc-text', text: doc.content });
             block.appendChild(textEl);
 
-            // QR
+            const footer = createElement('div', { className: 'document-print-page__doc-footer' });
+
             const addPageUrl = window.location.origin + window.location.pathname
                 + '#/documents/add?id=' + doc.id + '&number=' + doc.number + '&key=' + encodeURIComponent(doc.accessKey);
             const qrImg = createElement('img', {
@@ -50,11 +58,18 @@ export async function DocumentPrintPage() {
                     alt: 'QR'
                 }
             });
-            block.appendChild(qrImg);
-            block.appendChild(createElement('p', { className: 'document-print-page__access-key', text: 'Код: ' + doc.accessKey }));
+            footer.appendChild(qrImg);
 
-            container.appendChild(block);
+            footer.appendChild(createElement('span', {
+                className: 'document-print-page__access-key',
+                text: 'Код: ' + doc.accessKey
+            }));
+
+            block.appendChild(footer);
+            grid.appendChild(block);
         }
+
+        container.appendChild(grid);
 
         const printBtn = createElement('button', {
             className: 'document-print-page__print-btn',
