@@ -142,7 +142,7 @@
     background-color: rgba(10, 10, 26, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 2px solid var(--color-primary);
     box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 0 40px var(--color-primary-glow);
 }
 
@@ -176,37 +176,46 @@
 
 .design-v2 .nav__link {
     font-weight: 600;
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-md);
-    position: relative;
+    padding: 0.4rem 0.9rem;
+    border-radius: 25px;
     color: var(--color-text-secondary);
-    transition: color 0.2s, background-color 0.2s;
+    transition: all 0.25s;
 }
 
 .design-v2 .nav__link:hover {
-    color: var(--color-white);
-    background-color: rgba(124, 58, 237, 0.1);
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    box-shadow: 0 0 16px var(--color-primary-glow);
 }
 
-.design-v2 .nav__link::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background: var(--color-primary);
-    border-radius: 1px;
-    box-shadow: 0 0 8px var(--color-primary);
-    transition: width 0.25s;
+.design-v2 .nav__link--active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    box-shadow: 0 0 20px var(--color-primary-glow);
 }
 
-.design-v2 .nav__link:hover::after {
-    width: 70%;
+/* Блок пользователя — неоновая пилюля */
+.design-v2 .header__user {
+    background: rgba(124, 58, 237, 0.12);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    box-shadow: 0 0 12px var(--color-primary-glow);
 }
 
-/* Блок "Войти" / пользователя */
+.design-v2 .header__user-avatar {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 8px var(--color-primary-glow);
+}
+
+.design-v2 .header__user-name {
+    color: var(--color-primary);
+    text-shadow: 0 0 10px var(--color-primary-glow);
+}
+
+.design-v2 .header__user-role {
+    color: var(--color-text-secondary);
+    letter-spacing: 1px;
+}
+
 .design-v2 .header__user-login {
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(124, 58, 237, 0.05));
     border: 1px solid rgba(124, 58, 237, 0.3);
@@ -220,20 +229,6 @@
     border-color: transparent;
     color: #ffffff;
     box-shadow: 0 0 16px var(--color-primary-glow);
-}
-
-.design-v2 .header__user-link {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    font-weight: 600;
-    transition: all 0.2s;
-}
-
-.design-v2 .header__user-link:hover {
-    background: rgba(124, 58, 237, 0.12);
-    border-color: var(--color-primary);
-    color: var(--color-primary);
 }
 
 .design-v2 .header__user-logout {

@@ -1,18 +1,18 @@
 /* ========================================
-   Шапка сайта (фиксированная, поверх контента)
+   Шапка сайта (фиксированная, DnD-стиль)
    ======================================== */
 
 .header {
-    position: fixed;                   /* Прилипает к верхнему краю */
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
     height: var(--header-height);
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-accent); /* Цветная полоса сверху */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid var(--color-primary);
     z-index: 100;
-    box-shadow: var(--shadow-sm);      /* Доп. свечение в cosmic.css */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .header__container {
@@ -25,87 +25,118 @@
     justify-content: space-between;
 }
 
-/* Гамбургер-кнопка — скрыта на десктопе, показывается на мобилках */
+/* Гамбургер — скрыт на десктопе */
 .header__hamburger {
     display: none;
 }
 
-/* Логотип — цветной, жирный, без выделения */
+/* Логотип — serif, градиентный текст */
 .header__logo {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     font-weight: 700;
-    color: var(--color-primary);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: linear-gradient(135deg, var(--color-primary) 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     letter-spacing: -0.5px;
     user-select: none;
-}
-
-.header__logo:hover {
-    color: var(--color-primary-dark);
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .header__logo-b { color: #dc2626; }
 .header__logo-r { color: #2563eb; }
 
-/* Правая группа: навигация + блок авторизации */
+/* Правая группа: навигация + блок пользователя */
 .header__right {
     display: flex;
     align-items: center;
     gap: var(--space-md);
 }
 
-/* --- Блок пользователя --- */
+/* ========================================
+   Блок пользователя (пилюля)
+   ======================================== */
 
 .header__user {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 0.5rem;
+    background: rgba(124, 58, 237, 0.08);
+    padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+    border-radius: 50px;
+    border: 1px solid rgba(124, 58, 237, 0.25);
 }
 
-/* Имя пользователя — ссылка на профиль */
-.header__user-link {
-    font-size: 0.85rem;
+.header__user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-primary);
+    flex-shrink: 0;
+}
+
+.header__user-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.header__user-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.header__user-name:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+.header__user-role {
+    font-size: 0.6rem;
     font-weight: 600;
-    color: var(--color-primary);
-    padding: var(--space-xs) var(--space-sm);
-    background-color: var(--color-primary-light);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-secondary);
 }
 
-.header__user-link:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-}
-
-/* Кнопки "Войти" и "Выйти" */
-.header__user-login,
+/* Кнопка выхода */
 .header__user-logout {
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 25px;
     cursor: pointer;
-}
-
-.header__user-login {
-    color: var(--color-primary);
-    background-color: var(--color-primary-light);
-}
-
-.header__user-login:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-}
-
-.header__user-logout {
-    color: var(--color-accent);
-    background: none;
-    border: 1px solid var(--color-accent);
-    transition: background-color 0.2s, color 0.2s;
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    transition: background 0.2s;
 }
 
 .header__user-logout:hover {
-    background-color: var(--color-accent);
-    color: var(--color-white);
+    background: #b91c1c;
+}
+
+/* Кнопка "Войти" */
+.header__user-login {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 1rem;
+    border-radius: 50px;
+    cursor: pointer;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--color-primary);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.header__user-login:hover {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
 }

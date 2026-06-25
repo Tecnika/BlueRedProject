@@ -1,34 +1,33 @@
 /* ========================================
-   Навигация (горизонтальное меню)
+   Навигация — пилюли (DnD-стиль)
    ======================================== */
 
 .nav__list {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 0.25rem;
 }
 
 .nav__item {
     display: flex;
 }
 
-/* Ссылки меню — серый текст, подсветка при наведении */
 .nav__link {
-    padding: var(--space-sm) var(--space-md);
-    border-radius: var(--radius-md);
-    font-size: 0.9rem;
-    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
     color: var(--color-text-secondary);
-    transition: background-color 0.2s, color 0.2s;
+    text-decoration: none;
+    transition: all 0.2s;
 }
 
 .nav__link:hover {
-    background-color: var(--color-bg-secondary);
-    color: var(--color-text);
+    background: var(--color-primary);
+    color: #fff;
 }
 
-/* Активный пункт — цвет фракции */
 .nav__link--active {
-    color: var(--color-primary);
-    background-color: var(--color-primary-light);
+    color: #fff;
+    background: var(--color-primary);
 }

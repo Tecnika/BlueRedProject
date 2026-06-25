@@ -1,14 +1,9 @@
-﻿/**
- * Header — шапка сайта.
- *
- * Содержит: логотип, навигацию, блок авторизации (username/logout или "Войти").
- * При смене пользователя через store автоматически обновляет блок auth.
- */
-
-import { createElement } from '../utils/dom.js?v=3';
+﻿import { createElement } from '../utils/dom.js?v=3';
 import { Navigation } from './Navigation.js?v=3';
 import { store } from '../core/Store.js?v=3';
 import { signOutUser } from '../firebase/authService.js?v=3';
+
+const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -58,7 +53,6 @@ export function Header(navItems, themeManager) {
         a.addEventListener('click', () => toggleMenu(false));
     });
 
-    // Авто-обновление блока авторизации и ссылки админки при смене пользователя
     store.subscribe('user', () => {
         const oldBlock = rightGroup.querySelector('[data-auth]');
         if (oldBlock) {
@@ -67,13 +61,11 @@ export function Header(navItems, themeManager) {
         toggleAdminLink(navList);
     });
 
-    // Применяем сразу на случай, если пользователь уже в store
     toggleAdminLink(navList);
 
     return header;
 }
 
-/** Добавляет или убирает пункт "Админ" в навигации в зависимости от роли */
 function toggleAdminLink(navList) {
     if (!navList) return;
     const user = store.get('user');
@@ -97,22 +89,36 @@ function toggleAdminLink(navList) {
     }
 }
 
-/** Создаёт блок "имя + выход" или "войти" в зависимости от store */
 function createAuthBlock() {
     const user = store.get('user');
 
     if (user) {
         const block = createElement('div', { className: 'header__user', dataset: { auth: '' } });
 
+        const avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.username || '?') + '&background=4c3b9e&color=fff&size=72&bold=true';
+        const avatar = createElement('img', {
+            className: 'header__user-avatar',
+            attributes: { src: avatarUrl, alt: '', width: '36', height: '36' }
+        });
+        block.appendChild(avatar);
+
+        const info = createElement('div', { className: 'header__user-info' });
+
         const profileLink = createElement('a', {
-            className: 'header__user-link',
+            className: 'header__user-name',
             text: user.username,
             attributes: { href: '#/profile' }
         });
+        info.appendChild(profileLink);
+
+        const role = ROLE_LABELS[user.role] || 'Игрок';
+        info.appendChild(createElement('span', { className: 'header__user-role', text: role }));
+
+        block.appendChild(info);
 
         const logoutBtn = createElement('button', {
             className: 'header__user-logout',
-            text: 'Отключиться',
+            text: 'Выйти',
             attributes: { type: 'button' },
             events: {
                 click: async () => {
@@ -122,7 +128,6 @@ function createAuthBlock() {
             }
         });
 
-        block.appendChild(profileLink);
         block.appendChild(logoutBtn);
         return block;
     }

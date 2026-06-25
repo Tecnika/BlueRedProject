@@ -60,9 +60,8 @@
     flex-wrap: wrap;
   }
 
-  .header__user-link {
+  .header__user-name {
     font-size: 0.85rem;
-    padding: var(--space-xs) var(--space-sm);
   }
   .header__user-login,
   .header__user-logout {
@@ -103,7 +102,6 @@
   .pages-list-page__container,
   .page-view-page__container,
   .page-edit-page__container,
-  .profile-page__container,
   .admin-page__container {
     max-width: 100%;
   }
@@ -132,26 +130,13 @@
     text-align: center;
   }
 
-  .profile-card {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: var(--space-lg);
-  }
-  .profile-card__meta { justify-content: center; }
-  .profile-card__name { font-size: 1.2rem; }
-  .profile-card__avatar { width: 72px; height: 72px; }
-
-  .profile-edit,
   .profile-notes {
     padding: var(--space-lg);
   }
-  .profile-edit__input,
   .profile-notes__textarea {
     padding: var(--space-xs) var(--space-sm);
     font-size: 0.9rem;
   }
-  .profile-edit__save,
   .profile-notes__save {
     width: 100%;
     text-align: center;
@@ -168,15 +153,15 @@
 
   .footer__container { padding: 0 var(--space-md); }
 
-  .profile-edit__subtag-builder {
+  .profile-admin__subtag-builder {
     flex-wrap: wrap;
   }
-  .profile-edit__subtag-btn {
+  .profile-admin__subtag-btn {
     font-size: 0.75rem;
     padding: 4px 6px;
     min-width: auto;
   }
-  .profile-edit__subtag-group {
+  .profile-admin__subtag-group {
     flex-wrap: wrap;
   }
 }
@@ -193,9 +178,11 @@
 
   .header__logo { font-size: 1rem; }
   .nav__link { font-size: 0.7rem; padding: 2px var(--space-xs); }
-  .header__user-link { font-size: 0.7rem; padding: 2px 6px; }
+  .header__user-name { font-size: 0.7rem; }
+  .header__user-role { font-size: 0.55rem; }
+  .header__user-avatar { width: 26px; height: 26px; }
   .header__user-login,
-  .header__user-logout { font-size: 0.68rem; padding: 2px 6px; }
+  .header__user-logout { font-size: 0.65rem; padding: 2px 6px; }
 
   .header__container { padding: 0 4px; }
 
@@ -226,14 +213,10 @@
 
   .admin-section { padding: var(--space-md); }
 
-  .profile-card { padding: var(--space-md); }
-  .profile-card__avatar { width: 56px; height: 56px; }
-  .profile-card__name { font-size: 1.1rem; }
-  .profile-edit,
   .profile-notes { padding: var(--space-md); }
-  .profile-edit__title,
   .profile-notes__title { font-size: 1rem; }
 
+  .profile-admin__subtag-btn,
   .profile-edit__subtag-btn {
     font-size: 0.7rem;
     padding: 3px 5px;
