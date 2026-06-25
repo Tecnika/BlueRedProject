@@ -10,25 +10,29 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=3';
-import { Footer } from './components/Footer.js?v=3';
-import { HomePage } from './pages/HomePage.js?v=3';
-import { AuthPage } from './pages/AuthPage.js?v=3';
-import { ProfilePage } from './pages/ProfilePage.js?v=3';
-import { FactionPage } from './pages/FactionPage.js?v=3';
-import { AdminPage } from './pages/AdminPage.js?v=3';
-import { PagesListPage } from './pages/PagesListPage.js?v=3';
-import { PageViewPage } from './pages/PageViewPage.js?v=3';
-import { PageEditPage } from './pages/PageEditPage.js?v=3';
-import { render } from './utils/dom.js?v=3';
-import { ThemeManager } from './core/ThemeManager.js?v=3';
-import { Router } from './core/Router.js?v=3';
-import { store } from './core/Store.js?v=3';
-import { initFirebase } from './firebase/firebase.js?v=3';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=3';
-import { seedInitialTags } from './firebase/tagsService.js?v=3';
-import { seedInitialPages } from './firebase/pagesService.js?v=3';
-import { subscribeDesign } from './firebase/settingsService.js?v=3';
+import { Header } from './components/Header.js?v=4';
+import { Footer } from './components/Footer.js?v=4';
+import { HomePage } from './pages/HomePage.js?v=4';
+import { AuthPage } from './pages/AuthPage.js?v=4';
+import { ProfilePage } from './pages/ProfilePage.js?v=4';
+import { FactionPage } from './pages/FactionPage.js?v=4';
+import { AdminPage } from './pages/AdminPage.js?v=4';
+import { PagesListPage } from './pages/PagesListPage.js?v=4';
+import { PageViewPage } from './pages/PageViewPage.js?v=4';
+import { PageEditPage } from './pages/PageEditPage.js?v=4';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=4';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=4';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=4';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=4';
+import { render, createElement } from './utils/dom.js?v=4';
+import { ThemeManager } from './core/ThemeManager.js?v=4';
+import { Router } from './core/Router.js?v=4';
+import { store } from './core/Store.js?v=4';
+import { initFirebase } from './firebase/firebase.js?v=4';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=4';
+import { seedInitialTags } from './firebase/tagsService.js?v=4';
+import { seedInitialPages } from './firebase/pagesService.js?v=4';
+import { subscribeDesign } from './firebase/settingsService.js?v=4';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -86,6 +90,19 @@ async function init() {
         return PageEditPage(params.get('slug'));
     });
     router.register('/page/create', () => PageEditPage(null));
+    router.register('/documents', () => DocumentsListPage());
+    router.register('/documents/view', () => {
+        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        const user = store.get('user');
+        if (!user || !params.get('id')) return Promise.resolve(createElement('p', { className: 'error-text', text: 'Ошибка: нужен ID документа' }));
+        return DocumentViewPage(params.get('id'));
+    });
+    router.register('/documents/create', () => DocumentEditPage(null));
+    router.register('/documents/edit', () => {
+        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        return DocumentEditPage(params.get('id'));
+    });
+    router.register('/documents/add', () => DocumentAddPage());
     router.register('/admin', () => AdminPage());
 
     // Ждём восстановления сессии Firebase перед первым переходом

@@ -11,14 +11,15 @@
  *      #/profile          — свой профиль
  */
 
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { createAvatar } from '../core/Avatar.js?v=3';
-import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=3';
-import { getNote, saveNote } from '../firebase/notesService.js?v=3';
-import { TagInput } from '../components/TagInput.js?v=3';
-import { searchTags } from '../firebase/tagsService.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { createAvatar } from '../core/Avatar.js?v=4';
+import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=4';
+import { getNote, saveNote } from '../firebase/notesService.js?v=4';
+import { TagInput } from '../components/TagInput.js?v=4';
+import { searchTags } from '../firebase/tagsService.js?v=4';
+import { getAllDocuments } from '../firebase/documentsService.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
 
 /** Человеческие названия фракций */
 const FACTION_LABELS = {
@@ -76,6 +77,11 @@ export async function ProfilePage(targetUid, themeManager) {
         // Мастер видит панель управления игроком
         if (isAdmin) {
             container.appendChild(await createAdminSection(profile, uid, themeManager));
+        }
+
+        // Секция документов (для владельца — свои; для мастера — документы профиля)
+        if (isOwner || isAdmin) {
+            container.appendChild(await createDocumentsSection(profile, isOwner));
         }
 
         // Заметки видны софракционцам и мастеру
@@ -515,6 +521,64 @@ function createAdminInput(id, label, value) {
     group.appendChild(labelEl);
     group.appendChild(input);
     return group;
+}
+
+/** Секция документов пользователя */
+async function createDocumentsSection(profile, isOwner) {
+    const section = createElement('div', { className: 'profile-documents' });
+    const title = createElement('h3', { className: 'profile-documents__title', text: 'Документы' });
+    section.appendChild(title);
+
+    const docIds = profile.documents || [];
+    if (docIds.length === 0) {
+        section.appendChild(createElement('p', {
+            className: 'profile-documents__empty',
+            text: 'Нет документов. ' + (isOwner ? 'Нажмите «Добавить документ», чтобы привязать документ по QR или коду.' : '')
+        }));
+        if (isOwner) {
+            section.appendChild(createElement('a', {
+                className: 'profile-documents__add-link',
+                text: 'Добавить документ',
+                attributes: { href: '#/documents/add' }
+            }));
+        }
+        return section;
+    }
+
+    try {
+        const allDocs = await getAllDocuments();
+        const myDocs = allDocs.filter(d => docIds.includes(d.id));
+
+        const list = createElement('div', { className: 'profile-documents__list' });
+        for (const doc of myDocs) {
+            const link = createElement('a', {
+                className: 'profile-documents__item',
+                attributes: { href: `#/documents/view?id=${doc.id}` }
+            });
+            link.appendChild(createElement('span', { className: 'profile-documents__number', text: `№ ${doc.number}` }));
+            link.appendChild(createElement('span', {
+                className: `profile-documents__badge profile-documents__badge--${doc.faction}`,
+                text: doc.faction || '—'
+            }));
+            list.appendChild(link);
+        }
+        section.appendChild(list);
+
+        if (isOwner) {
+            section.appendChild(createElement('a', {
+                className: 'profile-documents__add-link',
+                text: '+ Добавить документ',
+                attributes: { href: '#/documents/add' }
+            }));
+        }
+    } catch (_) {
+        section.appendChild(createElement('p', {
+            className: 'profile-documents__empty',
+            text: 'Ошибка загрузки документов. Проверьте соединение.'
+        }));
+    }
+
+    return section;
 }
 
 /** Секция заметок об игроке (для софракционцев и мастера) */

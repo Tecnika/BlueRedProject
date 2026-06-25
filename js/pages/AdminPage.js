@@ -1,10 +1,11 @@
-﻿import { store } from '../core/Store.js?v=3';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=3';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=3';
-import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=3';
-import { getDesign, setDesign } from '../firebase/settingsService.js?v=3';
-import { createElement } from '../utils/dom.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
+﻿import { store } from '../core/Store.js?v=4';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=4';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=4';
+import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=4';
+import { getAllDocuments, getDocumentReaders } from '../firebase/documentsService.js?v=4';
+import { getDesign, setDesign } from '../firebase/settingsService.js?v=4';
+import { createElement } from '../utils/dom.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
 
 /**
  * AdminPage — панель управления (только для мастеров).
@@ -31,6 +32,7 @@ export function AdminPage() {
     container.appendChild(renderTagsSection());
     container.appendChild(renderSubTagsSection());
     container.appendChild(renderPagesSection());
+    container.appendChild(renderDocumentsSection());
     section.appendChild(container);
 
     return section;
@@ -401,4 +403,104 @@ function renderAdminTree(nodes) {
 
     ul.appendChild(fragment);
     return ul;
+}
+
+/* ========================================
+   Секция управления документами
+   ======================================== */
+
+function renderDocumentsSection() {
+    const container = createElement('div', { className: 'admin-section' });
+
+    container.appendChild(createElement('h2', {
+        className: 'admin-section__title',
+        text: 'Документы'
+    }));
+    container.appendChild(createElement('p', {
+        className: 'admin-section__desc',
+        text: 'Список документов с доступом.'
+    }));
+
+    const wrap = createElement('div', { className: 'admin-documents' });
+    const list = createElement('div', {
+        className: 'admin-documents__list',
+        id: 'admin-documents-list',
+        text: 'Загрузка...'
+    });
+    wrap.appendChild(list);
+    container.appendChild(wrap);
+
+    loadAdminDocuments();
+
+    return container;
+}
+
+async function loadAdminDocuments() {
+    const listEl = document.getElementById('admin-documents-list');
+    if (!listEl) return;
+
+    try {
+        const docs = await getAllDocuments();
+        if (!docs || docs.length === 0) {
+            listEl.textContent = 'Нет документов';
+            return;
+        }
+
+        listEl.innerHTML = '';
+
+        for (const doc of docs) {
+            const item = createElement('div', { className: 'admin-documents__item' });
+
+            const header = createElement('div', { className: 'admin-documents__header' });
+            header.appendChild(createElement('a', {
+                className: 'admin-documents__number',
+                attributes: { href: `#/documents/view?id=${doc.id}` },
+                text: `№ ${doc.number}`
+            }));
+            header.appendChild(createElement('span', {
+                className: `admin-documents__faction admin-documents__faction--${doc.faction}`,
+                text: doc.faction || '—'
+            }));
+            header.appendChild(createElement('span', {
+                className: 'admin-documents__key',
+                attributes: { title: 'Код доступа' },
+                text: doc.accessKey
+            }));
+            item.appendChild(header);
+
+            // Читатели
+            try {
+                const readers = await getDocumentReaders(doc.id);
+                if (readers.length > 0) {
+                    const readersList = createElement('div', { className: 'admin-documents__readers' });
+                    readersList.appendChild(createElement('span', {
+                        className: 'admin-documents__readers-label',
+                        text: 'Читатели:'
+                    }));
+                    for (const r of readers) {
+                        readersList.appendChild(createElement('a', {
+                            className: 'admin-documents__reader',
+                            attributes: { href: `#/profile?uid=${r.uid}` },
+                            text: r.username
+                        }));
+                    }
+                    item.appendChild(readersList);
+                } else {
+                    item.appendChild(createElement('span', {
+                        className: 'admin-documents__readers-empty',
+                        text: 'Нет читателей'
+                    }));
+                }
+            } catch (_) {
+                item.appendChild(createElement('span', {
+                    className: 'admin-documents__readers-empty',
+                    text: 'Ошибка загрузки читателей'
+                }));
+            }
+
+            listEl.appendChild(item);
+        }
+    } catch (err) {
+        listEl.textContent = 'Ошибка загрузки: ' + translateError(err);
+    }
 }

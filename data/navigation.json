@@ -1,6 +1,7 @@
 [
     { "label": "Главная", "path": "#/" },
     { "label": "Архив", "path": "#/pages" },
+    { "label": "Документы", "path": "#/documents" },
     { "label": "Фракция", "path": "#/faction" },
     { "label": "Досье", "path": "#/profile" }
 ]

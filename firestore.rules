@@ -95,6 +95,18 @@ service cloud.firestore {
       allow write: if isMaster();
     }
 
+    // ========== Коллекция documents (документы) ==========
+    match /documents/{docId} {
+
+      // Мастер может всё
+      allow create: if isMaster();
+      allow update: if isMaster();
+      allow delete: if isMaster();
+
+      // Читать могут все авторизованные (нужно для проверки accessKey)
+      allow read: if request.auth != null;
+    }
+
     // ========== Коллекция pages (страницы) ==========
     match /pages/{pageId} {
 
