@@ -2,73 +2,282 @@
    Главная страница — Hero и карточки
    ======================================== */
 
-/* Блок-приветствие (фон переопределён в cosmic.css) */
 .hero {
     padding: calc(var(--header-height) + var(--space-3xl)) var(--space-lg) var(--space-3xl);
     text-align: center;
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg) 50%, var(--color-white) 100%);
+    background:
+        radial-gradient(ellipse at 25% 50%, var(--color-primary-glow) 0%, transparent 50%),
+        radial-gradient(ellipse at 75% 30%, var(--color-primary-glow) 0%, transparent 50%),
+        linear-gradient(140deg, var(--color-primary-light) 0%, var(--color-bg) 40%, var(--color-white) 100%);
     border-bottom: 1px solid var(--color-primary-light);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero__badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    padding: 4px 16px;
+    border-radius: 20px;
+    margin-bottom: var(--space-lg);
 }
 
 .hero__title {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 800;
     color: var(--color-text);
     margin-bottom: var(--space-md);
+    line-height: 1.2;
+}
+
+.hero__title-b { color: #2563eb; }
+.hero__title-r { color: #dc2626; }
+
+.hero__title-accent {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .hero__text {
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     color: var(--color-text-secondary);
     max-width: 600px;
-    margin: 0 auto;
+    margin: 0 auto var(--space-xl);
+    line-height: 1.6;
 }
 
-/* --- Сетка возможностей --- */
+.hero__cta {
+    display: flex;
+    gap: var(--space-md);
+    justify-content: center;
+    flex-wrap: wrap;
+}
 
-.features {
-    max-width: var(--max-width);
-    margin: 0 auto;
+.hero__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s;
+    border: none;
+}
+
+.hero__btn--primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 16px var(--color-primary-glow);
+}
+
+.hero__btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px var(--color-primary-glow);
+    filter: brightness(1.1);
+}
+
+.hero__btn--secondary {
+    background: transparent;
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+}
+
+.hero__btn--secondary:hover {
+    background: var(--color-primary);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* ========================================
+   Lore Section — вселенная BlueRed
+   ======================================== */
+
+.lore {
     padding: var(--space-3xl) var(--space-lg);
 }
 
-.features__title {
-    font-size: 1.75rem;
+.lore__container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.lore__title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: var(--space-2xl);
+    color: var(--color-text);
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.lore__title::after {
+    content: '';
+    display: block;
+    width: 60%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    margin: var(--space-sm) auto 0;
+    border-radius: 2px;
+}
+
+.lore__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+.lore-card {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+    text-align: center;
+}
+
+.lore-card:hover {
+    box-shadow: var(--shadow-md), 0 0 20px var(--color-primary-glow);
+    transform: translateY(-3px);
+    border-color: var(--color-primary-light);
+}
+
+.lore-card__icon {
+    font-size: 2rem;
+    margin-bottom: var(--space-md);
+    color: var(--color-primary);
+}
+
+.lore-card__title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-sm);
+}
+
+.lore-card__text {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+/* ========================================
+   Modules Section — карточки модулей
+   ======================================== */
+
+.modules {
+    padding: var(--space-3xl) var(--space-lg);
+    background: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border);
+}
+
+.modules__container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+}
+
+.modules__title {
+    font-size: 1.6rem;
     font-weight: 700;
     text-align: center;
     margin-bottom: var(--space-2xl);
     color: var(--color-text);
 }
 
-.features__grid {
+.modules__grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: var(--space-lg);
 }
 
-/* Карточка-возможность */
-.feature-card {
+.modules__card {
+    display: flex;
+    flex-direction: column;
     background-color: var(--color-white);
     border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-primary);
     border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    transition: box-shadow 0.3s, transform 0.3s;
+    padding: var(--space-lg);
+    text-decoration: none;
+    transition: box-shadow 0.3s, transform 0.3s, border-left-color 0.3s;
+    cursor: pointer;
 }
 
-.feature-card:hover {
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+.modules__card:hover {
+    box-shadow: var(--shadow-md), 0 0 20px var(--color-primary-glow);
+    transform: translateY(-3px);
+    border-left-color: var(--color-accent);
 }
 
-.feature-card__title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--color-text);
+.modules__card-icon {
+    font-size: 1.8rem;
     margin-bottom: var(--space-sm);
 }
 
-.feature-card__text {
-    font-size: 0.95rem;
+.modules__card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-xs);
+}
+
+.modules__card-desc {
+    font-size: 0.85rem;
     color: var(--color-text-secondary);
-    line-height: 1.6;
+    line-height: 1.5;
+    flex: 1;
+}
+
+/* ========================================
+   Responsive
+   ======================================== */
+
+@media (max-width: 768px) {
+    .hero__title {
+        font-size: 2rem;
+    }
+
+    .hero__text {
+        font-size: 1rem;
+    }
+
+    .hero__cta {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero__btn {
+        width: 100%;
+        max-width: 280px;
+        justify-content: center;
+    }
+
+    .lore__cards {
+        grid-template-columns: 1fr;
+    }
+
+    .modules__grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero__title {
+        font-size: 1.6rem;
+    }
+
+    .hero {
+        padding-top: calc(var(--header-height) + var(--space-2xl));
+    }
 }

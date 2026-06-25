@@ -18,7 +18,9 @@ export async function RulesPage() {
         const allRules = await getAllRules();
         const filtered = allRules.filter(r => {
             if (r.type === 'general') return true;
-            return user.role === 'master' || user.role === 'gametech';
+            if (r.type === 'site') return user.role === 'master' || user.role === 'igrotech';
+            if (r.type === 'hidden') return user.role === 'master';
+            return false;
         });
 
         if (filtered.length === 0) {
@@ -107,7 +109,8 @@ function buildNav(rules, activeId, user, onNavigate) {
         const list = grouped[type];
         if (!list || list.length === 0) continue;
 
-        if (type !== 'general' && user.role !== 'master' && user.role !== 'gametech') continue;
+        if (type === 'hidden' && user.role !== 'master') continue;
+        if (type === 'site' && user.role !== 'master' && user.role !== 'igrotech') continue;
 
         const group = createElement('div', { className: 'rules-sidebar__group' });
         group.appendChild(createElement('div', { className: 'rules-sidebar__group-title', text: TYPE_LABELS[type] }));
@@ -142,7 +145,7 @@ function createContent(rule, user, section) {
     const header = createElement('div', { className: 'rules-content__header' });
     header.appendChild(createElement('h1', { className: 'rules-content__title', text: rule.title }));
 
-    if (user.role === 'master' || user.role === 'gametech') {
+    if (user.role === 'master' || user.role === 'igrotech') {
         const actions = createElement('div', { className: 'rules-content__actions' });
 
         const editBtn = createElement('button', {

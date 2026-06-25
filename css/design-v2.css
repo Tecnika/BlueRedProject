@@ -349,6 +349,96 @@
     z-index: 1;
 }
 
+.design-v2 .hero__badge {
+    background: rgba(124, 58, 237, 0.2);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    color: var(--color-primary);
+    box-shadow: 0 0 16px var(--color-primary-glow);
+}
+
+.design-v2 .hero__btn--primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    box-shadow: 0 4px 20px var(--color-primary-glow);
+}
+
+.design-v2 .hero__btn--primary:hover {
+    box-shadow: 0 6px 30px var(--color-primary-glow);
+}
+
+.design-v2 .hero__btn--secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.design-v2 .hero__btn--secondary:hover {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+}
+
+.design-v2 .lore-card {
+    background: linear-gradient(145deg, #1a1a3a 0%, var(--color-bg-secondary) 100%);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-primary);
+}
+
+.design-v2 .lore-card:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 24px var(--color-primary-glow);
+    border-color: var(--color-primary);
+}
+
+.design-v2 .lore-card__icon {
+    color: var(--color-accent);
+    text-shadow: 0 0 16px var(--color-accent-glow);
+}
+
+.design-v2 .lore-card__title {
+    color: var(--color-text);
+}
+
+.design-v2 .lore-card__text {
+    color: var(--color-text-secondary);
+}
+
+.design-v2 .lore__title::after {
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+
+.design-v2 .modules {
+    border-top: 2px solid var(--color-border);
+    background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+}
+
+.design-v2 .modules__title {
+    color: var(--color-text);
+    border-bottom: 2px solid var(--color-primary);
+    padding-bottom: var(--space-sm);
+    display: inline-block;
+}
+
+.design-v2 .modules__card {
+    background: linear-gradient(145deg, #1a1a3a 0%, var(--color-bg-secondary) 100%);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-primary);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+
+.design-v2 .modules__card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 30px var(--color-primary-glow);
+    border-color: var(--color-primary);
+    border-left-color: var(--color-accent);
+}
+
+.design-v2 .modules__card-title {
+    color: var(--color-text);
+}
+
+.design-v2 .modules__card-desc {
+    color: var(--color-text-secondary);
+}
+
 /* ========================================
    Карточки на главной: тёмные HUD-панели
    ======================================== */

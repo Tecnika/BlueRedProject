@@ -13,9 +13,17 @@ export async function RulesEditPage() {
     const section = createElement('section', { className: 'rules-edit-page' });
     const user = store.get('user');
 
-    if (!user || (user.role !== 'master' && user.role !== 'gametech')) {
+    if (!user || (user.role !== 'master' && user.role !== 'igrotech')) {
         section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Только для мастера и игротехников' }));
         return section;
+    }
+
+    const TYPE_OPTIONS = [
+        { value: 'general', label: 'Основные' },
+        { value: 'site', label: 'Правила сайта' }
+    ];
+    if (user.role === 'master') {
+        TYPE_OPTIONS.push({ value: 'hidden', label: 'Скрытые механики' });
     }
 
     const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
@@ -27,6 +35,10 @@ export async function RulesEditPage() {
             const existing = await getRule(editId);
             if (!existing) {
                 section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Правило не найдено' }));
+                return section;
+            }
+            if (user.role === 'igrotech' && existing.type === 'hidden') {
+                section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Игротехники не могут редактировать скрытые механики' }));
                 return section;
             }
             ruleData = existing;
@@ -103,6 +115,10 @@ export async function RulesEditPage() {
         };
         if (!payload.title.trim()) { alert('Заголовок не может быть пустым'); return; }
         if (!payload.content.trim()) { alert('Содержание не может быть пустым'); return; }
+        if (user.role === 'igrotech' && payload.type === 'hidden') {
+            alert('Игротехники не могут создавать скрытые механики');
+            return;
+        }
 
         try {
             if (editId) {
@@ -151,12 +167,14 @@ export async function RulesEditPage() {
         });
         addBtnsContainer.appendChild(openSiteBtn);
 
-        const openHiddenBtn = createElement('a', {
-            className: 'rules-edit-page__shortcut-btn',
-            text: '+ Скрытые механики',
-            attributes: { href: '#/rules/create?type=hidden' }
-        });
-        addBtnsContainer.appendChild(openHiddenBtn);
+        if (user.role === 'master') {
+            const openHiddenBtn = createElement('a', {
+                className: 'rules-edit-page__shortcut-btn',
+                text: '+ Скрытые механики',
+                attributes: { href: '#/rules/create?type=hidden' }
+            });
+            addBtnsContainer.appendChild(openHiddenBtn);
+        }
 
         shortcuts.appendChild(addBtnsContainer);
         container.appendChild(shortcuts);

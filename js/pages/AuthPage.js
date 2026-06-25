@@ -11,6 +11,7 @@
 import { createElement } from '../utils/dom.js?v=3';
 import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
+import { store } from '../core/Store.js?v=3';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });
@@ -107,6 +108,16 @@ function buildForm(mode) {
                 }
 
                 await signUpWithUsername(username, password);
+            }
+
+            // Ждём, пока onAuthChange запишет пользователя в store,
+            // чтобы HomePage отрендерилась уже с user !== null
+            if (!store.get('user')) {
+                await new Promise(resolve => {
+                    const unsub = store.subscribe('user', (user) => {
+                        if (user) { unsub(); resolve(); }
+                    });
+                });
             }
 
             window.location.hash = '#/';

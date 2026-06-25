@@ -131,7 +131,10 @@ function createAuthBlock() {
         className: 'header__user-login',
         text: 'Войти в систему',
         attributes: { href: '#/login' },
-        dataset: { auth: '' }
+        dataset: { auth: '' },
+        events: {
+            click: (e) => { e.preventDefault(); window.location.hash = '#/login'; }
+        }
     });
 
     return link;
