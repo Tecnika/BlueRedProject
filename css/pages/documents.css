@@ -11,7 +11,7 @@
 .documents-list-page__header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 2rem;
@@ -41,13 +41,9 @@
     cursor: pointer;
 }
 
-.documents-list-page__create-btn {
-    background: var(--color-primary);
-    color: #fff;
-}
-
+.documents-list-page__create-btn,
 .documents-list-page__add-btn {
-    background: var(--color-accent, #555);
+    background: var(--color-primary);
     color: #fff;
 }
 
