@@ -517,38 +517,90 @@
    Карточка профиля
    ======================================== */
 
-.design-v2 .profile-card {
-    background: linear-gradient(145deg, #1a1a3a, var(--color-bg-secondary));
+/* ========================================
+   Profile Sidebar v2
+   ======================================== */
+
+.design-v2 .profile-sidebar {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
     border: 1px solid var(--color-border);
-    border-left: 3px solid var(--color-primary);
-    border-radius: var(--radius-lg);
+    border-radius: 25px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4), 0 0 20px var(--color-primary-glow);
+    backdrop-filter: blur(10px);
 }
 
-.design-v2 .profile-card__name {
+.design-v2 .profile-sidebar__username {
     color: var(--color-text);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    text-shadow: 0 0 20px var(--color-primary-glow);
 }
 
-.design-v2 .profile-card__role,
-.design-v2 .profile-card__faction {
-    font-weight: 600;
+.design-v2 .profile-sidebar__role {
+    color: var(--color-primary);
+    font-weight: 700;
 }
 
-.design-v2 .profile-card__field-label {
+.design-v2 .profile-sidebar__field-label {
     color: var(--color-text-secondary);
-    font-weight: 600;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
-.design-v2 .profile-card__field-value {
+.design-v2 .profile-sidebar__field-value {
     color: var(--color-text);
 }
 
-.design-v2 .profile-card__tag {
-    background-color: var(--color-primary);
-    color: var(--color-white);
+.design-v2 .profile-sidebar__field {
+    border-top-color: var(--color-border);
+}
+
+/* ========================================
+   Profile About / Quote v2
+   ======================================== */
+
+.design-v2 .profile-about {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 25px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.design-v2 .profile-about__label {
+    color: var(--color-primary);
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.design-v2 .profile-about__quote {
+    color: var(--color-text);
+    font-style: italic;
+}
+
+.design-v2 .profile-about__quote::before,
+.design-v2 .profile-about__quote::after {
+    color: var(--color-primary);
+}
+
+/* ========================================
+   Profile Tags v2
+   ======================================== */
+
+.design-v2 .profile-tags {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-radius: 25px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.design-v2 .profile-tags__title {
+    color: var(--color-primary);
+    letter-spacing: 2px;
+}
+
+.design-v2 .profile-tags__tag {
+    background: linear-gradient(135deg, var(--color-primary), #4c1d95);
+    color: #fff;
     box-shadow: 0 0 12px var(--color-primary-glow);
 }
 
@@ -594,6 +646,8 @@
 
 .design-v2 .auth-form__button,
 .design-v2 .profile-edit__save,
+.design-v2 .profile-about__save,
+.design-v2 .profile-admin__save,
 .design-v2 .profile-notes__save,
 .design-v2 .page-edit-page__save,
 .design-v2 .admin-tags__add-btn,
@@ -615,6 +669,8 @@
 
 .design-v2 .auth-form__button:hover,
 .design-v2 .profile-edit__save:hover,
+.design-v2 .profile-about__save:hover,
+.design-v2 .profile-admin__save:hover,
 .design-v2 .profile-notes__save:hover,
 .design-v2 .page-edit-page__save:hover,
 .design-v2 .admin-tags__add-btn:hover,
@@ -628,6 +684,8 @@
 
 .design-v2 .auth-form__button:active,
 .design-v2 .profile-edit__save:active,
+.design-v2 .profile-about__save:active,
+.design-v2 .profile-admin__save:active,
 .design-v2 .profile-notes__save:active,
 .design-v2 .page-edit-page__save:active {
     transform: translateY(0);
@@ -754,7 +812,7 @@
     box-shadow: 0 0 12px var(--color-primary-glow);
 }
 
-.design-v2 .profile-card__tags .profile-card__tag {
+.design-v2 .profile-documents__tag {
     background: linear-gradient(135deg, var(--color-primary), #4c1d95);
 }
 
@@ -990,25 +1048,22 @@
    Профиль: секции
    ======================================== */
 
-.design-v2 .profile-edit {
-    background: linear-gradient(145deg, #1a1a3a, var(--color-bg-secondary));
+.design-v2 .profile-admin {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
-    margin-top: var(--space-lg);
+    border-radius: 25px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
-.design-v2 .profile-edit__label {
+.design-v2 .profile-admin__title {
+    color: var(--color-text);
+    border-bottom-color: var(--color-border);
+}
+
+.design-v2 .profile-admin__label {
     color: var(--color-text-secondary);
     font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.design-v2 .profile-notes__textarea {
-    background-color: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    border-radius: var(--radius-md);
 }
 
 /* ========================================
@@ -1090,7 +1145,7 @@
    ======================================== */
 
 .design-v2 .page-view-page__container,
-.design-v2 .profile-page__container,
+.design-v2 .profile-layout,
 .design-v2 .pages-list-page__container,
 .design-v2 .faction-page__header + *,
 .design-v2 .admin-page__container,
@@ -1115,6 +1170,69 @@
     border-bottom: 2px solid var(--color-primary);
     padding-bottom: var(--space-sm);
     display: inline-block;
+}
+
+/* ========================================
+   Profile Documents v2
+   ======================================== */
+
+.design-v2 .profile-documents {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-radius: 25px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.design-v2 .profile-documents__title {
+    color: var(--color-text);
+}
+
+.design-v2 .profile-documents__empty {
+    color: var(--color-text-secondary);
+}
+
+.design-v2 .profile-documents__number {
+    color: var(--color-text);
+}
+
+.design-v2 .profile-documents__item {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    transition: all 0.2s;
+}
+
+.design-v2 .profile-documents__item:hover {
+    background: rgba(124, 58, 237, 0.12);
+    border-color: var(--color-primary);
+}
+
+.design-v2 .profile-documents__add-link {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.design-v2 .profile-documents__add-link:hover {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* ========================================
+   Profile Notes v2
+   ======================================== */
+
+.design-v2 .profile-notes {
+    background: linear-gradient(145deg, rgba(26, 26, 58, 0.95), var(--color-bg-secondary));
+    border: 1px solid var(--color-border);
+    border-radius: 25px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+.design-v2 .profile-notes__textarea {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    border-radius: var(--radius-md);
 }
 
 .design-v2 .admin-page__error {
@@ -1374,37 +1492,6 @@
     background: rgba(220, 38, 38, 0.1);
     border: 1px solid rgba(220, 38, 38, 0.3);
     color: #ef4444;
-}
-
-.design-v2 .profile-documents {
-    border-top-color: var(--color-border);
-}
-
-.design-v2 .profile-documents__title {
-    color: var(--color-text);
-}
-
-.design-v2 .profile-documents__empty {
-    color: var(--color-text-secondary);
-}
-
-.design-v2 .profile-documents__item {
-    background: linear-gradient(145deg, #1a1a3a, var(--color-bg-secondary));
-    border: 1px solid var(--color-border);
-    transition: all 0.25s;
-}
-
-.design-v2 .profile-documents__item:hover {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 12px var(--color-primary-glow);
-}
-
-.design-v2 .profile-documents__number {
-    color: var(--color-text);
-}
-
-.design-v2 .profile-documents__add-link {
-    color: var(--color-primary);
 }
 
 .design-v2 .admin-documents__item {

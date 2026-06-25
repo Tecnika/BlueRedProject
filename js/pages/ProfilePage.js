@@ -1,17 +1,4 @@
-﻿/**
- * ProfilePage — страница профиля игрока.
- *
- * Уровни доступа:
- *   - Владелец профиля: видит всё, может редактировать "О себе"
- *   - Мастер (role === 'master'): видит теги, управляет фракцией/тегами/мировоззрением
- *   - Своя фракция: видит профиль + может писать заметки
- *   - Остальные: видят только базовую информацию
- *
- * URL: #/profile?uid=xxx — профиль конкретного игрока
- *      #/profile          — свой профиль
- */
-
-import { createElement } from '../utils/dom.js?v=3';
+﻿import { createElement } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
 import { createAvatar } from '../core/Avatar.js?v=3';
 import { getUserProfile, updateUserProfile } from '../firebase/authService.js?v=3';
@@ -21,272 +8,206 @@ import { searchTags } from '../firebase/tagsService.js?v=3';
 import { getAllDocuments } from '../firebase/documentsService.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
-/** Человеческие названия фракций */
-const FACTION_LABELS = {
-    red: 'Красные',
-    blue: 'Синие',
-    purple: 'Фиолетовые'
-};
-
-/** Человеческие названия ролей */
-const ROLE_LABELS = {
-    master: 'Мастер',
-    igrotech: 'Игротех',
-    player: 'Игрок'
-};
+const FACTION_MAP = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
+const ROLE_ICONS = { master: '👑', igrotech: '⚙️', player: '🎲' };
+const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
 
 export async function ProfilePage(targetUid, themeManager) {
     const section = createElement('section', { className: 'profile-page' });
 
     try {
         const currentUser = store.get('user');
-
         if (!currentUser) {
-            section.appendChild(createElement('p', {
-                className: 'profile-page__error',
-                text: 'Требуется идентификация'
-            }));
+            section.appendChild(createElement('p', { className: 'profile-page__error', text: 'Требуется идентификация' }));
             return section;
         }
 
         const uid = targetUid || currentUser.uid;
         const profile = await getUserProfile(uid);
-
         if (!profile) {
-            section.appendChild(createElement('p', {
-                className: 'profile-page__error',
-                text: 'Агент не найден в базе'
-            }));
+            section.appendChild(createElement('p', { className: 'profile-page__error', text: 'Агент не найден в базе' }));
             return section;
         }
 
         const isOwner = uid === currentUser.uid;
-        const isAdmin = currentUser.role === 'master';
+        const isAdmin = currentUser.role === 'master' || currentUser.role === 'igrotech';
         const sameFaction = currentUser.faction && profile.faction && currentUser.faction === profile.faction;
 
-        const container = createElement('div', { className: 'profile-page__container' });
+        const layout = createElement('div', { className: 'profile-layout' });
 
-        // Карточка профиля (видна всем)
-        container.appendChild(createProfileCard(profile, isOwner, isAdmin));
+        layout.appendChild(createSidebar(profile));
 
-        // Владелец может редактировать "О себе"
-        if (isOwner) {
-            container.appendChild(createEditSection(profile));
+        const content = createElement('div', { className: 'profile-content' });
+
+        content.appendChild(createAboutBlock(profile, isOwner));
+
+        if ((isOwner || isAdmin) && profile.accessTags && profile.accessTags.length) {
+            content.appendChild(createTagBlock('Грифы доступа', profile.accessTags));
+        }
+        if ((isOwner || isAdmin) && profile.hiddenTags && profile.hiddenTags.length) {
+            content.appendChild(createTagBlock('Секретные грифы', profile.hiddenTags));
         }
 
-        // Мастер видит панель управления игроком
         if (isAdmin) {
-            container.appendChild(await createAdminSection(profile, uid, themeManager));
+            content.appendChild(await createAdminSection(profile, uid, themeManager));
         }
 
-        // Секция документов (для владельца — свои; для мастера — документы профиля)
         if (isOwner || isAdmin) {
-            container.appendChild(await createDocumentsSection(profile, isOwner));
+            content.appendChild(await createDocumentsSection(profile, isOwner));
         }
 
-        // Заметки видны софракционцам и мастеру
         if (!isOwner && (sameFaction || isAdmin)) {
-            container.appendChild(await createNotesSection(currentUser.uid, uid));
+            content.appendChild(await createNotesSection(currentUser.uid, uid));
         }
 
-        section.appendChild(container);
+        layout.appendChild(content);
+        section.appendChild(layout);
     } catch (err) {
-        section.appendChild(createElement('p', {
-            className: 'profile-page__error',
-            text: 'Ошибка: ' + translateError(err)
-        }));
+        section.appendChild(createElement('p', { className: 'profile-page__error', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
 }
 
-/** Собирает карточку с аватаром, именем, ролью, фракцией, тегами */
-function createProfileCard(profile, isOwner, isAdmin) {
-    const card = createElement('div', { className: 'profile-card' });
+function createSidebar(profile) {
+    const sidebar = createElement('aside', { className: 'profile-sidebar' });
 
-    const avatar = createAvatar(profile.username, profile.faction, 'profile-card__avatar');
+    const avatar = createAvatar(profile.username, profile.faction, 'profile-sidebar__avatar');
+    sidebar.appendChild(avatar);
 
-    const info = createElement('div', { className: 'profile-card__info' });
+    const username = createElement('h1', { className: 'profile-sidebar__username', text: profile.username });
+    sidebar.appendChild(username);
 
-    const name = createElement('h2', {
-        className: 'profile-card__name',
-        text: profile.username
+    const roleIcon = ROLE_ICONS[profile.role] || '🎲';
+    const roleName = ROLE_LABELS[profile.role] || profile.role;
+    const roleEl = createElement('div', { className: 'profile-sidebar__role', html: `${roleIcon} ${roleName}` });
+    sidebar.appendChild(roleEl);
+
+    const factionName = FACTION_MAP[profile.faction] || 'Фракция не назначена';
+    const factionEl = createElement('div', {
+        className: `profile-sidebar__faction profile-sidebar__faction--${profile.faction || 'none'}`,
+        text: factionName
     });
+    sidebar.appendChild(factionEl);
 
-    const roleLabel = ROLE_LABELS[profile.role] || profile.role;
-    const factionLabel = FACTION_LABELS[profile.faction] || profile.faction || 'Не выбрана';
-
-    const meta = createElement('div', { className: 'profile-card__meta' });
-    const roleEl = createElement('span', {
-        className: 'profile-card__role',
-        text: roleLabel
-    });
-    const factionEl = createElement('span', {
-        className: `profile-card__faction profile-card__faction--${profile.faction || 'none'}`,
-        text: factionLabel
-    });
-    meta.appendChild(roleEl);
-    meta.appendChild(factionEl);
-
-    info.appendChild(name);
-    info.appendChild(meta);
-
-    info.appendChild(createFieldRow('Мировоззрение', profile.worldview || '—'));
-
-    // Теги доступа видны владельцу и мастеру
-    if ((isOwner || isAdmin) && profile.accessTags && profile.accessTags.length) {
-        info.appendChild(createTagRow('Грифы доступа', profile.accessTags));
+    if (profile.createdAt) {
+        const date = new Date(profile.createdAt);
+        const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+        sidebar.appendChild(createElement('div', { className: 'profile-sidebar__date', html: `Зарегистрирован: ${dateStr}` }));
     }
 
-    // Скрытые теги видны только владельцу и мастеру
-    if ((isOwner || isAdmin) && profile.hiddenTags && profile.hiddenTags.length) {
-        info.appendChild(createTagRow('Секретные грифы', profile.hiddenTags));
-    }
+    sidebar.appendChild(createField('Мировоззрение', profile.worldview || 'Не определено'));
 
-    info.appendChild(createFieldRow('Личное дело', profile.about || '—'));
-
-    card.appendChild(avatar);
-    card.appendChild(info);
-
-    return card;
+    return sidebar;
 }
 
-/** Строка "метка: значение" */
-function createFieldRow(label, value) {
-    const row = createElement('div', { className: 'profile-card__field' });
-    const labelEl = createElement('span', { className: 'profile-card__field-label', text: label });
-    const valueEl = createElement('span', { className: 'profile-card__field-value', text: value });
-    row.appendChild(labelEl);
-    row.appendChild(valueEl);
+function createField(label, value) {
+    const row = createElement('div', { className: 'profile-sidebar__field' });
+    row.appendChild(createElement('span', { className: 'profile-sidebar__field-label', text: label }));
+    row.appendChild(createElement('span', { className: 'profile-sidebar__field-value', text: value }));
     return row;
 }
 
-/** Строка с тегами */
-function createTagRow(label, tags) {
-    const row = createElement('div', { className: 'profile-card__field' });
-    const labelEl = createElement('span', { className: 'profile-card__field-label', text: label });
-    const tagList = createElement('div', { className: 'profile-card__tags' });
-    for (const tag of tags) {
-        tagList.appendChild(createElement('span', { className: 'profile-card__tag', text: tag }));
-    }
-    row.appendChild(labelEl);
-    row.appendChild(tagList);
-    return row;
-}
+function createAboutBlock(profile, isOwner) {
+    const block = createElement('div', { className: 'profile-about' });
 
-/** Секция редактирования профиля (для владельца) */
-function createEditSection(profile) {
-    const section = createElement('div', { className: 'profile-edit' });
-    const title = createElement('h3', { className: 'profile-edit__title', text: 'Редактировать досье' });
+    const label = createElement('div', { className: 'profile-about__label', text: 'Личное дело' });
+    block.appendChild(label);
 
-    const form = createElement('form', {
-        className: 'profile-edit__form',
-        events: { submit: (e) => e.preventDefault() }
-    });
-
-    const aboutGroup = createEditField('textarea', 'about', 'Личное дело', profile.about || '');
-    form.appendChild(aboutGroup);
-
-    const saveBtn = createElement('button', {
-        className: 'profile-edit__save',
-        text: 'Сохранить',
-        attributes: { type: 'submit' }
-    });
-
-    const msg = createElement('p', { className: 'profile-edit__msg' });
-
-    form.appendChild(saveBtn);
-    form.appendChild(msg);
-
-    form.addEventListener('submit', async () => {
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Запись...';
-        msg.style.display = 'none';
-
-        try {
-            const data = {
-                about: form.querySelector('#about').value.trim()
-            };
-
-            await updateUserProfile(store.get('user').uid, data);
-            store.set('user', { ...store.get('user'), ...data });
-            msg.textContent = 'Данные записаны';
-            msg.style.display = 'block';
-        } catch (err) {
-            msg.textContent = 'Ошибка: ' + translateError(err);
-            msg.style.display = 'block';
-        } finally {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Сохранить';
-        }
-    });
-
-    section.appendChild(title);
-    section.appendChild(form);
-
-    return section;
-}
-
-/** Поле редактирования (input или textarea) */
-function createEditField(type, id, label, value) {
-    const group = createElement('div', { className: 'profile-edit__field' });
-    const labelEl = createElement('label', {
-        className: 'profile-edit__label',
-        text: label,
-        attributes: { for: id }
-    });
-
-    let input;
-    if (type === 'textarea') {
-        input = createElement('textarea', {
-            className: 'profile-edit__input profile-edit__textarea',
-            text: value,
-            attributes: { id, rows: 3 }
+    if (isOwner) {
+        const textarea = createElement('textarea', {
+            className: 'profile-about__textarea',
+            text: profile.about || '',
+            attributes: { rows: 3, placeholder: 'Расскажите о себе...' }
         });
+        block.appendChild(textarea);
+
+        const btnGroup = createElement('div', { className: 'profile-about__actions' });
+        const saveBtn = createElement('button', {
+            className: 'profile-about__save',
+            text: 'Сохранить',
+            attributes: { type: 'button' }
+        });
+        const msg = createElement('p', { className: 'profile-about__msg' });
+
+        saveBtn.addEventListener('click', async () => {
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Запись...';
+            msg.style.display = 'none';
+            try {
+                await updateUserProfile(store.get('user').uid, { about: textarea.value.trim() });
+                store.set('user', { ...store.get('user'), about: textarea.value.trim() });
+                msg.textContent = 'Данные записаны';
+                msg.style.display = 'block';
+            } catch (err) {
+                msg.textContent = 'Ошибка: ' + translateError(err);
+                msg.style.display = 'block';
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Сохранить';
+            }
+        });
+
+        btnGroup.appendChild(saveBtn);
+        btnGroup.appendChild(msg);
+        block.appendChild(btnGroup);
     } else {
-        input = createElement('input', {
-            className: 'profile-edit__input',
-            attributes: { type: 'text', id, value }
-        });
+        const text = profile.about || 'Здесь могла быть информация об агенте, но досье пусто.';
+        const quoteText = createElement('div', { className: 'profile-about__quote', text: text });
+        block.appendChild(quoteText);
     }
 
-    group.appendChild(labelEl);
-    group.appendChild(input);
-    return group;
+    return block;
 }
 
-/** Админ-панель: фракция, мировоззрение, теги (только для master) */
+function createTagBlock(label, tags) {
+    const block = createElement('div', { className: 'profile-tags' });
+    block.appendChild(createElement('h3', { className: 'profile-tags__title', text: label }));
+    const list = createElement('div', { className: 'profile-tags__list' });
+    for (const tag of tags) {
+        list.appendChild(createElement('span', { className: 'profile-tags__tag', text: tag }));
+    }
+    block.appendChild(list);
+    return block;
+}
+
 async function createAdminSection(profile, targetUid, themeManager) {
-    const section = createElement('div', { className: 'profile-edit' });
-    const title = createElement('h3', {
-        className: 'profile-edit__title',
-        text: 'Панель управления (Мастер)'
-    });
+    const section = createElement('div', { className: 'profile-admin' });
+    section.appendChild(createElement('h3', { className: 'profile-admin__title', text: 'Панель управления' }));
 
     const form = createElement('form', {
-        className: 'profile-edit__form',
+        className: 'profile-admin__form',
         events: { submit: (e) => e.preventDefault() }
     });
 
-    const factionGroup = createAdminSelect('admin-faction', 'Фракция', profile.faction || '', [
-        { value: '', text: 'Не назначена' },
-        { value: 'red', text: 'Красные' },
-        { value: 'blue', text: 'Синие' },
-        { value: 'purple', text: 'Фиолетовые' }
-    ]);
-    form.appendChild(factionGroup);
+    form.appendChild(createAdminField('Фракция', () => {
+        const select = createElement('select', { className: 'profile-admin__select', attributes: { id: 'admin-faction' } });
+        const opts = [
+            { value: '', text: 'Не назначена' },
+            { value: 'red', text: 'Красные' },
+            { value: 'blue', text: 'Синие' },
+            { value: 'purple', text: 'Фиолетовые' }
+        ];
+        for (const o of opts) {
+            const opt = createElement('option', { text: o.text, attributes: { value: o.value } });
+            if (o.value === (profile.faction || '')) opt.selected = true;
+            select.appendChild(opt);
+        }
+        return select;
+    }));
 
-    form.appendChild(createAdminInput('admin-worldview', 'Мировоззрение', profile.worldview || ''));
+    form.appendChild(createAdminField('Мировоззрение', () => {
+        return createElement('input', {
+            className: 'profile-admin__input',
+            attributes: { type: 'text', id: 'admin-worldview', value: profile.worldview || '' }
+        });
+    }));
 
-    // Теги доступа — автокомплит из каталога (с fallback на текстовый ввод)
     const currentAccess = [...(profile.accessTags || [])];
     const currentHidden = [...(profile.hiddenTags || [])];
 
     try {
-        const accessLabel = createElement('label', {
-            className: 'profile-edit__label',
-            text: 'Грифы доступа'
-        });
+        const accessLabel = createElement('label', { className: 'profile-admin__label', text: 'Грифы доступа' });
         form.appendChild(accessLabel);
         const accessTagInput = await TagInput({
             initialTags: currentAccess,
@@ -295,14 +216,16 @@ async function createAdminSection(profile, targetUid, themeManager) {
         });
         form.appendChild(accessTagInput);
     } catch (e) {
-        form.appendChild(createAdminInput('admin-tags', 'Грифы доступа (через запятую)', currentAccess.join(', ')));
+        form.appendChild(createAdminField('Грифы доступа (через запятую)', () => {
+            return createElement('input', {
+                className: 'profile-admin__input',
+                attributes: { type: 'text', id: 'admin-tags', value: currentAccess.join(', ') }
+            });
+        }));
     }
 
     try {
-        const hiddenLabel = createElement('label', {
-            className: 'profile-edit__label',
-            text: 'Секретные грифы'
-        });
+        const hiddenLabel = createElement('label', { className: 'profile-admin__label', text: 'Секретные грифы' });
         form.appendChild(hiddenLabel);
         const hiddenTagInput = await TagInput({
             initialTags: currentHidden,
@@ -311,12 +234,16 @@ async function createAdminSection(profile, targetUid, themeManager) {
         });
         form.appendChild(hiddenTagInput);
     } catch (e) {
-        form.appendChild(createAdminInput('admin-hidden', 'Секретные грифы (через запятую)', currentHidden.join(', ')));
+        form.appendChild(createAdminField('Секретные грифы (через запятую)', () => {
+            return createElement('input', {
+                className: 'profile-admin__input',
+                attributes: { type: 'text', id: 'admin-hidden', value: currentHidden.join(', ') }
+            });
+        }));
     }
 
-    // Субтеги фракционных страниц (только мастера)
     const currentFactionTags = [...(profile.factionAccessTags || [])];
-    const subLabel = createElement('label', { className: 'profile-edit__label', text: 'Доступ к ячейкам' });
+    const subLabel = createElement('label', { className: 'profile-admin__label', text: 'Доступ к ячейкам' });
     form.appendChild(subLabel);
 
     const subChips = createElement('div', { className: 'tag-input__chips', id: 'admin-faction-tags-chips' });
@@ -337,12 +264,10 @@ async function createAdminSection(profile, targetUid, themeManager) {
     }
     renderSubChips();
 
-    // Строитель субтега: тег + фракция + уровень
-    const builder = createElement('div', { className: 'profile-edit__subtag-builder' });
-
-    const inputWrap = createElement('div', { className: 'profile-edit__subtag-input-wrap' });
+    const builder = createElement('div', { className: 'profile-admin__subtag-builder' });
+    const inputWrap = createElement('div', { className: 'profile-admin__subtag-input-wrap' });
     const baseInput = createElement('input', {
-        className: 'profile-edit__input',
+        className: 'profile-admin__input',
         attributes: { type: 'text', id: 'subtag-base', placeholder: 'Гриф (техник)', autocomplete: 'off' }
     });
     inputWrap.appendChild(baseInput);
@@ -369,48 +294,45 @@ async function createAdminSection(profile, targetUid, themeManager) {
     let selFaction = '';
     let selLevel = '';
 
-    const FACTION_MAP = { к: 'Красные', с: 'Синие', ф: 'Фиолетовые' };
-    const LEVEL_MAP = { '0': 'Инфо', '1': 'Пропаганда', '2': 'Жёсткая' };
+    const FACTION_MAP_SHORT = { к: 'Красные', с: 'Синие', ф: 'Фиолетовые' };
+    const LEVEL_MAP_SHORT = { '0': 'Инфо', '1': 'Пропаганда', '2': 'Жёсткая' };
 
-    const fGroup = createElement('div', { className: 'profile-edit__subtag-group' });
-    for (const [k, label] of Object.entries(FACTION_MAP)) {
+    const fGroup = createElement('div', { className: 'profile-admin__subtag-group' });
+    for (const [k, lab] of Object.entries(FACTION_MAP_SHORT)) {
         const btn = createElement('button', {
-            className: 'profile-edit__subtag-btn', text: label,
+            className: 'profile-admin__subtag-btn', text: lab,
             attributes: { type: 'button', 'data-value': k },
-            events: { click: () => { selFaction = k; fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
+            events: { click: () => { selFaction = k; fGroup.querySelectorAll('.profile-admin__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
         });
         fGroup.appendChild(btn);
     }
     builder.appendChild(fGroup);
 
-    const lGroup = createElement('div', { className: 'profile-edit__subtag-group' });
-    for (const [k, label] of Object.entries(LEVEL_MAP)) {
+    const lGroup = createElement('div', { className: 'profile-admin__subtag-group' });
+    for (const [k, lab] of Object.entries(LEVEL_MAP_SHORT)) {
         const btn = createElement('button', {
-            className: 'profile-edit__subtag-btn', text: label,
+            className: 'profile-admin__subtag-btn', text: lab,
             attributes: { type: 'button', 'data-value': k },
-            events: { click: () => { selLevel = k; lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
+            events: { click: () => { selLevel = k; lGroup.querySelectorAll('.profile-admin__subtag-btn').forEach(b => b.classList.toggle('active', b.dataset.value === k)); } }
         });
         lGroup.appendChild(btn);
     }
     builder.appendChild(lGroup);
 
     const addBtn = createElement('button', {
-        className: 'profile-edit__subtag-add', text: '+',
+        className: 'profile-admin__subtag-add', text: '+',
         attributes: { type: 'button', title: 'Добавить субтег' },
         events: {
             click: () => {
                 const base = baseInput.value.trim();
                 if (!base || !selFaction || selLevel === '') return;
                 const tag = `${base}_${selFaction}_${selLevel}`;
-                if (!currentFactionTags.includes(tag)) {
-                    currentFactionTags.push(tag);
-                    renderSubChips();
-                }
+                if (!currentFactionTags.includes(tag)) { currentFactionTags.push(tag); renderSubChips(); }
                 baseInput.value = '';
                 selFaction = ''; selLevel = '';
                 suggestions.innerHTML = '';
-                fGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
-                lGroup.querySelectorAll('.profile-edit__subtag-btn').forEach(b => b.classList.remove('active'));
+                fGroup.querySelectorAll('.profile-admin__subtag-btn').forEach(b => b.classList.remove('active'));
+                lGroup.querySelectorAll('.profile-admin__subtag-btn').forEach(b => b.classList.remove('active'));
             }
         }
     });
@@ -418,13 +340,9 @@ async function createAdminSection(profile, targetUid, themeManager) {
     form.appendChild(builder);
 
     const saveBtn = createElement('button', {
-        className: 'profile-edit__save',
-        text: 'Сохранить',
-        attributes: { type: 'submit' }
+        className: 'profile-admin__save', text: 'Сохранить', attributes: { type: 'submit' }
     });
-
-    const msg = createElement('p', { className: 'profile-edit__msg' });
-
+    const msg = createElement('p', { className: 'profile-admin__msg' });
     form.appendChild(saveBtn);
     form.appendChild(msg);
 
@@ -434,18 +352,15 @@ async function createAdminSection(profile, targetUid, themeManager) {
         msg.style.display = 'none';
 
         try {
-            // Если есть fallback-поля — читаем из них
             const fallbackAccess = form.querySelector('#admin-tags');
             const fallbackHidden = form.querySelector('#admin-hidden');
             if (fallbackAccess) {
-                const raw = fallbackAccess.value;
                 currentAccess.length = 0;
-                currentAccess.push(...(raw ? raw.split(',').map(t => t.trim()).filter(Boolean) : []));
+                currentAccess.push(...(fallbackAccess.value ? fallbackAccess.value.split(',').map(t => t.trim()).filter(Boolean) : []));
             }
             if (fallbackHidden) {
-                const raw = fallbackHidden.value;
                 currentHidden.length = 0;
-                currentHidden.push(...(raw ? raw.split(',').map(t => t.trim()).filter(Boolean) : []));
+                currentHidden.push(...(fallbackHidden.value ? fallbackHidden.value.split(',').map(t => t.trim()).filter(Boolean) : []));
             }
 
             const data = {
@@ -458,13 +373,10 @@ async function createAdminSection(profile, targetUid, themeManager) {
 
             await updateUserProfile(targetUid, data);
 
-            // Если админ редактирует сам себя — обновляем store и тему
             const currentUser = store.get('user');
             if (currentUser && targetUid === currentUser.uid) {
                 store.set('user', { ...currentUser, ...data });
-                if (themeManager && data.faction) {
-                    themeManager.setThemeByFaction(data.faction);
-                }
+                if (themeManager && data.faction) themeManager.setThemeByFaction(data.faction);
             }
 
             msg.textContent = 'Данные записаны';
@@ -478,63 +390,24 @@ async function createAdminSection(profile, targetUid, themeManager) {
         }
     });
 
-    section.appendChild(title);
     section.appendChild(form);
-
     return section;
 }
 
-/** Выпадающий список для админ-панели */
-function createAdminSelect(id, label, value, options) {
-    const group = createElement('div', { className: 'profile-edit__field' });
-    const labelEl = createElement('label', {
-        className: 'profile-edit__label',
-        text: label,
-        attributes: { for: id }
-    });
-    const select = createElement('select', { className: 'profile-edit__input', attributes: { id } });
-    for (const opt of options) {
-        const option = createElement('option', {
-            text: opt.text,
-            attributes: { value: opt.value }
-        });
-        if (opt.value === value) option.selected = true;
-        select.appendChild(option);
-    }
-    group.appendChild(labelEl);
-    group.appendChild(select);
+function createAdminField(label, inputFn) {
+    const group = createElement('div', { className: 'profile-admin__field' });
+    group.appendChild(createElement('label', { className: 'profile-admin__label', text: label }));
+    group.appendChild(inputFn());
     return group;
 }
 
-/** Текстовое поле для админ-панели */
-function createAdminInput(id, label, value) {
-    const group = createElement('div', { className: 'profile-edit__field' });
-    const labelEl = createElement('label', {
-        className: 'profile-edit__label',
-        text: label,
-        attributes: { for: id }
-    });
-    const input = createElement('input', {
-        className: 'profile-edit__input',
-        attributes: { type: 'text', id, value }
-    });
-    group.appendChild(labelEl);
-    group.appendChild(input);
-    return group;
-}
-
-/** Секция документов пользователя */
 async function createDocumentsSection(profile, isOwner) {
     const section = createElement('div', { className: 'profile-documents' });
-    const title = createElement('h3', { className: 'profile-documents__title', text: 'Документы' });
-    section.appendChild(title);
+    section.appendChild(createElement('h3', { className: 'profile-documents__title', text: 'Документы' }));
 
     const docIds = profile.documents || [];
     if (docIds.length === 0) {
-        section.appendChild(createElement('p', {
-            className: 'profile-documents__empty',
-            text: 'Нет документов. ' + (isOwner ? 'Нажмите «Добавить документ», чтобы привязать документ по QR или коду.' : '')
-        }));
+        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Нет документов.' }));
         if (isOwner) {
             section.appendChild(createElement('a', {
                 className: 'profile-documents__add-link',
@@ -548,7 +421,6 @@ async function createDocumentsSection(profile, isOwner) {
     try {
         const allDocs = await getAllDocuments();
         const myDocs = allDocs.filter(d => docIds.includes(d.id));
-
         const list = createElement('div', { className: 'profile-documents__list' });
         for (const doc of myDocs) {
             const link = createElement('a', {
@@ -563,7 +435,6 @@ async function createDocumentsSection(profile, isOwner) {
             list.appendChild(link);
         }
         section.appendChild(list);
-
         if (isOwner) {
             section.appendChild(createElement('a', {
                 className: 'profile-documents__add-link',
@@ -572,46 +443,33 @@ async function createDocumentsSection(profile, isOwner) {
             }));
         }
     } catch (_) {
-        section.appendChild(createElement('p', {
-            className: 'profile-documents__empty',
-            text: 'Ошибка загрузки документов. Проверьте соединение.'
-        }));
+        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Ошибка загрузки документов.' }));
     }
 
     return section;
 }
 
-/** Секция заметок об игроке (для софракционцев и мастера) */
 async function createNotesSection(authorId, targetId) {
     const section = createElement('div', { className: 'profile-notes' });
+    section.appendChild(createElement('h3', { className: 'profile-notes__title', text: 'Оперативное досье' }));
 
-    const title = createElement('h3', {
-        className: 'profile-notes__title',
-        text: 'Оперативное досье'
-    });
-
-    // Загружаем существующую заметку, если есть
     const existing = await getNote(authorId, targetId);
-
     const textarea = createElement('textarea', {
         className: 'profile-notes__textarea',
         text: existing ? existing.content : '',
         attributes: { rows: 4, placeholder: 'Оперативные заметки...' }
     });
+    section.appendChild(textarea);
 
     const saveBtn = createElement('button', {
-        className: 'profile-notes__save',
-        text: 'Записать в досье',
-        attributes: { type: 'button' }
+        className: 'profile-notes__save', text: 'Записать в досье', attributes: { type: 'button' }
     });
-
     const msg = createElement('p', { className: 'profile-notes__msg' });
 
     saveBtn.addEventListener('click', async () => {
         saveBtn.disabled = true;
         saveBtn.textContent = 'Запись...';
         msg.style.display = 'none';
-
         try {
             await saveNote(authorId, targetId, textarea.value);
             msg.textContent = 'Досье обновлено';
@@ -625,10 +483,7 @@ async function createNotesSection(authorId, targetId) {
         }
     });
 
-    section.appendChild(title);
-    section.appendChild(textarea);
     section.appendChild(saveBtn);
     section.appendChild(msg);
-
     return section;
 }
