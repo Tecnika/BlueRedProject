@@ -59,6 +59,14 @@ export async function DocumentViewPage(docId) {
         }));
         container.appendChild(titleRow);
 
+        // Body: text + QR side by side
+        const body = createElement('div', { className: 'document-view-page__body' });
+
+        const contentBlock = createElement('div', { className: 'document-view-page__content' });
+        const contentEl = createElement('p', { text: content });
+        contentBlock.appendChild(contentEl);
+        body.appendChild(contentBlock);
+
         if (isMaster) {
             const actionsRow = createElement('div', { className: 'document-view-page__master-actions' });
 
@@ -74,15 +82,12 @@ export async function DocumentViewPage(docId) {
                 text: isSameFaction ? 'Показать шифр' : 'Показать оригинал',
                 attributes: { type: 'button' }
             });
-            const contentBlockRef = {}; // ref for toggle
             toggleBtn.addEventListener('click', () => {
-                const el = contentBlockRef.el;
-                if (!el) return;
-                if (el.textContent === doc.content) {
-                    el.textContent = encrypt(doc.content);
+                if (contentEl.textContent === doc.content) {
+                    contentEl.textContent = encrypt(doc.content);
                     toggleBtn.textContent = 'Показать оригинал';
                 } else {
-                    el.textContent = doc.content;
+                    contentEl.textContent = doc.content;
                     toggleBtn.textContent = 'Показать шифр';
                 }
             });
@@ -123,14 +128,6 @@ export async function DocumentViewPage(docId) {
             container.appendChild(cipherNote);
         }
 
-        // Body: text + QR side by side
-        const body = createElement('div', { className: 'document-view-page__body' });
-
-        const contentBlock = createElement('div', { className: 'document-view-page__content' });
-        contentBlock.appendChild(createElement('p', { text: content }));
-        contentBlockRef.el = contentBlock.querySelector('p');
-        body.appendChild(contentBlock);
-
         const qrContainer = createElement('div', { className: 'document-view-page__qr' });
         const addPageUrl = window.location.origin + window.location.pathname
             + '#/documents/add?id=' + doc.id + '&number=' + doc.number + '&key=' + encodeURIComponent(doc.accessKey);
@@ -154,11 +151,6 @@ export async function DocumentViewPage(docId) {
 
         body.appendChild(qrContainer);
         container.appendChild(body);
-
-        if (isMaster) {
-            const keyLine = createElement('p', { className: 'document-view-page__meta', text: 'Код доступа: ' + doc.accessKey });
-            container.appendChild(keyLine);
-        }
 
         if (isMaster) {
             try {
