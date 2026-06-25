@@ -241,6 +241,31 @@
     margin: 1rem 0;
 }
 
+.document-view-page__actions-row {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.document-view-page__delete-btn {
+    padding: 0.6rem 1.5rem;
+    background: transparent;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: var(--border-radius, 6px);
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.document-view-page__delete-btn:hover {
+    background-color: #ef4444;
+    color: #fff;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
 .document-view-page__toggle-btn {
     padding: 0.5rem 1rem;
     background: var(--color-primary);
@@ -719,7 +744,9 @@
     .document-view-page__back,
     .document-view-page__print-btn,
     .document-view-page__cipher-toggle,
-    .document-view-page__readers {
+    .document-view-page__readers,
+    .document-view-page__actions-row,
+    .document-view-page__delete-btn {
         display: none !important;
     }
 

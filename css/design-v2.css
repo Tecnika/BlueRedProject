@@ -1145,6 +1145,21 @@
     transition: filter 0.2s, transform 0.15s, box-shadow 0.2s;
 }
 
+.design-v2 .document-view-page__delete-btn {
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    background: transparent;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.design-v2 .document-view-page__delete-btn:hover {
+    background-color: #ef4444;
+    color: var(--color-white);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
 .design-v2 .document-view-page__toggle-btn:hover,
 .design-v2 .document-view-page__print-btn:hover {
     filter: brightness(1.2);

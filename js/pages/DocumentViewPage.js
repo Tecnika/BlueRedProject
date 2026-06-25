@@ -1,6 +1,6 @@
 import { createElement } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
-import { getDocument, getDocumentReaders } from '../firebase/documentsService.js?v=3';
+import { getDocument, getDocumentReaders, deleteDocument } from '../firebase/documentsService.js?v=3';
 import { encrypt } from '../utils/cipher.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
@@ -63,8 +63,8 @@ export async function DocumentViewPage(docId) {
             const cipherNote = createElement('div', { className: 'document-view-page__cipher' });
             cipherNote.appendChild(createElement('span', { className: 'document-view-page__cipher-icon', text: '🔒' }));
 
-            const cipherTitle = createElement('div', { className: 'document-view-page__cipher-title', text: 'Документ зашифрован' });
-            const cipherDesc = createElement('div', { className: 'document-view-page__cipher-desc', text: 'Фракционный шифр — текст транслитерирован. Для полного доступа требуется привязка к фракции документа.' });
+            const cipherTitle = createElement('div', { className: 'document-view-page__cipher-title', text: 'Документ на чужом языке' });
+            const cipherDesc = createElement('div', { className: 'document-view-page__cipher-desc', text: 'Текст документа не распознан. Требуется привязка к фракции документа.' });
             cipherNote.appendChild(cipherTitle);
             cipherNote.appendChild(cipherDesc);
             container.appendChild(cipherNote);
@@ -125,14 +125,37 @@ export async function DocumentViewPage(docId) {
 
         container.appendChild(qrContainer);
 
-        // Печать
-        const printBtn = createElement('button', {
-            className: 'document-view-page__print-btn',
-            text: 'Печать',
-            attributes: { type: 'button' }
-        });
-        printBtn.addEventListener('click', () => window.print());
-        container.appendChild(printBtn);
+        // Печать (только мастер)
+        if (isMaster) {
+            const printBtn = createElement('button', {
+                className: 'document-view-page__print-btn',
+                text: 'Печать',
+                attributes: { type: 'button' }
+            });
+            printBtn.addEventListener('click', () => window.print());
+            container.appendChild(printBtn);
+        }
+
+        // Мастер: удаление
+        if (isMaster) {
+            const actionsRow = createElement('div', { className: 'document-view-page__actions-row' });
+            const deleteBtn = createElement('button', {
+                className: 'document-view-page__delete-btn',
+                text: 'Удалить документ',
+                attributes: { type: 'button' }
+            });
+            deleteBtn.addEventListener('click', async () => {
+                if (!confirm('Удалить документ навсегда?')) return;
+                try {
+                    await deleteDocument(docId);
+                    window.location.hash = '#/documents';
+                } catch (err) {
+                    alert('Ошибка: ' + translateError(err));
+                }
+            });
+            actionsRow.appendChild(deleteBtn);
+            container.appendChild(actionsRow);
+        }
 
         // Мастер: список читателей
         if (isMaster) {

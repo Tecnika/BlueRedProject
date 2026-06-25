@@ -14,6 +14,12 @@ export function DocumentAddPage() {
     }
 
     const container = createElement('div', { className: 'document-add-page__container' });
+    container.appendChild(createElement('a', {
+        className: 'document-view-page__back',
+        text: '← К списку',
+        attributes: { href: '#/documents' }
+    }));
+
     container.appendChild(createElement('h1', { className: 'document-add-page__title', text: 'Добавить документ' }));
 
     const form = createElement('form', {
