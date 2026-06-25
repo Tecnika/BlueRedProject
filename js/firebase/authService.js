@@ -82,6 +82,11 @@ export async function signUpWithUsername(username, password) {
         accessTags: [],            // Теги доступа (видны всем)
         hiddenTags: [],            // Скрытые теги
         factionAccessTags: [],      // Технические субтеги (только мастера)
+        firstName: '',             // Имя
+        lastName: '',              // Фамилия
+        age: null,                 // Возраст
+        gender: '',                // Пол (male/female)
+        languages: [],             // Языки
         createdAt: new Date().toISOString()
     });
 

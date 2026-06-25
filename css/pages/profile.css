@@ -254,6 +254,30 @@
 }
 
 /* ========================================
+   Languages in sidebar
+   ======================================== */
+
+.profile-sidebar__langs {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    margin-top: 0.2rem;
+}
+
+.profile-sidebar__lang {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.profile-sidebar__lang--red { background: #dc2626; }
+.profile-sidebar__lang--blue { background: #2563eb; }
+.profile-sidebar__lang--purple { background: #7c3aed; }
+.profile-sidebar__lang--common { background: #6b7280; }
+
+/* ========================================
    Admin section
    ======================================== */
 
@@ -272,6 +296,21 @@
     margin: 0 0 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--color-border);
+}
+
+.profile-admin__subtitle {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0.75rem 0 0.4rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px dashed var(--color-border);
+}
+
+.profile-admin__hint {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 0.4rem;
 }
 
 .profile-admin__form {
@@ -392,6 +431,46 @@
     position: relative;
     flex: 1;
     min-width: 120px;
+}
+
+/* --- Language chips --- */
+
+.profile-admin__lang-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.profile-admin__lang-chip--red { background: #dc2626; }
+.profile-admin__lang-chip--blue { background: #2563eb; }
+.profile-admin__lang-chip--purple { background: #7c3aed; }
+.profile-admin__lang-chip--common { background: #6b7280; }
+
+.profile-admin__add-lang {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.profile-admin__add-lang select {
+    flex: 1;
+}
+
+.profile-admin__add-btn {
+    padding: 0.35rem 0.7rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--color-primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 700;
 }
 
 .profile-admin__subtag-input-wrap .tag-input__dropdown {

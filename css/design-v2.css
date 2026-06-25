@@ -1061,6 +1061,24 @@
     font-weight: 600;
 }
 
+.design-v2 .profile-admin__subtitle {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-border);
+}
+
+.design-v2 .profile-admin__hint {
+    color: var(--color-text-secondary);
+}
+
+.design-v2 .profile-admin__add-btn {
+    background: linear-gradient(135deg, var(--color-primary) 0%, #4c1d95 100%);
+    border-radius: 12px;
+}
+
+.design-v2 .profile-sidebar__langs {
+    gap: 0.3rem;
+}
+
 /* ========================================
    Список страниц
    ======================================== */

@@ -104,9 +104,10 @@ function createAuthBlock() {
 
         const info = createElement('div', { className: 'header__user-info' });
 
+        const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.username;
         const profileLink = createElement('a', {
             className: 'header__user-name',
-            text: user.username,
+            text: displayName,
             attributes: { href: '#/profile' }
         });
         info.appendChild(profileLink);

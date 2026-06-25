@@ -9,8 +9,9 @@ import { getAllDocuments } from '../firebase/documentsService.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
 const FACTION_MAP = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
-const ROLE_ICONS = { master: '👑', igrotech: '⚙️', player: '🎲' };
+const LANG_LABELS = { red: 'Красных', blue: 'Синих', purple: 'Фиолетовых', common: 'Общий' };
 const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
+const GENDER_LABELS = { male: 'Мужской', female: 'Женский' };
 
 export async function ProfilePage(targetUid, themeManager) {
     const section = createElement('section', { className: 'profile-page' });
@@ -35,7 +36,7 @@ export async function ProfilePage(targetUid, themeManager) {
 
         const layout = createElement('div', { className: 'profile-layout' });
 
-        layout.appendChild(createSidebar(profile));
+        layout.appendChild(createSidebar(profile, isOwner, isAdmin));
 
         const content = createElement('div', { className: 'profile-content' });
 
@@ -69,19 +70,23 @@ export async function ProfilePage(targetUid, themeManager) {
     return section;
 }
 
-function createSidebar(profile) {
+function createSidebar(profile, isOwner, isAdmin) {
     const sidebar = createElement('aside', { className: 'profile-sidebar' });
 
     const avatar = createAvatar(profile.username, profile.faction, 'profile-sidebar__avatar');
     sidebar.appendChild(avatar);
 
-    const username = createElement('h1', { className: 'profile-sidebar__username', text: profile.username });
-    sidebar.appendChild(username);
+    const displayName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username;
+    const nameEl = createElement('h1', { className: 'profile-sidebar__username', text: displayName });
+    sidebar.appendChild(nameEl);
 
-    const roleIcon = ROLE_ICONS[profile.role] || '🎲';
     const roleName = ROLE_LABELS[profile.role] || profile.role;
-    const roleEl = createElement('div', { className: 'profile-sidebar__role', html: `${roleIcon} ${roleName}` });
-    sidebar.appendChild(roleEl);
+    sidebar.appendChild(createElement('div', { className: 'profile-sidebar__role', text: roleName }));
+
+    // Позывной — только владельцу и мастеру
+    if (isOwner || isAdmin) {
+        sidebar.appendChild(createField('Позывной', profile.username));
+    }
 
     const factionName = FACTION_MAP[profile.faction] || 'Фракция не назначена';
     const factionEl = createElement('div', {
@@ -90,10 +95,16 @@ function createSidebar(profile) {
     });
     sidebar.appendChild(factionEl);
 
-    if (profile.createdAt) {
-        const date = new Date(profile.createdAt);
-        const dateStr = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-        sidebar.appendChild(createElement('div', { className: 'profile-sidebar__date', html: `Зарегистрирован: ${dateStr}` }));
+    // Языки
+    const langs = profile.languages || [];
+    if (langs.length > 0) {
+        sidebar.appendChild(createLangRow(langs));
+    }
+
+    // Возраст и пол
+    const ageGender = [profile.age ? profile.age + ' лет' : '', GENDER_LABELS[profile.gender] || ''].filter(Boolean).join(', ');
+    if (ageGender) {
+        sidebar.appendChild(createField('Возраст / пол', ageGender));
     }
 
     sidebar.appendChild(createField('Мировоззрение', profile.worldview || 'Не определено'));
@@ -105,6 +116,18 @@ function createField(label, value) {
     const row = createElement('div', { className: 'profile-sidebar__field' });
     row.appendChild(createElement('span', { className: 'profile-sidebar__field-label', text: label }));
     row.appendChild(createElement('span', { className: 'profile-sidebar__field-value', text: value }));
+    return row;
+}
+
+function createLangRow(languages) {
+    const row = createElement('div', { className: 'profile-sidebar__field' });
+    row.appendChild(createElement('span', { className: 'profile-sidebar__field-label', text: 'Языки' }));
+    const list = createElement('div', { className: 'profile-sidebar__langs' });
+    for (const lang of languages) {
+        const label = LANG_LABELS[lang] || lang;
+        list.appendChild(createElement('span', { className: `profile-sidebar__lang profile-sidebar__lang--${lang}`, text: label }));
+    }
+    row.appendChild(list);
     return row;
 }
 
@@ -196,12 +219,106 @@ async function createAdminSection(profile, targetUid, themeManager) {
         return select;
     }));
 
+    // Личные данные
+    const personalTitle = createElement('h4', { className: 'profile-admin__subtitle', text: 'Личные данные' });
+    form.appendChild(personalTitle);
+
+    form.appendChild(createAdminField('Фамилия', () => {
+        return createElement('input', {
+            className: 'profile-admin__input',
+            attributes: { type: 'text', id: 'admin-lastname', value: profile.lastName || '' }
+        });
+    }));
+
+    form.appendChild(createAdminField('Имя', () => {
+        return createElement('input', {
+            className: 'profile-admin__input',
+            attributes: { type: 'text', id: 'admin-firstname', value: profile.firstName || '' }
+        });
+    }));
+
+    form.appendChild(createAdminField('Возраст', () => {
+        return createElement('input', {
+            className: 'profile-admin__input',
+            attributes: { type: 'number', id: 'admin-age', value: profile.age ?? '', min: '0' }
+        });
+    }));
+
+    form.appendChild(createAdminField('Пол', () => {
+        const select = createElement('select', { className: 'profile-admin__select', attributes: { id: 'admin-gender' } });
+        const opts = [
+            { value: '', text: 'Не указан' },
+            { value: 'male', text: 'Мужской' },
+            { value: 'female', text: 'Женский' }
+        ];
+        for (const o of opts) {
+            const opt = createElement('option', { text: o.text, attributes: { value: o.value } });
+            if (o.value === (profile.gender || '')) opt.selected = true;
+            select.appendChild(opt);
+        }
+        return select;
+    }));
+
     form.appendChild(createAdminField('Мировоззрение', () => {
         return createElement('input', {
             className: 'profile-admin__input',
             attributes: { type: 'text', id: 'admin-worldview', value: profile.worldview || '' }
         });
     }));
+
+    // Языки
+    const langTitle = createElement('h4', { className: 'profile-admin__subtitle', text: 'Языки' });
+    form.appendChild(langTitle);
+
+    const currentLangs = [...(profile.languages || [])];
+
+    const langInfo = createElement('p', { className: 'profile-admin__hint', text: 'Язык фракции добавляется автоматически. Можно добавить дополнительные.' });
+    form.appendChild(langInfo);
+
+    const langChips = createElement('div', { className: 'tag-input__chips', id: 'admin-lang-chips' });
+    form.appendChild(langChips);
+
+    function renderLangChips() {
+        langChips.innerHTML = '';
+        for (const lang of currentLangs) {
+            const chip = createElement('span', { className: `profile-admin__lang-chip profile-admin__lang-chip--${lang}`, text: LANG_LABELS[lang] || lang });
+            const removeBtn = createElement('button', {
+                className: 'tag-input__chip-remove', text: '✕',
+                attributes: { type: 'button' },
+                events: { click: () => { currentLangs.splice(currentLangs.indexOf(lang), 1); renderLangChips(); } }
+            });
+            chip.appendChild(removeBtn);
+            langChips.appendChild(chip);
+        }
+    }
+    renderLangChips();
+
+    const addLangWrap = createElement('div', { className: 'profile-admin__add-lang' });
+    const langInput = createElement('select', { className: 'profile-admin__select', attributes: { id: 'admin-lang-select' } });
+    const langOpts = [
+        { value: 'common', text: 'Общий' },
+        { value: 'red', text: 'Красных' },
+        { value: 'blue', text: 'Синих' },
+        { value: 'purple', text: 'Фиолетовых' }
+    ];
+    for (const o of langOpts) {
+        const opt = createElement('option', { text: o.text, attributes: { value: o.value } });
+        langInput.appendChild(opt);
+    }
+    addLangWrap.appendChild(langInput);
+
+    const addLangBtn = createElement('button', {
+        className: 'profile-admin__add-btn', text: '+', attributes: { type: 'button' }
+    });
+    addLangBtn.addEventListener('click', () => {
+        const val = langInput.value;
+        if (val && !currentLangs.includes(val)) {
+            currentLangs.push(val);
+            renderLangChips();
+        }
+    });
+    addLangWrap.appendChild(addLangBtn);
+    form.appendChild(addLangWrap);
 
     const currentAccess = [...(profile.accessTags || [])];
     const currentHidden = [...(profile.hiddenTags || [])];
@@ -363,9 +480,28 @@ async function createAdminSection(profile, targetUid, themeManager) {
                 currentHidden.push(...(fallbackHidden.value ? fallbackHidden.value.split(',').map(t => t.trim()).filter(Boolean) : []));
             }
 
+            const newFaction = form.querySelector('#admin-faction').value;
+
+            // Авто-добавление языка фракции
+            const factionLang = newFaction || '';
+            const finalLangs = [...currentLangs];
+            if (factionLang && !finalLangs.includes(factionLang)) {
+                finalLangs.unshift(factionLang);
+            }
+            // Убираем язык ушедшей фракции, если он есть и его не добавляли вручную
+            if (profile.faction && profile.faction !== newFaction && !currentLangs.includes(profile.faction)) {
+                const idx = finalLangs.indexOf(profile.faction);
+                if (idx >= 0) finalLangs.splice(idx, 1);
+            }
+
             const data = {
-                faction: form.querySelector('#admin-faction').value,
+                faction: newFaction,
+                firstName: form.querySelector('#admin-firstname').value.trim(),
+                lastName: form.querySelector('#admin-lastname').value.trim(),
+                age: form.querySelector('#admin-age').value ? parseInt(form.querySelector('#admin-age').value, 10) : null,
+                gender: form.querySelector('#admin-gender').value,
                 worldview: form.querySelector('#admin-worldview').value.trim(),
+                languages: finalLangs,
                 accessTags: [...currentAccess],
                 hiddenTags: [...currentHidden],
                 factionAccessTags: [...currentFactionTags]
