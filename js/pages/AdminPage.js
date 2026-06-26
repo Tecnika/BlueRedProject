@@ -4,7 +4,7 @@ import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsServi
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=3';
 import { getAllDocuments, getDocumentReaders } from '../firebase/documentsService.js?v=3';
 import { getDesign, setDesign } from '../firebase/settingsService.js?v=3';
-import { createElement } from '../utils/dom.js?v=3';
+import { createElement, getDisplayName } from '../utils/dom.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 
 /**
@@ -481,7 +481,7 @@ async function loadAdminDocuments() {
                         readersList.appendChild(createElement('a', {
                             className: 'admin-documents__reader',
                             attributes: { href: `#/profile?uid=${r.uid}` },
-                            text: r.username
+                            text: getDisplayName(r)
                         }));
                     }
                     item.appendChild(readersList);

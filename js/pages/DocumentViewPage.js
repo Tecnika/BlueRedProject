@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=3';
+import { createElement, getDisplayName } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
 import { getDocument, getDocumentReaders, deleteDocument } from '../firebase/documentsService.js?v=3';
 import { encrypt } from '../utils/cipher.js?v=3';
@@ -166,7 +166,7 @@ export async function DocumentViewPage(docId) {
                             className: 'document-view-page__readers-item',
                             attributes: { href: `#/profile?uid=${r.uid}` }
                         });
-                        item.appendChild(createElement('span', { text: r.username }));
+                        item.appendChild(createElement('span', { text: getDisplayName(r) }));
                         item.appendChild(createElement('span', {
                             className: `document-view-page__badge--${r.faction}`,
                             text: FACTION_LABELS[r.faction] || '—'

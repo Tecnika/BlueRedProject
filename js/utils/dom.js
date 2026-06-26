@@ -97,3 +97,10 @@ export function clearContainer(container) {
         container.removeChild(container.firstChild);
     }
 }
+
+/** Возвращает отображаемое имя: Имя Фамилия или позывной */
+export function getDisplayName(user) {
+    if (!user) return '—';
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+    return fullName || user.username || '—';
+}

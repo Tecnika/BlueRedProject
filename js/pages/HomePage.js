@@ -1,4 +1,4 @@
-﻿import { createElement } from '../utils/dom.js?v=3';
+﻿import { createElement, getDisplayName } from '../utils/dom.js?v=3';
 import { store } from '../core/Store.js?v=3';
 
 export function HomePage() {
@@ -77,7 +77,7 @@ function createHero(user) {
 
 function getGreeting(user) {
     const factionLabel = getFactionLabel(user.faction);
-    const name = user.username || 'агент';
+    const name = getDisplayName(user);
     if (user.role === 'master') return `Приветствую, <span class="hero__title-accent">Мастер</span> ${name}`;
     if (user.role === 'igrotech') return `На связи, <span class="hero__title-accent">игротехник</span> ${name}`;
     return `Привет, <span class="hero__title-accent">${factionLabel}</span> ${name}`;

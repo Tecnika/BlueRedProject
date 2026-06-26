@@ -488,7 +488,7 @@ async function createAdminSection(profile, targetUid, themeManager) {
             if (factionLang && !finalLangs.includes(factionLang)) {
                 finalLangs.unshift(factionLang);
             }
-            // Убираем язык ушедшей фракции, если он есть и его не добавляли вручную
+            // Убираем язык ушедшей фракции, если его убрали вручную
             if (profile.faction && profile.faction !== newFaction && !currentLangs.includes(profile.faction)) {
                 const idx = finalLangs.indexOf(profile.faction);
                 if (idx >= 0) finalLangs.splice(idx, 1);

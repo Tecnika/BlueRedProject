@@ -9,7 +9,7 @@
  *   — Внутри групп — сортировка по алфавиту.
  */
 
-import { createElement } from '../utils/dom.js?v=3';
+import { createElement, getDisplayName } from '../utils/dom.js?v=3';
 import { translateError } from '../utils/translateError.js?v=3';
 import { store } from '../core/Store.js?v=3';
 import { createAvatar } from '../core/Avatar.js?v=3';
@@ -98,8 +98,8 @@ function groupByFaction(users) {
     // Сортировка по алфавиту внутри каждой группы
     for (const faction of FACTION_ORDER) {
         groups[faction].sort((a, b) => {
-            const nameA = (a.username || '').toLowerCase();
-            const nameB = (b.username || '').toLowerCase();
+            const nameA = (getDisplayName(a) || '').toLowerCase();
+            const nameB = (getDisplayName(b) || '').toLowerCase();
             return nameA.localeCompare(nameB);
         });
     }
@@ -205,7 +205,7 @@ function createMemberCard(member, currentUid) {
     const nameRow = createElement('div', { className: 'faction-card__name-row' });
     nameRow.appendChild(createElement('span', {
         className: 'faction-card__name',
-        text: member.username + (isCurrent ? ' (вы)' : '')
+        text: getDisplayName(member) + (isCurrent ? ' (вы)' : '')
     }));
     nameRow.appendChild(createElement('span', {
         className: 'faction-card__role',
