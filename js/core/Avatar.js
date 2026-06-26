@@ -20,8 +20,10 @@ function bgColor(faction) {
 }
 
 /** DiceBear URL */
-function dicebearUrl(username, faction) {
-    const seed = encodeURIComponent(username || 'user');
+function dicebearUrl(username, faction, gender) {
+    let seed = encodeURIComponent(username || 'user');
+    if (gender === 'male') seed += '_m';
+    else if (gender === 'female') seed += '_f';
     return `https://api.dicebear.com/9.x/personas/svg?seed=${seed}&backgroundColor=${bgColor(faction)}&backgroundType=gradientLinear&radius=50`;
 }
 
@@ -36,7 +38,7 @@ function fallbackUrl(username, faction) {
  * Сразу ставим ui-avatars, параллельно пробуем DiceBear.
  * Если DiceBear загрузился — заменяем src.
  */
-export function createAvatar(username, faction, className) {
+export function createAvatar(username, faction, className, gender) {
     const img = createElement('img', {
         className,
         attributes: { alt: username || 'avatar' }
@@ -49,7 +51,7 @@ export function createAvatar(username, faction, className) {
     const test = new Image();
     test.onload = () => { img.src = test.src; };
     test.onerror = () => { /* остаётся fallback */ };
-    test.src = dicebearUrl(username, faction);
+    test.src = dicebearUrl(username, faction, gender);
 
     // Таймаут 3 сек — если DiceBear не ответил, остаётся fallback
     setTimeout(() => {

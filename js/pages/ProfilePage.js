@@ -73,7 +73,7 @@ export async function ProfilePage(targetUid, themeManager) {
 function createSidebar(profile, isOwner, isAdmin) {
     const sidebar = createElement('aside', { className: 'profile-sidebar' });
 
-    const avatar = createAvatar(profile.username, profile.faction, 'profile-sidebar__avatar');
+    const avatar = createAvatar(profile.username, profile.faction, 'profile-sidebar__avatar', profile.gender);
     sidebar.appendChild(avatar);
 
     const displayName = [profile.firstName, profile.lastName].filter(Boolean).join(' ') || profile.username;

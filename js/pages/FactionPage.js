@@ -198,7 +198,7 @@ function createMemberCard(member, currentUid) {
         attributes: { href: `#/profile?uid=${member.id}` }
     });
 
-    const avatar = createAvatar(member.username, member.faction, 'faction-card__avatar');
+    const avatar = createAvatar(member.username, member.faction, 'faction-card__avatar', member.gender);
 
     const info = createElement('div', { className: 'faction-card__info' });
 
