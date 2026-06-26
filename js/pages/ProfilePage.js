@@ -456,6 +456,24 @@ async function createAdminSection(profile, targetUid, themeManager) {
     builder.appendChild(addBtn);
     form.appendChild(builder);
 
+    // Авто-добавление языка при смене фракции (в реальном времени)
+    const factionSelect = form.querySelector('#admin-faction');
+    if (factionSelect) {
+        factionSelect.addEventListener('change', () => {
+            const val = factionSelect.value;
+            if (val && !currentLangs.includes(val)) {
+                currentLangs.push(val);
+                renderLangChips();
+            }
+            // Убираем язык прошлой фракции, если его не добавляли вручную
+            const origFaction = profile.faction;
+            if (origFaction && origFaction !== val && !currentLangs.includes(origFaction)) {
+                const idx = currentLangs.indexOf(origFaction);
+                if (idx >= 0) { currentLangs.splice(idx, 1); renderLangChips(); }
+            }
+        });
+    }
+
     const saveBtn = createElement('button', {
         className: 'profile-admin__save', text: 'Сохранить', attributes: { type: 'submit' }
     });

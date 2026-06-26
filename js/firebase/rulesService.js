@@ -222,39 +222,19 @@ export async function deleteRule(id) {
 export async function seedInitialRules() {
     const { db } = getFirebase();
     const snapshot = await getDocs(collection(db, 'rules'));
-    const existing = {};
-    snapshot.forEach(d => existing[d.data().title] = { id: d.id, ...d.data() });
+    const ids = [];
+    snapshot.forEach(d => ids.push(d.id));
 
-    const seen = new Set();
-
-    for (const data of SEED_RULES) {
-        seen.add(data.title);
-        const now = new Date().toISOString();
-
-        if (existing[data.title]) {
-            const old = existing[data.title];
-            if (old.type !== data.type || old.content !== data.content || old.order !== data.order) {
-                await setDoc(doc(db, 'rules', old.id), {
-                    type: data.type,
-                    title: data.title,
-                    content: data.content,
-                    order: data.order,
-                    updatedAt: now
-                }, { merge: true });
-            }
-        } else {
-            const ref = doc(collection(db, 'rules'));
-            await setDoc(ref, {
-                ...data,
-                createdAt: now,
-                updatedAt: now
-            });
-        }
+    for (const id of ids) {
+        await deleteDoc(doc(db, 'rules', id));
     }
 
-    for (const [title, rule] of Object.entries(existing)) {
-        if (!seen.has(title)) {
-            await deleteDoc(doc(db, 'rules', rule.id));
-        }
+    for (const data of SEED_RULES) {
+        const ref = doc(collection(db, 'rules'));
+        await setDoc(ref, {
+            ...data,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        });
     }
 }
