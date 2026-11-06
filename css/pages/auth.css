@@ -110,3 +110,14 @@
 .auth-form__toggle-link:hover {
     text-decoration: underline;
 }
+
+.auth-form__subtitle {
+    font-size: 0.95rem;
+    margin: var(--space-md) 0 var(--space-xs);
+}
+
+.auth-form__hint {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 var(--space-xs);
+}

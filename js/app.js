@@ -1,4 +1,4 @@
-﻿/**
+/**
  * app.js — точка входа в приложение BlueRed.
  *
  * Последовательность инициализации:
@@ -10,33 +10,38 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=3';
-import { Footer } from './components/Footer.js?v=3';
-import { HomePage } from './pages/HomePage.js?v=3';
-import { AuthPage } from './pages/AuthPage.js?v=3';
-import { ProfilePage } from './pages/ProfilePage.js?v=3';
-import { FactionPage } from './pages/FactionPage.js?v=3';
-import { AdminPage } from './pages/AdminPage.js?v=3';
-import { PagesListPage } from './pages/PagesListPage.js?v=3';
-import { PageViewPage } from './pages/PageViewPage.js?v=3';
-import { PageEditPage } from './pages/PageEditPage.js?v=3';
-import { RulesPage } from './pages/RulesPage.js?v=3';
-import { RulesEditPage } from './pages/RulesEditPage.js?v=3';
-import { DocumentsListPage } from './pages/DocumentsListPage.js?v=3';
-import { DocumentViewPage } from './pages/DocumentViewPage.js?v=3';
-import { DocumentEditPage } from './pages/DocumentEditPage.js?v=3';
-import { DocumentAddPage } from './pages/DocumentAddPage.js?v=3';
-import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=3';
-import { render, createElement } from './utils/dom.js?v=3';
-import { ThemeManager } from './core/ThemeManager.js?v=3';
-import { Router } from './core/Router.js?v=3';
-import { store } from './core/Store.js?v=3';
-import { initFirebase } from './firebase/firebase.js?v=3';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=3';
-import { seedInitialTags } from './firebase/tagsService.js?v=3';
-import { seedInitialPages } from './firebase/pagesService.js?v=3';
-import { seedInitialRules } from './firebase/rulesService.js?v=3';
-import { subscribeDesign } from './firebase/settingsService.js?v=3';
+import { Header } from './components/Header.js?v=4';
+import { Footer } from './components/Footer.js?v=4';
+import { HomePage } from './pages/HomePage.js?v=4';
+import { AuthPage } from './pages/AuthPage.js?v=4';
+import { ProfilePage } from './pages/ProfilePage.js?v=4';
+import { FactionPage } from './pages/FactionPage.js?v=4';
+import { AdminPage } from './pages/AdminPage.js?v=4';
+import { PagesListPage } from './pages/PagesListPage.js?v=4';
+import { PageViewPage } from './pages/PageViewPage.js?v=4';
+import { PageEditPage } from './pages/PageEditPage.js?v=4';
+import { RulesPage } from './pages/RulesPage.js?v=4';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=4';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=4';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=4';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=4';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=4';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=4';
+import { UsersAdminPage } from './pages/UsersAdminPage.js?v=4';
+import { GamesAdminPage } from './pages/GamesAdminPage.js?v=4';
+import { GameEditPage } from './pages/GameEditPage.js?v=4';
+import { render, createElement } from './utils/dom.js?v=4';
+import { ThemeManager } from './core/ThemeManager.js?v=4';
+import { Router } from './core/Router.js?v=4';
+import { store } from './core/Store.js?v=4';
+import { initFirebase } from './firebase/firebase.js?v=4';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=4';
+import { getActiveGame } from './firebase/gamesService.js?v=4';
+import { getCharacterForPlayer } from './firebase/charactersService.js?v=4';
+import { seedInitialTags } from './firebase/tagsService.js?v=4';
+import { seedInitialPages } from './firebase/pagesService.js?v=4';
+import { seedInitialRules } from './firebase/rulesService.js?v=4';
+import { subscribeDesign } from './firebase/settingsService.js?v=4';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -114,6 +119,12 @@ async function init() {
     router.register('/rules/create', () => RulesEditPage());
     router.register('/rules/edit', () => RulesEditPage());
     router.register('/admin', () => AdminPage());
+    router.register('/admin/users', () => UsersAdminPage());
+    router.register('/admin/games', () => GamesAdminPage());
+    router.register('/admin/games/edit', () => {
+        const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
+        return GameEditPage(params.get('id'));
+    });
 
     // Ждём восстановления сессии Firebase перед первым переходом
     router.beforeEach(async () => {
@@ -138,8 +149,21 @@ async function init() {
             const profile = await getUserProfile(firebaseUser.uid);
             if (profile) {
                 store.set('user', { uid: firebaseUser.uid, ...profile });
-                // Тема автоматически подстраивается под фракцию
-                themeManager.setThemeByFaction(profile.faction);
+
+                // Активная игра и персонаж игрока
+                let game = null;
+                let character = null;
+                try {
+                    game = await getActiveGame();
+                    if (game) character = await getCharacterForPlayer(game.id, firebaseUser.uid);
+                } catch (e) {
+                    console.warn('Не удалось загрузить активную игру:', e);
+                }
+                store.set('activeGame', game);
+                store.set('character', character);
+
+                // Тема автоматически подстраивается под фракцию персонажа
+                themeManager.setThemeByFaction(character?.faction || null);
 
                 // Сидируем стартовую страницу, если пусто (только для мастеров)
                 if (profile.role === 'master') {
@@ -160,6 +184,8 @@ async function init() {
             document.documentElement.classList.add('design-v1');
             store.set('design', 'v1');
             store.set('user', null);
+            store.set('activeGame', null);
+            store.set('character', null);
             if (designUnsub) { designUnsub(); designUnsub = null; }
             themeManager.setThemeByFaction(null);
         }

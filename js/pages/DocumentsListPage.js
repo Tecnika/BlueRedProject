@@ -1,17 +1,17 @@
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { getAllDocuments } from '../firebase/documentsService.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
-const FACTION_CLASS = { red: 'documents-list__badge--red', blue: 'documents-list__badge--blue', purple: 'documents-list__badge--purple' };
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { getAllDocuments } from '../firebase/documentsService.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 export async function DocumentsListPage() {
     const section = createElement('section', { className: 'documents-list-page' });
     const user = store.get('user');
 
     if (!user) {
-        section.appendChild(createElement('p', { className: 'documents-list-page__empty', text: 'Требуется идентификация' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
@@ -20,7 +20,9 @@ export async function DocumentsListPage() {
 
     try {
         const allDocs = await getAllDocuments();
-        const visible = isMaster ? allDocs : allDocs.filter(d => userDocs.includes(d.id));
+        const visible = isMaster
+            ? allDocs
+            : allDocs.filter(d => userDocs.includes(d.id) || d.faction === 'common');
 
         const container = createElement('div', { className: 'documents-list-page__container' });
         const header = createElement('div', { className: 'documents-list-page__header' });
@@ -30,25 +32,17 @@ export async function DocumentsListPage() {
         const actions = createElement('div', { className: 'documents-list-page__actions' });
 
         if (isMaster) {
-            actions.appendChild(createElement('a', {
-                className: 'documents-list-page__create-btn',
-                text: '+ Создать',
-                attributes: { href: '#/documents/create' }
-            }));
+            actions.appendChild(Button({ text: '+ Создать', href: '#/documents/create' }));
         }
 
-        actions.appendChild(createElement('a', {
-            className: 'documents-list-page__add-btn',
-            text: 'Добавить документ',
-            attributes: { href: '#/documents/add' }
-        }));
+        actions.appendChild(Button({ text: 'Добавить документ', variant: 'secondary', href: '#/documents/add' }));
 
         header.appendChild(actions);
         container.appendChild(header);
 
         if (visible.length === 0) {
-            container.appendChild(createElement('p', {
-                className: 'documents-list-page__empty',
+            container.appendChild(StatusMessage({
+                type: 'ok',
                 text: isMaster ? 'Нет документов' : 'У вас нет документов.'
             }));
         } else {
@@ -56,16 +50,14 @@ export async function DocumentsListPage() {
 
             if (isMaster) {
                 const toolbar = createElement('div', { className: 'documents-list-page__toolbar' });
-                const printSelectedBtn = createElement('button', {
-                    className: 'documents-list-page__print-selected',
+                toolbar.appendChild(Button({
                     text: 'Печать выбранных',
-                    attributes: { type: 'button' }
-                });
-                printSelectedBtn.addEventListener('click', () => {
-                    if (selectedIds.length === 0) { alert('Выберите документы'); return; }
-                    window.location.hash = '#/documents/print?ids=' + selectedIds.join(',');
-                });
-                toolbar.appendChild(printSelectedBtn);
+                    variant: 'secondary',
+                    onClick: () => {
+                        if (selectedIds.length === 0) { alert('Выберите документы'); return; }
+                        window.location.hash = '#/documents/print?ids=' + selectedIds.join(',');
+                    }
+                }));
                 container.appendChild(toolbar);
             }
 
@@ -79,7 +71,7 @@ export async function DocumentsListPage() {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'documents-list-page__empty', text: 'Ошибка: ' + translateError(err) }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
@@ -105,22 +97,23 @@ function createDocumentCard(doc, isMaster, selectedIds) {
                 if (idx >= 0) selectedIds.splice(idx, 1);
             }
         });
-        // Prevent navigation when clicking checkbox
         checkbox.addEventListener('click', (e) => e.stopPropagation());
         card.insertBefore(checkbox, card.firstChild);
     }
 
-    const number = createElement('span', {
+    card.appendChild(createElement('span', {
         className: 'documents-list__number',
         text: `№ ${doc.number}`
-    });
+    }));
 
-    const faction = createElement('span', {
-        className: `documents-list__badge ${FACTION_CLASS[doc.faction] || ''}`,
-        text: FACTION_LABELS[doc.faction] || '—'
-    });
+    card.appendChild(FactionBadge({ faction: doc.faction, size: 'sm' }));
 
-    card.appendChild(number);
-    card.appendChild(faction);
+    if (doc.propaganda && doc.propaganda.enabled) {
+        card.appendChild(createElement('span', {
+            className: 'documents-list__propaganda',
+            text: 'Пропаганда'
+        }));
+    }
+
     return card;
 }

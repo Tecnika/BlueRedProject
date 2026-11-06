@@ -1,29 +1,26 @@
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=3';
-
-const TYPE_OPTIONS = [
-    { value: 'general', label: 'Основные' },
-    { value: 'site', label: 'Правила сайта' },
-    { value: 'hidden', label: 'Скрытые механики' }
-];
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { FormField } from '../components/FormField.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 export async function RulesEditPage() {
     const section = createElement('section', { className: 'rules-edit-page' });
     const user = store.get('user');
 
     if (!user || (user.role !== 'master' && user.role !== 'igrotech')) {
-        section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Только для мастера и игротехников' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Только для мастера и игротехников' }));
         return section;
     }
 
     const TYPE_OPTIONS = [
-        { value: 'general', label: 'Основные' },
-        { value: 'site', label: 'Правила сайта' }
+        { value: 'general', text: 'Основные' },
+        { value: 'site', text: 'Правила сайта' }
     ];
     if (user.role === 'master') {
-        TYPE_OPTIONS.push({ value: 'hidden', label: 'Скрытые механики' });
+        TYPE_OPTIONS.push({ value: 'hidden', text: 'Скрытые механики' });
     }
 
     const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
@@ -34,79 +31,40 @@ export async function RulesEditPage() {
         try {
             const existing = await getRule(editId);
             if (!existing) {
-                section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Правило не найдено' }));
+                section.appendChild(StatusMessage({ type: 'err', text: 'Правило не найдено' }));
                 return section;
             }
             if (user.role === 'igrotech' && existing.type === 'hidden') {
-                section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Игротехники не могут редактировать скрытые механики' }));
+                section.appendChild(StatusMessage({ type: 'err', text: 'Игротехники не могут редактировать скрытые механики' }));
                 return section;
             }
             ruleData = existing;
         } catch (err) {
-            section.appendChild(createElement('p', { className: 'rules-edit-page__error', text: 'Ошибка: ' + translateError(err) }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
             return section;
         }
     }
 
     const container = createElement('div', { className: 'rules-edit-page__container' });
 
-    const title = editId ? 'Редактировать правило' : 'Создать правило';
-    container.appendChild(createElement('h1', { className: 'rules-edit-page__title', text: title }));
+    const titleEl = editId ? 'Редактировать правило' : 'Создать правило';
+    container.appendChild(createElement('h1', { className: 'rules-edit-page__title', text: titleEl }));
 
     const form = createElement('div', { className: 'rules-edit-page__form' });
 
-    // Type selector
-    const typeGroup = createElement('div', { className: 'rules-edit-page__field' });
-    typeGroup.appendChild(createElement('label', { className: 'rules-edit-page__label', text: 'Тип' }));
-    const typeSelect = createElement('select', { className: 'rules-edit-page__input rules-edit-page__select' });
-    for (const opt of TYPE_OPTIONS) {
-        const option = createElement('option', { text: opt.label, attributes: { value: opt.value } });
-        if (opt.value === ruleData.type) option.selected = true;
-        typeSelect.appendChild(option);
-    }
-    typeGroup.appendChild(typeSelect);
-    form.appendChild(typeGroup);
+    form.appendChild(FormField({ type: 'select', id: 'rule-type', label: 'Тип', value: ruleData.type, options: TYPE_OPTIONS }));
+    form.appendChild(FormField({ type: 'input', id: 'rule-title', label: 'Заголовок', value: ruleData.title || '', placeholder: 'Название правила' }));
+    form.appendChild(FormField({ type: 'input', id: 'rule-order', label: 'Порядок', value: ruleData.order ?? 0, placeholder: '0' }));
+    form.appendChild(FormField({ type: 'textarea', id: 'rule-content', label: 'Содержание', value: ruleData.content || '', rows: 15, placeholder: 'Текст правила...' }));
 
-    // Title
-    const titleGroup = createElement('div', { className: 'rules-edit-page__field' });
-    titleGroup.appendChild(createElement('label', { className: 'rules-edit-page__label', text: 'Заголовок' }));
-    const titleInput = createElement('input', {
-        className: 'rules-edit-page__input',
-        attributes: { type: 'text', value: ruleData.title || '', placeholder: 'Название правила' }
-    });
-    titleGroup.appendChild(titleInput);
-    form.appendChild(titleGroup);
-
-    // Order
-    const orderGroup = createElement('div', { className: 'rules-edit-page__field' });
-    orderGroup.appendChild(createElement('label', { className: 'rules-edit-page__label', text: 'Порядок' }));
-    const orderInput = createElement('input', {
-        className: 'rules-edit-page__input rules-edit-page__input--short',
-        attributes: { type: 'number', value: ruleData.order ?? 0, min: '0' }
-    });
-    orderGroup.appendChild(orderInput);
-    form.appendChild(orderGroup);
-
-    // Content
-    const contentGroup = createElement('div', { className: 'rules-edit-page__field' });
-    contentGroup.appendChild(createElement('label', { className: 'rules-edit-page__label', text: 'Содержание' }));
-    const contentArea = createElement('textarea', {
-        className: 'rules-edit-page__textarea',
-        text: ruleData.content || '',
-        attributes: { rows: '15', placeholder: 'Текст правила...' }
-    });
-    contentGroup.appendChild(contentArea);
-    form.appendChild(contentGroup);
-
-    // Buttons
     const btnGroup = createElement('div', { className: 'rules-edit-page__actions' });
 
-    const saveBtn = createElement('button', {
-        className: 'rules-edit-page__save-btn',
-        text: 'Сохранить',
-        attributes: { type: 'button' }
-    });
-    saveBtn.addEventListener('click', async () => {
+    const saveBtn = Button({ text: 'Сохранить', onClick: async () => {
+        const typeSelect = form.querySelector('#rule-type');
+        const titleInput = form.querySelector('#rule-title');
+        const orderInput = form.querySelector('#rule-order');
+        const contentArea = form.querySelector('#rule-content');
+
         const payload = {
             type: typeSelect.value,
             title: titleInput.value,
@@ -130,50 +88,25 @@ export async function RulesEditPage() {
         } catch (err) {
             alert('Ошибка: ' + translateError(err));
         }
-    });
+    }});
     btnGroup.appendChild(saveBtn);
 
-    const cancelBtn = createElement('button', {
-        className: 'rules-edit-page__cancel-btn',
-        text: 'Отмена',
-        attributes: { type: 'button' }
-    });
-    cancelBtn.addEventListener('click', () => {
-        window.location.hash = '#/rules';
-    });
+    const cancelBtn = Button({ text: 'Отмена', variant: 'secondary', onClick: () => { window.location.hash = '#/rules'; } });
     btnGroup.appendChild(cancelBtn);
 
     form.appendChild(btnGroup);
-
     container.appendChild(form);
 
-    // Add quick-create buttons for master in sidebar of edit page
     if (!editId) {
         const shortcuts = createElement('div', { className: 'rules-edit-page__shortcuts' });
         shortcuts.appendChild(createElement('p', { className: 'rules-edit-page__shortcuts-label', text: 'Быстрая вставка контента:' }));
         const addBtnsContainer = createElement('div', { className: 'rules-edit-page__shortcuts-actions' });
 
-        const openGeneralBtn = createElement('a', {
-            className: 'rules-edit-page__shortcut-btn',
-            text: '+ Основные',
-            attributes: { href: '#/rules/create?type=general' }
-        });
-        addBtnsContainer.appendChild(openGeneralBtn);
-
-        const openSiteBtn = createElement('a', {
-            className: 'rules-edit-page__shortcut-btn',
-            text: '+ Правила сайта',
-            attributes: { href: '#/rules/create?type=site' }
-        });
-        addBtnsContainer.appendChild(openSiteBtn);
+        addBtnsContainer.appendChild(Button({ text: '+ Основные', variant: 'secondary', size: 'sm', href: '#/rules/create?type=general' }));
+        addBtnsContainer.appendChild(Button({ text: '+ Правила сайта', variant: 'secondary', size: 'sm', href: '#/rules/create?type=site' }));
 
         if (user.role === 'master') {
-            const openHiddenBtn = createElement('a', {
-                className: 'rules-edit-page__shortcut-btn',
-                text: '+ Скрытые механики',
-                attributes: { href: '#/rules/create?type=hidden' }
-            });
-            addBtnsContainer.appendChild(openHiddenBtn);
+            addBtnsContainer.appendChild(Button({ text: '+ Скрытые механики', variant: 'secondary', size: 'sm', href: '#/rules/create?type=hidden' }));
         }
 
         shortcuts.appendChild(addBtnsContainer);

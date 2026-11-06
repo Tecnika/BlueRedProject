@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=3';
+import { getFirebase } from './firebase.js?v=4';
 
 const SEED_RULES = [
     {

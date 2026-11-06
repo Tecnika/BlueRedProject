@@ -1,56 +1,39 @@
-﻿/**
- * PagesListPage — дерево доступных страниц.
- *
- * Для мастера: все страницы + кнопка «Создать».
- * Для игрока: только те, что совпадают по фракции и тегу.
- */
-
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });
     const user = store.get('user');
 
     if (!user) {
-        section.appendChild(createElement('p', {
-            className: 'pages-list-page__empty',
-            text: 'Требуется идентификация'
-        }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
     try {
         const allPages = await getAllPages();
-        const visible = filterVisiblePages(allPages, user);
+        const viewer = { role: user.role, character: store.get('character') || {} };
+        const visible = filterVisiblePages(allPages, viewer);
         const tree = buildPageTree(visible);
 
         const container = createElement('div', { className: 'pages-list-page__container' });
 
         const header = createElement('div', { className: 'pages-list-page__header' });
-        header.appendChild(createElement('h1', {
-            className: 'pages-list-page__title',
-            text: 'Архив'
-        }));
+        header.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Архив' }));
 
         if (user.role === 'master') {
-            const createBtn = createElement('a', {
-                className: 'pages-list-page__create-btn',
-                text: '+ Новое досье',
-                attributes: { href: '#/page/create' }
-            });
-            header.appendChild(createBtn);
+            header.appendChild(Button({ text: '+ Новое досье', href: '#/page/create' }));
         }
 
         container.appendChild(header);
 
         if (tree.length === 0) {
-            container.appendChild(createElement('p', {
-                className: 'pages-list-page__empty',
-                text: 'Нет доступных досье'
-            }));
+            container.appendChild(StatusMessage({ type: 'ok', text: 'Нет доступных досье' }));
         } else {
             const list = renderTree(tree);
             container.appendChild(list);
@@ -58,16 +41,12 @@ export async function PagesListPage() {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', {
-            className: 'pages-list-page__empty',
-            text: 'Ошибка: ' + translateError(err)
-        }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
 }
 
-/** Рекурсивно рендерит дерево страниц */
 function renderTree(nodes) {
     const list = createElement('ul', { className: 'pages-tree' });
 
@@ -80,18 +59,12 @@ function renderTree(nodes) {
             attributes: { href: `#/page/view?slug=${node.page.slug}` }
         });
 
-        // Метка фракции
         if (node.page.faction) {
-            const badge = createElement('span', {
-                className: `pages-tree__badge pages-tree__badge--${node.page.faction}`,
-                text: node.page.faction === 'red' ? 'Кр' : node.page.faction === 'blue' ? 'Си' : 'Фи'
-            });
-            link.appendChild(badge);
+            link.appendChild(FactionBadge({ faction: node.page.faction, size: 'sm' }));
         }
 
         li.appendChild(link);
 
-        // Дочерние страницы
         if (node.children.length > 0) {
             li.appendChild(renderTree(node.children));
         }

@@ -1,22 +1,24 @@
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { getDocument, createDocument, updateDocument } from '../firebase/documentsService.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
+import { getDocument, createDocument, updateDocument } from '../firebase/documentsService.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { FormField } from '../components/FormField.js?v=4';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=4';
+import { requireAuth } from '../components/PageLayout.js?v=4';
 
 const FACTION_OPTIONS = [
+    { value: 'common', text: 'Общий (всем)' },
     { value: 'red', text: 'Красные' },
     { value: 'blue', text: 'Синие' },
     { value: 'purple', text: 'Фиолетовые' }
 ];
 
+const VIEW_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
+
 export async function DocumentEditPage(docId) {
     const section = createElement('section', { className: 'document-edit-page' });
-    const user = store.get('user');
-
-    if (!user || user.role !== 'master') {
-        section.appendChild(createElement('p', { className: 'document-edit-page__error', text: 'Только для мастерской' }));
-        return section;
-    }
+    const user = requireAuth(section, { requiredRole: 'master' });
+    if (!user) return section;
 
     const isNew = !docId;
     let existing = null;
@@ -25,7 +27,7 @@ export async function DocumentEditPage(docId) {
         if (!isNew) {
             existing = await getDocument(docId);
             if (!existing) {
-                section.appendChild(createElement('p', { className: 'document-edit-page__error', text: 'Документ не найден' }));
+                section.appendChild(StatusMessage({ type: 'err', text: 'Документ не найден' }));
                 return section;
             }
         }
@@ -35,58 +37,106 @@ export async function DocumentEditPage(docId) {
 
         const form = createElement('form', { className: 'document-edit-page__form', events: { submit: (e) => e.preventDefault() } });
 
-        form.appendChild(createSelect('doc-faction', 'Фракция', existing ? existing.faction : '', FACTION_OPTIONS));
+        form.appendChild(FormField({
+            type: 'select', id: 'doc-faction', label: 'Принадлежность',
+            value: existing ? (existing.faction || 'common') : 'common',
+            options: FACTION_OPTIONS
+        }));
 
-        form.appendChild(createField('textarea', 'doc-content', 'Текст документа', existing ? existing.content || '' : ''));
+        form.appendChild(FormField({
+            type: 'textarea', id: 'doc-content', label: 'Основной текст',
+            value: existing ? existing.content || '' : '', rows: 10,
+            placeholder: 'Версия документа для своей фракции'
+        }));
 
-        const msg = createElement('p', { className: 'document-edit-page__msg' });
+        // --- Точки зрения других фракций ---
+        form.appendChild(createElement('h3', { className: 'document-edit-page__subtitle', text: 'Точки зрения фракций' }));
+        form.appendChild(createElement('p', {
+            className: 'document-edit-page__hint',
+            text: 'Если для фракции заполнена точка зрения — она увидит этот текст вместо зашифрованного документа.'
+        }));
 
-        const actions = createElement('div', { className: 'document-edit-page__actions' });
-        const saveBtn = createElement('button', { className: 'document-edit-page__save', text: isNew ? 'Создать' : 'Сохранить', attributes: { type: 'submit' } });
-        const cancelBtn = createElement('button', { className: 'document-edit-page__cancel', text: 'Назад', attributes: { type: 'button' } });
-        cancelBtn.addEventListener('click', () => {
-            if (document.referrer && document.referrer !== window.location.href) {
-                window.history.back();
-            } else {
-                window.location.hash = '#/documents';
+        const views = existing?.views || {};
+        for (const f of ['red', 'blue', 'purple']) {
+            form.appendChild(FormField({
+                type: 'textarea', id: `doc-view-${f}`, label: `Точка зрения: ${VIEW_LABELS[f]}`,
+                value: views[f] || '', rows: 5,
+                placeholder: 'Можно оставить пустым'
+            }));
+        }
+
+        // --- Пропаганда ---
+        form.appendChild(createElement('h3', { className: 'document-edit-page__subtitle', text: 'Пропаганда' }));
+
+        const propWrap = createElement('label', { className: 'document-edit-page__checkbox' });
+        const propCheckbox = createElement('input', { attributes: { type: 'checkbox' } });
+        if (existing?.propaganda?.enabled) propCheckbox.checked = true;
+        propWrap.appendChild(propCheckbox);
+        propWrap.appendChild(createElement('span', { text: 'Показывать версию для широкого круга' }));
+        form.appendChild(propWrap);
+
+        form.appendChild(FormField({
+            type: 'textarea', id: 'doc-propaganda', label: 'Текст пропаганды',
+            value: existing?.propaganda?.content || '', rows: 6,
+            placeholder: 'Версия для всех, без шифра'
+        }));
+
+        const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
+        const saveBtn = Button({ text: isNew ? 'Создать' : 'Сохранить', attributes: { type: 'submit' } });
+        const cancelBtn = Button({
+            text: 'Назад',
+            variant: 'secondary',
+            onClick: () => {
+                if (document.referrer && document.referrer !== window.location.href) {
+                    window.history.back();
+                } else {
+                    window.location.hash = '#/documents';
+                }
             }
         });
+
+        const actions = createElement('div', { className: 'document-edit-page__actions' });
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
         form.appendChild(actions);
         form.appendChild(msg);
 
-        let createdAccessKey = null;
-
         form.addEventListener('submit', async () => {
             saveBtn.disabled = true;
             saveBtn.textContent = 'Сохранение...';
-            msg.style.display = 'none';
+            hideMessage(msg);
 
             try {
                 const faction = form.querySelector('#doc-faction').value;
                 const content = form.querySelector('#doc-content').value.trim();
-
-                if (!faction) throw new Error('Выберите фракцию');
+                if (!faction) throw new Error('Выберите принадлежность');
                 if (!content) throw new Error('Текст документа не может быть пустым');
 
-                if (isNew) {
-                    const result = await createDocument({ faction, content });
-                    createdAccessKey = result.accessKey;
-                    msg.innerHTML = `Документ № ${result.number} создан. ` +
-                        `<strong>Код доступа: ${result.accessKey}</strong> (показать игрокам для добавления). ` +
-                        `<a href="#/documents/view?id=${result.id}">Открыть</a>`;
-                    msg.className = 'document-edit-page__msg document-edit-page__msg--ok';
-                } else {
-                    await updateDocument(docId, { faction, content });
-                    msg.textContent = 'Сохранено';
-                    msg.className = 'document-edit-page__msg document-edit-page__msg--ok';
+                const viewsData = {};
+                for (const f of ['red', 'blue', 'purple']) {
+                    const value = form.querySelector(`#doc-view-${f}`).value.trim();
+                    if (value) viewsData[f] = value;
                 }
-                msg.style.display = 'block';
+
+                const propaganda = {
+                    enabled: propCheckbox.checked,
+                    content: form.querySelector('#doc-propaganda').value.trim(),
+                    images: existing?.propaganda?.images || []
+                };
+
+                const data = { faction, content, views: viewsData, propaganda };
+
+                if (isNew) {
+                    const result = await createDocument(data);
+                    showMessageHTML(msg, `Документ № ${result.number} создан. ` +
+                        `<strong>Код доступа: ${result.accessKey}</strong> (показать игрокам для добавления). ` +
+                        `<a href="#/documents/view?id=${result.id}">Открыть</a>`, 'ok');
+                } else {
+                    await updateDocument(docId, data);
+                    showMessage(msg, 'Сохранено', 'ok');
+                }
             } catch (err) {
-                msg.textContent = 'Ошибка: ' + translateError(err);
-                msg.className = 'document-edit-page__msg document-edit-page__msg--err';
-                msg.style.display = 'block';
+                showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.textContent = isNew ? 'Создать' : 'Сохранить';
@@ -96,32 +146,8 @@ export async function DocumentEditPage(docId) {
         container.appendChild(form);
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'document-edit-page__error', text: 'Ошибка: ' + translateError(err) }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
-}
-
-function createField(type, id, label, value) {
-    const group = createElement('div', { className: 'document-edit-page__field' });
-    group.appendChild(createElement('label', { className: 'document-edit-page__label', text: label, attributes: { for: id } }));
-    if (type === 'textarea') {
-        group.appendChild(createElement('textarea', { className: 'document-edit-page__textarea', text: value, attributes: { id, rows: 12 } }));
-    } else {
-        group.appendChild(createElement('input', { className: 'document-edit-page__input', attributes: { type, id, value } }));
-    }
-    return group;
-}
-
-function createSelect(id, label, value, options) {
-    const group = createElement('div', { className: 'document-edit-page__field' });
-    group.appendChild(createElement('label', { className: 'document-edit-page__label', text: label, attributes: { for: id } }));
-    const select = createElement('select', { className: 'document-edit-page__input', attributes: { id } });
-    options.forEach(opt => {
-        const option = createElement('option', { text: opt.text, attributes: { value: opt.value } });
-        if (opt.value === value) option.selected = true;
-        select.appendChild(option);
-    });
-    group.appendChild(select);
-    return group;
 }

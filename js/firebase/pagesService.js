@@ -1,4 +1,4 @@
-﻿/**
+/**
  * pagesService — CRUD для страниц wiki.
  *
  * Коллекция 'pages':
@@ -22,8 +22,9 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=3';
-import { addSubTag } from './subtagsService.js?v=3';
+import { getFirebase } from './firebase.js?v=4';
+import { addSubTag } from './subtagsService.js?v=4';
+import { getActiveFaction } from '../utils/profile.js?v=4';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
@@ -138,9 +139,11 @@ export function buildPageTree(pages) {
 
 /** Объединить accessTags и factionAccessTags в единый массив */
 function getUserTags(user) {
+    // Теги доступа хранятся у персонажа; поддерживаем и плоский вариант
+    const src = user?.character || user || {};
     return [
-        ...(user.accessTags || []).map(t => t.toLowerCase()),
-        ...(user.factionAccessTags || []).map(t => t.toLowerCase())
+        ...(src.accessTags || []).map(t => t.toLowerCase()),
+        ...(src.factionAccessTags || []).map(t => t.toLowerCase())
     ];
 }
 
@@ -196,7 +199,7 @@ export function filterVisibleCells(matrix, user, pageTags = []) {
 
             // Правило 1: базовый тег открывает info-ячейки фракции игрока
             const hasBaseInfo = r === 'info'
-                && f === (user.faction || '').toLowerCase()
+                && f === (getActiveFaction() || '').toLowerCase()
                 && tags.some(t => userTags.includes(t));
 
             if (hasCompound || hasBaseInfo) {

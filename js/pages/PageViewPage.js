@@ -1,7 +1,11 @@
-﻿import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
+import { getActiveFaction } from '../utils/profile.js?v=4';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
@@ -21,42 +25,35 @@ export async function PageViewPage(slug) {
     const user = store.get('user');
 
     if (!user) {
-        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Требуется идентификация' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
     try {
         const page = await getPageBySlug(slug);
         if (!page) {
-            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Досье не найдено' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Досье не найдено' }));
             return section;
         }
 
-        const visible = filterVisiblePages([page], user);
+        const viewer = { role: user.role, character: store.get('character') || {} };
+        const visible = filterVisiblePages([page], viewer);
         if (visible.length === 0 && user.role !== 'master') {
-            section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Недостаточно прав доступа' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Недостаточно прав доступа' }));
             return section;
         }
 
         const isAdmin = user.role === 'master';
         const container = createElement('div', { className: 'page-view-page__container' });
 
-        // Фон: для general — серый, для faction — цвет фракции пользователя
         if (page.type === 'general') {
             section.classList.add('page-view-page--general');
-        } else if (user.faction && FACTION_COLORS[user.faction]) {
-            section.classList.add('page-view-page--faction-' + user.faction);
+        } else if (getActiveFaction() && FACTION_COLORS[getActiveFaction()]) {
+            section.classList.add('page-view-page--faction-' + getActiveFaction());
         }
 
-        // Кнопка «Назад к архиву»
-        const backLink = createElement('a', {
-            className: 'page-view-page__back',
-            text: '←  Назад к архиву',
-            attributes: { href: '#/pages' }
-        });
-        container.appendChild(backLink);
+        container.appendChild(Button({ text: '← Назад к архиву', variant: 'secondary', size: 'sm', href: '#/pages' }));
 
-        // Хлебные крошки
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
         const allPages = await getAllPages();
         const crumbs = buildBreadcrumbs(page, allPages);
@@ -67,10 +64,8 @@ export async function PageViewPage(slug) {
         });
         container.appendChild(breadcrumbs);
 
-        // Заголовок
         container.appendChild(createElement('h1', { className: 'page-view-page__title', text: page.title }));
 
-        // Метки
         if (page.tags && page.tags.length) {
             const meta = createElement('div', { className: 'page-view-page__meta' });
             page.tags.forEach(tag => meta.appendChild(createElement('span', { className: 'page-view-page__tag', text: tag })));
@@ -83,12 +78,10 @@ export async function PageViewPage(slug) {
             renderFactionView(container, page, user);
         }
 
-        // Кнопка редактирования
         if (isAdmin) {
-            container.appendChild(createElement('a', { className: 'page-view-page__edit-btn', text: 'Редактировать досье', attributes: { href: `#/page/edit?slug=${page.slug}` } }));
+            container.appendChild(Button({ text: 'Редактировать досье', variant: 'secondary', size: 'sm', href: `#/page/edit?slug=${page.slug}` }));
         }
 
-        // Дочерние страницы
         const children = allPages.filter(p => p.parentId === page.id);
         if (children.length > 0) {
             const childBlock = createElement('div', { className: 'page-view-page__children' });
@@ -105,7 +98,7 @@ export async function PageViewPage(slug) {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'page-view-page__error', text: 'Ошибка: ' + translateError(err) }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
@@ -120,9 +113,9 @@ function renderGeneralView(container, page) {
 }
 
 function renderFactionView(container, page, user) {
-    const filtered = filterVisibleCells(page.matrix, user, page.tags || []);
+    const viewer = { role: user.role, character: store.get('character') || {} };
+    const filtered = filterVisibleCells(page.matrix, viewer, page.tags || []);
     let anyContent = false;
-
     const isAdmin = user.role === 'master';
 
     for (const f of FACTION_COLUMNS) {
@@ -135,8 +128,7 @@ function renderFactionView(container, page, user) {
             const card = createElement('div', { className: `page-view__faction-card page-view__faction-card--${f}` });
 
             const meta = createElement('div', { className: 'page-view__faction-card-meta' });
-            meta.appendChild(createElement('span', { className: `page-view__faction-badge page-view__faction-badge--${f}`, text: FACTION_LABELS[f] }));
-            // Не-мастерам не показываем метку пропаганды — всё выглядит как «О фракции»
+            meta.appendChild(FactionBadge({ faction: f }));
             if (isAdmin) {
                 meta.appendChild(createElement('span', { className: 'page-view__faction-type', text: MATRIX_ROW_LABELS[row] }));
             } else {

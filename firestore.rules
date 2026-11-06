@@ -3,133 +3,124 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Функция-помощник: проверяет, что пользователь — мастер
+    // ---- Помощники ----
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function myRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isMaster() {
-      return request.auth != null
+      return isSignedIn()
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'master';
+        && myRole() == 'master';
     }
 
-    // Функция-помощник: проверяет, что документ принадлежит текущему пользователю
-    function isOwner() {
-      return request.auth != null && request.auth.uid == resource.id;
+    function isIgrotech() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && myRole() == 'igrotech';
     }
 
-    // ========== Коллекция users ==========
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ========== users — профиль игрока (PII) ==========
     match /users/{userId} {
+      // Создать можно только свой профиль
+      allow create: if isOwner(userId);
 
-      // Создать профиль может только сам пользователь при регистрации
-      allow create: if request.auth != null
-        && request.auth.uid == userId
-        && request.resource.data.keys().hasAll(['username', 'role']);
+      // Читать: владелец, мастер, игротех (реальные ФИ, контакты, медданные)
+      allow read: if isOwner(userId) || isMaster() || isIgrotech();
 
-      // Читать профили может кто угодно (нужно для проверки username при регистрации,
-      // просмотра профилей, списка участников фракции)
-      allow read: if true;
-
-      // Обновлять свой профиль может владелец
-      // Мастер может обновлять любой профиль
-      allow update: if request.auth != null && (
-        request.auth.uid == userId
-        || isMaster()
-      );
-
-      allow delete: if false; // Удаление через консоль Firebase
-    }
-
-    // ========== Коллекция notes ==========
-    match /notes/{noteId} {
-
-      // Создавать заметку может авторизованный пользователь
-      allow create: if request.auth != null
-        && request.resource.data.authorId == request.auth.uid;
-
-      // Читать заметку может её автор или мастер
-      allow read: if request.auth != null && (
-        resource.data.authorId == request.auth.uid
-        || isMaster()
-      );
-
-      // Обновлять заметку может только её автор
-      allow update: if request.auth != null
-        && resource.data.authorId == request.auth.uid;
+      // Обновлять: владелец или мастер
+      allow update: if isOwner(userId) || isMaster();
 
       allow delete: if false;
     }
 
-    // ========== Коллекция tags (каталог тегов) ==========
-    match /tags/{tagId} {
-
-      // Читать теги можно без авторизации (seed на старте, автокомплит)
+    // ========== usernames — публичный реестр позывных ==========
+    match /usernames/{name} {
+      // Нужен до входа (проверка уникальности при регистрации)
       allow read: if true;
+      allow create: if isSignedIn();
+      allow update: if false;
+      allow delete: if isMaster();
+    }
 
-      // Создавать теги может любой авторизованный пользователь
-      allow create: if request.auth != null;
+    // ========== publicPlayers — публичная проекция (без PII) ==========
+    match /publicPlayers/{uid} {
+      allow read: if isSignedIn();
+      allow create, update: if isOwner(uid) || isMaster();
+      allow delete: if isMaster();
+    }
 
-      // Удалять теги может только мастер
+    // ========== games ==========
+    match /games/{gameId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
+    }
+
+    // ========== characters ==========
+    match /characters/{charId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
+    }
+
+    // ========== documents ==========
+    match /documents/{docId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
+    }
+
+    // ========== notes ==========
+    match /notes/{noteId} {
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid;
+      allow read: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid
+        || isMaster()
+      );
+      allow update: if isSignedIn()
+        && resource.data.authorId == request.auth.uid;
+      allow delete: if false;
+    }
+
+    // ========== tags ==========
+    match /tags/{tagId} {
+      allow read: if true;
+      allow create: if isSignedIn();
       allow delete: if isMaster();
       allow update: if false;
     }
 
-    // ========== Коллекция subtags (технические субтеги) ==========
+    // ========== subtags ==========
     match /subtags/{subtagId} {
-
-      // Читать субтеги могут все авторизованные
-      allow read: if request.auth != null;
-
-      // Создавать субтеги может любой авторизованный
-      allow create: if request.auth != null;
-
-      // Удалять субтеги может только мастер
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
       allow delete: if isMaster();
       allow update: if false;
     }
 
-    // ========== Коллекция settings (глобальные настройки) ==========
+    // ========== settings ==========
     match /settings/{docId} {
-
-      // Читать настройки могут все авторизованные (дизайн для всех)
-      allow read: if request.auth != null;
-
-      // Изменять настройки может только мастер
+      allow read: if isSignedIn();
       allow write: if isMaster();
     }
 
-    // ========== Коллекция documents (документы) ==========
-    match /documents/{docId} {
-
-      // Мастер может всё
-      allow create: if isMaster();
-      allow update: if isMaster();
-      allow delete: if isMaster();
-
-      // Читать могут все авторизованные (нужно для проверки accessKey)
-      allow read: if request.auth != null;
-    }
-
-    // ========== Коллекция rules (правила) ==========
+    // ========== rules ==========
     match /rules/{ruleId} {
-
-      // Читать могут все авторизованные
-      allow read: if request.auth != null;
-
-      // Создавать, редактировать и удалять может только мастер
-      allow create: if isMaster();
-      allow update: if isMaster();
-      allow delete: if isMaster();
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
     }
 
-    // ========== Коллекция pages (страницы) ==========
+    // ========== pages ==========
     match /pages/{pageId} {
-
-      // Читать страницы могут авторизованные пользователи
-      // Фильтрация по фракциям/тегам происходит на клиенте
-      allow read: if request.auth != null;
-
-      // Создавать, редактировать и удалять страницы может только мастер
-      allow create: if isMaster();
-      allow update: if isMaster();
-      allow delete: if isMaster();
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
     }
   }
 }

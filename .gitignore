@@ -3,4 +3,6 @@ node_modules/
 Thumbs.db
 *.log
 .env
+.token/
 AGENTS.md
+ai-agents/

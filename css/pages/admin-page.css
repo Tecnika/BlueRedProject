@@ -258,3 +258,10 @@
     background-color: var(--color-primary-light);
     color: var(--color-primary);
 }
+
+.admin-section__actions {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-top: var(--space-sm);
+}

@@ -1,7 +1,7 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { updateUserProfile } from './authService.js?v=3';
+import { getFirebase } from './firebase.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { updateUserProfile } from './authService.js?v=4';
 
 function randomDigits(n) {
     let s = '';
@@ -48,8 +48,10 @@ export async function createDocument(data) {
     await setDoc(doc(db, 'documents', docId), {
         number,
         accessKey,
-        faction: data.faction || '',
+        faction: data.faction || 'common',
         content: data.content || '',
+        views: data.views || {},
+        propaganda: data.propaganda || { enabled: false, content: '', images: [] },
         createdBy: user.uid,
         createdAt: new Date().toISOString()
     });
@@ -92,13 +94,26 @@ export async function addDocumentByCode(number, accessKey) {
 
 export async function getDocumentReaders(documentId) {
     const { db } = getFirebase();
+    // Читатели ищутся по доступам в users (только мастер имеет право читать users целиком)
     const snap = await getDocs(collection(db, 'users'));
     const readers = [];
     snap.forEach(d => {
         const data = d.data();
         if (data.documents && data.documents.includes(documentId)) {
-            readers.push({ uid: d.id, username: data.username, faction: data.faction });
+            readers.push({ uid: d.id, username: data.username });
         }
     });
-    return readers;
+
+    // Дополняем публичными данными (имя, персонаж, фракция)
+    const publicSnap = await getDocs(collection(db, 'publicPlayers'));
+    const pubMap = {};
+    publicSnap.forEach(d => { pubMap[d.id] = d.data(); });
+
+    return readers.map(r => ({
+        uid: r.uid,
+        username: r.username,
+        displayName: pubMap[r.uid]?.displayName || r.username,
+        characterName: pubMap[r.uid]?.characterName || '',
+        faction: pubMap[r.uid]?.faction || null
+    }));
 }

@@ -1,18 +1,97 @@
-const TRANSLIT_MAP = {
-    'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ё':'e','ж':'zh','з':'z','и':'i',
-    'й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t',
-    'у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ъ':'','ы':'y',
-    'ь':'','э':'e','ю':'yu','я':'ya',
-    'А':'A','Б':'B','В':'V','Г':'G','Д':'D','Е':'E','Ё':'E','Ж':'Zh','З':'Z','И':'I',
-    'Й':'Y','К':'K','Л':'L','М':'M','Н':'N','О':'O','П':'P','Р':'R','С':'S','Т':'T',
-    'У':'U','Ф':'F','Х':'Kh','Ц':'Ts','Ч':'Ch','Ш':'Sh','Щ':'Shch','Ъ':'','Ы':'Y',
-    'Ь':'','Э':'E','Ю':'Yu','Я':'Ya'
+/**
+ * cipher — языковой шифр фракций.
+ *
+ * Каждый символ кириллицы заменяется символом другого языка:
+ *   - Синие      → хирагана
+ *   - Красные    → катакана
+ *   - Фиолетовые → корейский (хангыль)
+ *
+ * Пробелы, цифры, пунктуация и латиница не меняются.
+ * Порядок сопоставления — русский алфавит (33 буквы).
+ */
+
+/** Русский алфавит (33 буквы) */
+const CYR = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+
+/** Алфавиты фракций (по 33 символа, в порядке русского алфавита) */
+export const FACTION_ALPHABETS = {
+    blue: 'あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむ',
+    red: 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミム',
+    purple: '가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도로모'
 };
 
-function transliterate(text) {
-    return text.split('').map(ch => TRANSLIT_MAP[ch] || ch).join('');
+/** Читаемые названия языков */
+export const LANGUAGE_LABELS = {
+    blue: 'Хирагана',
+    red: 'Катакана',
+    purple: 'Корейский'
+};
+
+/** Пороги изучения языка */
+export const LANGUAGE_THRESHOLDS = { half: 4, full: 10 };
+
+/**
+ * Зашифровать текст алфавитом фракции.
+ * @param {string} text
+ * @param {'red'|'blue'|'purple'} faction
+ */
+export function encryptToFaction(text, faction) {
+    const alphabet = FACTION_ALPHABETS[faction];
+    if (!alphabet) return text || '';
+    return (text || '').split('').map(ch => {
+        const idx = CYR.indexOf(ch.toLowerCase());
+        return idx === -1 ? ch : alphabet[idx];
+    }).join('');
 }
 
-export function encrypt(text) {
-    return transliterate(text);
+/** Детерминированный хэш строки (для выбора открытых букв) */
+function hashString(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = (h * 31 + str.charCodeAt(i)) | 0;
+    }
+    return Math.abs(h);
+}
+
+/**
+ * Частично раскрыть текст: часть букв открыта, остальные зашифрованы.
+ * Выбор открытых букв детерминирован (стабилен при перезагрузке).
+ * @param {string} plain — исходный текст
+ * @param {'red'|'blue'|'purple'} faction
+ * @param {string} docId — идентификатор документа (для стабильного выбора)
+ * @param {number} fraction — доля открытых букв (0..1)
+ */
+export function revealPartial(plain, faction, docId, fraction) {
+    const text = plain || '';
+    if (fraction >= 1) return text;
+    if (fraction <= 0) return encryptToFaction(text, faction);
+
+    const cipher = encryptToFaction(text, faction);
+    return text.split('').map((ch, i) => {
+        const isLetter = CYR.includes(ch.toLowerCase());
+        if (!isLetter) return ch;
+        return hashString(docId + ':' + i) % 100 < Math.round(fraction * 100) ? ch : cipher[i];
+    }).join('');
+}
+
+/**
+ * Текст для показа с учётом прогресса изучения языка.
+ * @param {string} plain — исходный текст
+ * @param {'red'|'blue'|'purple'} faction — язык документа
+ * @param {string} docId
+ * @param {number} count — количество расшифровок языка
+ */
+export function renderCipher(plain, faction, docId, count = 0) {
+    if (count >= LANGUAGE_THRESHOLDS.full) return plain || '';
+    if (count >= LANGUAGE_THRESHOLDS.half) return revealPartial(plain, faction, docId, 0.5);
+    return encryptToFaction(plain, faction);
+}
+
+/** Нормализация текста для сверки расшифровки */
+export function normalizeForCompare(text) {
+    return (text || '')
+        .toLowerCase()
+        .replace(/ё/g, 'е')
+        .replace(/\s+/g, ' ')
+        .trim();
 }

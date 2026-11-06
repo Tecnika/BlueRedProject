@@ -1,16 +1,19 @@
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { getAllDocuments } from '../firebase/documentsService.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { getAllDocuments } from '../firebase/documentsService.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { BackButton } from '../components/BackButton.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { QRCode } from '../components/QRCode.js?v=4';
+import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 export async function DocumentPrintPage() {
     const section = createElement('section', { className: 'document-print-page' });
     const user = store.get('user');
 
     if (!user || user.role !== 'master') {
-        section.appendChild(createElement('p', { className: 'document-print-page__error', text: 'Только для мастерской' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Только для мастерской' }));
         return section;
     }
 
@@ -18,7 +21,7 @@ export async function DocumentPrintPage() {
     const ids = (params.get('ids') || '').split(',').filter(Boolean);
 
     if (ids.length === 0) {
-        section.appendChild(createElement('p', { className: 'document-print-page__error', text: 'Нет выбранных документов' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Нет выбранных документов' }));
         return section;
     }
 
@@ -27,7 +30,7 @@ export async function DocumentPrintPage() {
         const docs = allDocs.filter(d => ids.includes(d.id));
 
         if (docs.length === 0) {
-            section.appendChild(createElement('p', { className: 'document-print-page__error', text: 'Документы не найдены' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Документы не найдены' }));
             return section;
         }
 
@@ -41,7 +44,7 @@ export async function DocumentPrintPage() {
 
             const header = createElement('div', { className: 'document-print-page__doc-header' });
             header.appendChild(createElement('span', { text: '№ ' + doc.number }));
-            header.appendChild(createElement('span', { text: FACTION_LABELS[doc.faction] || '—' }));
+            header.appendChild(FactionBadge({ faction: doc.faction, size: 'sm' }));
             block.appendChild(header);
 
             const textEl = createElement('div', { className: 'document-print-page__doc-text', text: doc.content });
@@ -51,14 +54,7 @@ export async function DocumentPrintPage() {
 
             const addPageUrl = window.location.origin + window.location.pathname
                 + '#/documents/add?id=' + doc.id + '&number=' + doc.number + '&key=' + encodeURIComponent(doc.accessKey);
-            const qrImg = createElement('img', {
-                className: 'document-print-page__qr',
-                attributes: {
-                    src: `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(addPageUrl)}`,
-                    alt: 'QR'
-                }
-            });
-            footer.appendChild(qrImg);
+            footer.appendChild(QRCode({ data: addPageUrl, size: 120 }));
 
             footer.appendChild(createElement('span', {
                 className: 'document-print-page__access-key',
@@ -71,25 +67,12 @@ export async function DocumentPrintPage() {
 
         container.appendChild(grid);
 
-        const printBtn = createElement('button', {
-            className: 'document-print-page__print-btn',
-            text: 'Печать',
-            attributes: { type: 'button' }
-        });
-        printBtn.addEventListener('click', () => window.print());
-        container.appendChild(printBtn);
-
-        const backBtn = createElement('button', {
-            className: 'document-view-page__back',
-            text: '← Назад',
-            attributes: { type: 'button' }
-        });
-        backBtn.addEventListener('click', () => { window.location.hash = '#/documents'; });
-        container.appendChild(backBtn);
+        container.appendChild(Button({ text: 'Печать', onClick: () => window.print() }));
+        container.appendChild(BackButton({ fallback: '#/documents' }));
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'document-print-page__error', text: 'Ошибка: ' + translateError(err) }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;

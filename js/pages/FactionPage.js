@@ -1,119 +1,81 @@
-﻿/**
- * FactionPage — страница фракции.
- *
- * Для обычного игрока: показывает список участников своей фракции.
- *   — Сортировка: сначала игрок выше, затем по роли (мастер -> игротех -> игрок).
- *
- * Для мастера (role === 'master'): показывает ВСЕХ игроков, сгруппированных по фракциям.
- *   — Группы: Фиолетовые, Синие, Красные, Не распределены.
- *   — Внутри групп — сортировка по алфавиту.
- */
+import { createElement } from '../utils/dom.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { createAvatar } from '../core/Avatar.js?v=4';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=4';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=4';
+import { Chip } from '../components/Chip.js?v=4';
+import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=4';
 
-import { createElement, getDisplayName } from '../utils/dom.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { createAvatar } from '../core/Avatar.js?v=3';
-import { getCollection } from '../firebase/dbService.js?v=3';
-
-/** Порядок отображения групп (для админа) */
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
-
-const FACTION_LABELS = {
-    purple: 'Фиолетовые',
-    blue: 'Синие',
-    red: 'Красные',
-    __unassigned: 'Не распределены'
-};
-
-const ROLE_LABELS = {
-    master: 'Мастер',
-    igrotech: 'Игротех',
-    player: 'Игрок'
-};
+const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
+const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
 
 export async function FactionPage() {
     const section = createElement('section', { className: 'faction-page' });
     const currentUser = store.get('user');
 
     if (!currentUser) {
-        section.appendChild(createElement('p', {
-            className: 'faction-page__error',
-            text: 'Требуется идентификация'
-        }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
     const isAdmin = currentUser.role === 'master';
+    const game = getActiveGame();
 
-    // Если нет фракции — показываем ошибку (админу можно)
-    if (!isAdmin && !currentUser.faction) {
-        section.appendChild(createElement('p', {
-            className: 'faction-page__error',
-            text: 'Вы ещё не приписаны к фракции'
-        }));
+    if (!game) {
+        section.appendChild(StatusMessage({ type: 'ok', text: 'Игра ещё не начата' }));
+        return section;
+    }
+
+    if (!isAdmin && !getActiveFaction()) {
+        section.appendChild(StatusMessage({ type: 'err', text: 'Вам ещё не выдана роль' }));
         return section;
     }
 
     try {
-        if (isAdmin) {
-            // Мастер видит всех игроков, сгруппированных по фракциям
-            const allUsers = await getCollection('users');
-            const grouped = groupByFaction(allUsers);
-            renderAdminView(section, grouped, currentUser.uid);
+        const characters = await getCharactersByGame(game.id);
+        const players = await getAllPublicPlayers();
+        const playerMap = {};
+        for (const p of players) playerMap[p.uid] = p;
 
+        const members = characters.map(c => ({
+            character: c,
+            player: playerMap[c.playerId] || null
+        }));
+
+        if (isAdmin) {
+            renderAdminView(section, groupByFaction(members), currentUser.uid);
         } else {
-            // Обычный игрок — только свою фракцию
-            const members = await getCollection('users', [
-                { field: 'faction', op: '==', value: currentUser.faction }
-            ]);
-            renderFactionView(section, members, currentUser);
+            const myFaction = getActiveFaction();
+            renderFactionView(section, members.filter(m => m.character.faction === myFaction), myFaction, currentUser.uid);
         }
     } catch (err) {
-        section.appendChild(createElement('p', {
-            className: 'faction-page__error',
-            text: 'Ошибка загрузки: ' + translateError(err)
-        }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка загрузки: ' + translateError(err) }));
     }
 
     return section;
 }
 
-/**
- * Группирует пользователей по фракциям.
- * @param {Object[]} users
- * @returns {Object} { factionKey: [user, ...] }
- */
-function groupByFaction(users) {
+function groupByFaction(members) {
     const groups = {};
-
-    for (const faction of FACTION_ORDER) {
-        groups[faction] = [];
+    for (const key of FACTION_ORDER) groups[key] = [];
+    for (const member of members) {
+        const faction = member.character.faction;
+        const key = faction && FACTION_LABELS[faction] ? faction : '__unassigned';
+        groups[key].push(member);
     }
-
-    for (const user of users) {
-        const key = user.faction && FACTION_LABELS[user.faction] ? user.faction : '__unassigned';
-        groups[key].push(user);
+    for (const key of FACTION_ORDER) {
+        groups[key].sort((a, b) => (a.character.name || '').localeCompare(b.character.name || '', 'ru'));
     }
-
-    // Сортировка по алфавиту внутри каждой группы
-    for (const faction of FACTION_ORDER) {
-        groups[faction].sort((a, b) => {
-            const nameA = (getDisplayName(a) || '').toLowerCase();
-            const nameB = (getDisplayName(b) || '').toLowerCase();
-            return nameA.localeCompare(nameB);
-        });
-    }
-
     return groups;
 }
 
-/** Рендерит представление для мастера: все фракции -> группы */
 function renderAdminView(section, grouped, currentUid) {
     const header = createElement('div', { className: 'faction-page__header' });
-    header.appendChild(createElement('h1', {
-        className: 'faction-page__title',
-        text: 'Личный состав'
-    }));
+    header.appendChild(createElement('h1', { className: 'faction-page__title', text: 'Личный состав' }));
     section.appendChild(header);
 
     for (const faction of FACTION_ORDER) {
@@ -121,18 +83,8 @@ function renderAdminView(section, grouped, currentUid) {
         if (members.length === 0) continue;
 
         const group = createElement('div', { className: 'faction-group' });
-
-        const title = createElement('h2', {
-            className: 'faction-group__title',
-            text: FACTION_LABELS[faction]
-        });
-
-        const count = createElement('span', {
-            className: 'faction-group__count',
-            text: `${members.length}`
-        });
-
-        title.appendChild(count);
+        const title = createElement('h2', { className: 'faction-group__title', text: GROUP_LABELS[faction] });
+        title.appendChild(createElement('span', { className: 'faction-group__count', text: `${members.length}` }));
         group.appendChild(title);
 
         const list = createElement('div', { className: 'faction-page__list' });
@@ -144,101 +96,75 @@ function renderAdminView(section, grouped, currentUid) {
     }
 }
 
-/** Рендерит представление для обычного игрока: одна фракция */
-function renderFactionView(section, members, currentUser) {
-    const factionLabel = FACTION_LABELS[currentUser.faction] || currentUser.faction;
-
+function renderFactionView(section, members, myFaction, currentUid) {
     const header = createElement('div', { className: 'faction-page__header' });
-    header.appendChild(createElement('h1', {
-        className: 'faction-page__title',
-        text: `Фракция: ${factionLabel}`
-    }));
+    header.appendChild(createElement('h1', { className: 'faction-page__title', text: `Фракция: ${FACTION_LABELS[myFaction] || myFaction}` }));
     section.appendChild(header);
 
     const list = createElement('div', { className: 'faction-page__list' });
-
-    sortMembers(members, currentUser.uid);
-
-    for (const member of members) {
-        list.appendChild(createMemberCard(member, currentUser.uid));
-    }
-
     if (members.length === 0) {
-        list.appendChild(createElement('p', {
-            className: 'faction-page__empty',
-            text: 'В секции пока никого нет'
-        }));
+        list.appendChild(createElement('p', { className: 'faction-page__empty', text: 'В секции пока никого нет' }));
+    } else {
+        for (const member of members) list.appendChild(createMemberCard(member, currentUid));
     }
-
     section.appendChild(list);
 }
 
-/**
- * Сортировка участников:
- *   - Сначала текущий игрок
- *   - Затем по роли: master -> igrotech -> player -> остальные
- */
-function sortMembers(members, currentUid) {
-    members.sort((a, b) => {
-        if (a.id === currentUid) return -1;
-        if (b.id === currentUid) return 1;
-
-        const roleOrder = { master: 0, igrotech: 1, player: 2 };
-        const aOrder = roleOrder[a.role] ?? 3;
-        const bOrder = roleOrder[b.role] ?? 3;
-        return aOrder - bOrder;
-    });
-}
-
-/** Создаёт карточку игрока (ссылка на профиль) */
 function createMemberCard(member, currentUid) {
-    const isCurrent = member.id === currentUid;
+    const { character, player } = member;
+    const isCurrent = player && player.uid === currentUid;
+
     const card = createElement('a', {
         className: `faction-card${isCurrent ? ' faction-card--current' : ''}`,
-        attributes: { href: `#/profile?uid=${member.id}` }
+        attributes: { href: player ? `#/profile?uid=${player.uid}` : '#' }
     });
 
-    const avatar = createAvatar(member.username, member.faction, 'faction-card__avatar', member.gender);
-
+    const avatar = createAvatar(player?.username || 'agent', character.faction, 'faction-card__avatar', null);
     const info = createElement('div', { className: 'faction-card__info' });
 
     const nameRow = createElement('div', { className: 'faction-card__name-row' });
     nameRow.appendChild(createElement('span', {
         className: 'faction-card__name',
-        text: getDisplayName(member) + (isCurrent ? ' (вы)' : '')
+        text: (character.name || 'Без имени') + (isCurrent ? ' (вы)' : '')
     }));
-    nameRow.appendChild(createElement('span', {
-        className: 'faction-card__role',
-        text: ROLE_LABELS[member.role] || member.role
-    }));
-    info.appendChild(nameRow);
-
-    if (member.worldview) {
-        info.appendChild(createElement('p', {
-            className: 'faction-card__detail',
-            text: `Мировоззрение: ${member.worldview}`
+    if (player) {
+        nameRow.appendChild(createElement('span', {
+            className: 'faction-card__role',
+            text: ROLE_LABELS[player.role] || player.role
         }));
     }
+    info.appendChild(nameRow);
 
-    // Показываем до 3 тегов доступа, остальные — свёрнуты
-    if (member.accessTags && member.accessTags.length) {
+    // Игрок (публичное имя) + профессия
+    const meta = [player ? (player.displayName || player.username) : '', character.profession || '']
+        .filter(Boolean).join(' · ');
+    if (meta) {
+        info.appendChild(createElement('p', { className: 'faction-card__detail', text: meta }));
+    }
+
+    if (character.worldview) {
+        info.appendChild(createElement('p', { className: 'faction-card__detail', text: `Мировоззрение: ${character.worldview}` }));
+    }
+
+    const accessTags = character.accessTags || [];
+    if (accessTags.length) {
         const tagList = createElement('div', { className: 'faction-card__tags' });
-        const tagsToShow = member.accessTags.slice(0, 3);
-        for (const tag of tagsToShow) {
-            tagList.appendChild(createElement('span', { className: 'faction-card__tag', text: tag }));
+        for (const tag of accessTags.slice(0, 3)) {
+            tagList.appendChild(Chip({ text: tag, variant: 'access' }));
         }
-        if (member.accessTags.length > 3) {
-            tagList.appendChild(createElement('span', {
-                className: 'faction-card__tag faction-card__tag--more',
-                text: `+${member.accessTags.length - 3}`
-            }));
+        if (accessTags.length > 3) {
+            tagList.appendChild(Chip({ text: `+${accessTags.length - 3}`, variant: 'default' }));
         }
         info.appendChild(tagList);
     }
 
+    if (character.faction) {
+        const badgeRow = createElement('div', { className: 'faction-card__tags' });
+        badgeRow.appendChild(FactionBadge({ faction: character.faction, size: 'sm' }));
+        info.appendChild(badgeRow);
+    }
+
     card.appendChild(avatar);
     card.appendChild(info);
-
     return card;
 }
-

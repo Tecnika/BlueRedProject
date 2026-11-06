@@ -1018,3 +1018,93 @@
         font-size: 1.3rem;
     }
 }
+
+/* --- язык, расшифровка, пропаганда --- */
+.document-view-page__language {
+    margin-top: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.document-view-page__propaganda {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+}
+
+.document-view-page__propaganda-title {
+    font-size: 1rem;
+    margin: 0 0 var(--space-xs);
+}
+
+.document-view-page__decrypt {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.document-view-page__decrypt-title {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.document-view-page__decrypt-hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.document-view-page__decrypt-input {
+    width: 100%;
+    padding: var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    resize: vertical;
+}
+
+.document-view-page__progress {
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    font-size: 0.9rem;
+}
+
+.documents-list__propaganda {
+    margin-left: auto;
+    font-size: 0.7rem;
+    padding: 1px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+}
+
+.document-edit-page__subtitle {
+    font-size: 1rem;
+    margin: var(--space-md) 0 var(--space-xs);
+}
+
+.document-edit-page__hint {
+    margin: 0 0 var(--space-xs);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.document-edit-page__checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.9rem;
+    margin-bottom: var(--space-xs);
+}

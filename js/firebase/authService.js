@@ -1,4 +1,4 @@
-﻿/**
+/**
  * authService — сервис авторизации через Firebase Auth + Firestore.
  *
  * Особенности:
@@ -6,6 +6,7 @@
  *   - Email генерируется как username@bluered.project (скрыт от пользователя)
  *   - Профили хранятся в Firestore (коллекция 'users')
  *   - Роли: player (по умолчанию), igrotech, master
+ *   - Публичная проекция игрока — коллекция 'publicPlayers' (без PII)
  */
 
 import {
@@ -16,17 +17,13 @@ import {
 } from 'firebase/auth';
 
 import {
-    collection,
-    query,
-    where,
-    getDocs,
     doc,
     setDoc,
     getDoc,
     updateDoc
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=3';
+import { getFirebase } from './firebase.js?v=4';
 
 /** Домен-заглушка для email (Firebase Auth требует email) */
 const FAKE_DOMAIN = '@bluered.project';
@@ -34,6 +31,13 @@ const FAKE_DOMAIN = '@bluered.project';
 /** Генерирует email-заглушку из username */
 function makeEmail(username) {
     return username.toLowerCase() + FAKE_DOMAIN;
+}
+
+/** Отображаемое имя игрока */
+export function getPlayerDisplayName(user) {
+    if (!user) return '';
+    const p = user.player || {};
+    return [p.firstName, p.lastName].filter(Boolean).join(' ') || user.username || '';
 }
 
 /**
@@ -52,51 +56,80 @@ export async function signInWithUsername(username, password) {
 }
 
 /**
- * Регистрация нового пользователя.
- * Проверяет уникальность username в Firestore.
- * Создаёт запись в коллекции 'users' с ролью 'player'.
+ * Регистрация нового обитателя сектора.
+ * @param {Object} payload
+ * @param {string} payload.username
+ * @param {string} payload.password
+ * @param {Object} payload.player — { firstName, lastName, contact, emergencyName, emergencyContact, emergencyRelation, allergies, medical }
  */
-export async function signUpWithUsername(username, password) {
+export async function signUpWithUsername({ username, password, player }) {
     const { auth, db } = getFirebase();
+    const key = (username || '').toLowerCase();
 
-    // Проверяем, не занят ли username
-    const existing = await getDocs(
-        query(collection(db, 'users'), where('username', '==', username))
-    );
-
-    if (!existing.empty) {
+    // Проверяем уникальность через публичный реестр позывных (users закрыт правилами)
+    const existing = await getDoc(doc(db, 'usernames', key));
+    if (existing.exists()) {
         throw new Error('Позывной уже зарегистрирован в системе');
     }
 
     const email = makeEmail(username);
     const credential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = credential.user.uid;
 
-    // Создаём профиль в Firestore
-    await setDoc(doc(db, 'users', credential.user.uid), {
+    const data = {
         username,
         email,
-        role: 'player',           // Роль по умолчанию
-        faction: '',               // Фракция не выбрана
-        worldview: '',             // Мировоззрение
-        about: '',                 // О себе
-        accessTags: [],            // Теги доступа (видны всем)
-        hiddenTags: [],            // Скрытые теги
-        factionAccessTags: [],      // Технические субтеги (только мастера)
-        firstName: '',             // Имя
-        lastName: '',              // Фамилия
-        age: null,                 // Возраст
-        gender: '',                // Пол (male/female)
-        languages: [],             // Языки
+        role: 'player',
+        player: {
+            firstName: (player?.firstName || '').trim(),
+            lastName: (player?.lastName || '').trim(),
+            contact: (player?.contact || '').trim(),
+            emergencyName: (player?.emergencyName || '').trim(),
+            emergencyContact: (player?.emergencyContact || '').trim(),
+            emergencyRelation: (player?.emergencyRelation || '').trim(),
+            allergies: (player?.allergies || '').trim(),
+            medical: (player?.medical || '').trim()
+        },
+        games: [],
+        decryptions: { red: 0, blue: 0, purple: 0 },
+        decryptedDocs: [],
+        documents: [],
         createdAt: new Date().toISOString()
+    };
+
+    await setDoc(doc(db, 'users', uid), data);
+
+    // Публичный реестр позывных (для проверки уникальности без доступа к users)
+    await setDoc(doc(db, 'usernames', key), { uid, createdAt: data.createdAt });
+
+    // Публичная проекция (без PII) — её видят другие игроки
+    await setDoc(doc(db, 'publicPlayers', uid), {
+        uid,
+        username,
+        displayName: getPlayerDisplayName(data),
+        role: 'player',
+        updatedAt: data.createdAt
     });
 
     return credential;
 }
 
 /**
+ * Меняет роль игрока (только player/igrotech; права мастера не выдаются).
+ * @param {string} uid
+ * @param {'player'|'igrotech'} role
+ */
+export async function setUserRole(uid, role) {
+    if (!['player', 'igrotech'].includes(role)) {
+        throw new Error('Недопустимая роль');
+    }
+    await updateUserProfile(uid, { role });
+}
+
+/**
  * Читает профиль пользователя из Firestore.
  * @param {string} uid
- * @returns {Object|null} — { uid, username, role, faction, ... } или null
+ * @returns {Object|null}
  */
 export async function getUserProfile(uid) {
     const { db } = getFirebase();
@@ -108,6 +141,20 @@ export async function getUserProfile(uid) {
 export async function updateUserProfile(uid, data) {
     const { db } = getFirebase();
     await updateDoc(doc(db, 'users', uid), data);
+}
+
+/**
+ * Синхронизирует публичную проекцию игрока (позывной, имя, роль, персонаж).
+ * @param {string} uid
+ * @param {Object} patch — { username, displayName, role, gameId, characterName, faction }
+ */
+export async function syncPublicPlayer(uid, patch) {
+    const { db } = getFirebase();
+    await setDoc(doc(db, 'publicPlayers', uid), {
+        uid,
+        ...patch,
+        updatedAt: new Date().toISOString()
+    }, { merge: true });
 }
 
 /** Выход из аккаунта */

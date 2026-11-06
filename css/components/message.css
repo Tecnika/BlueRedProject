@@ -1,0 +1,18 @@
+.msg {
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-sm);
+    margin-top: var(--space-sm);
+}
+.msg--ok {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+.msg--err {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+.design-v2 .msg--ok { background: rgba(34, 197, 94, 0.15); border-color: rgba(34, 197, 94, 0.3); }
+.design-v2 .msg--err { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); }

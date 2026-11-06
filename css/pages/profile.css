@@ -67,6 +67,13 @@
     font-weight: 600;
 }
 
+.profile-sidebar__role-name {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+    font-style: italic;
+}
+
 .profile-sidebar__faction {
     font-size: 0.8rem;
     font-weight: 700;

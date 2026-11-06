@@ -1,4 +1,4 @@
-﻿import { createElement } from '../utils/dom.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
 
 export function ThemeToggle(themeManager) {
     const themes = themeManager.getAvailableThemes();

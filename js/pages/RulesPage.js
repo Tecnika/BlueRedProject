@@ -1,7 +1,9 @@
-import { createElement } from '../utils/dom.js?v=3';
-import { store } from '../core/Store.js?v=3';
-import { translateError } from '../utils/translateError.js?v=3';
-import { getAllRules, getRule, deleteRule } from '../firebase/rulesService.js?v=3';
+import { createElement } from '../utils/dom.js?v=4';
+import { store } from '../core/Store.js?v=4';
+import { translateError } from '../utils/translateError.js?v=4';
+import { getAllRules, getRule, deleteRule } from '../firebase/rulesService.js?v=4';
+import { Button } from '../components/Button.js?v=4';
+import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 const TYPE_LABELS = { general: 'Основные', site: 'Правила сайта', hidden: 'Скрытые механики' };
 const TYPE_ORDER = ['general', 'site', 'hidden'];
@@ -10,7 +12,7 @@ export async function RulesPage() {
     const section = createElement('section', { className: 'rules-page' });
     const user = store.get('user');
     if (!user) {
-        section.appendChild(createElement('p', { className: 'rules-page__empty', text: 'Требуется идентификация' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
@@ -24,7 +26,7 @@ export async function RulesPage() {
         });
 
         if (filtered.length === 0) {
-            section.appendChild(createElement('p', { className: 'rules-page__empty', text: 'Правила пока не добавлены' }));
+            section.appendChild(StatusMessage({ type: 'ok', text: 'Правила пока не добавлены' }));
             return section;
         }
 
@@ -43,7 +45,7 @@ export async function RulesPage() {
 
         section.appendChild(container);
     } catch (err) {
-        section.appendChild(createElement('p', { className: 'rules-page__empty', text: 'Ошибка: ' + translateError(err) }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
     }
 
     return section;
@@ -70,12 +72,13 @@ function createSidebar(rules, activeId, user, onNavigate) {
     staticNav.appendChild(buildNav(rules, activeId, user, onNavigate));
     sidebar.appendChild(staticNav);
 
-    const mobileToggle = createElement('button', {
-        className: 'rules-sidebar__toggle',
-        html: '&#9776; Содержание',
-        attributes: { type: 'button' }
+    const mobileToggle = Button({
+        text: '☰ Содержание',
+        variant: 'secondary',
+        size: 'sm',
+        onClick: openDrawer
     });
-    mobileToggle.addEventListener('click', openDrawer);
+    mobileToggle.className = 'rules-sidebar__toggle';
 
     function openDrawer() {
         drawerOverlay.classList.add('rules-sidebar__overlay--open');
@@ -148,22 +151,11 @@ function createContent(rule, user, section) {
     if (user.role === 'master' || user.role === 'igrotech') {
         const actions = createElement('div', { className: 'rules-content__actions' });
 
-        const editBtn = createElement('button', {
-            className: 'rules-content__edit-btn',
-            text: 'Редактировать',
-            attributes: { type: 'button' }
-        });
-        editBtn.addEventListener('click', () => {
+        actions.appendChild(Button({ text: 'Редактировать', variant: 'secondary', size: 'sm', onClick: () => {
             window.location.hash = '#/rules/edit?id=' + rule.id;
-        });
-        actions.appendChild(editBtn);
+        }}));
 
-        const delBtn = createElement('button', {
-            className: 'rules-content__delete-btn',
-            text: 'Удалить',
-            attributes: { type: 'button' }
-        });
-        delBtn.addEventListener('click', async () => {
+        actions.appendChild(Button({ text: 'Удалить', variant: 'danger', size: 'sm', onClick: async () => {
             if (!confirm('Удалить "' + rule.title + '"?')) return;
             try {
                 await deleteRule(rule.id);
@@ -171,8 +163,7 @@ function createContent(rule, user, section) {
             } catch (err) {
                 alert('Ошибка: ' + translateError(err));
             }
-        });
-        actions.appendChild(delBtn);
+        }}));
 
         header.appendChild(actions);
     }

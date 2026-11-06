@@ -98,9 +98,12 @@ export function clearContainer(container) {
     }
 }
 
-/** Возвращает отображаемое имя: Имя Фамилия или позывной */
+/** Возвращает отображаемое имя: Имя Фамилия игрока или позывной */
 export function getDisplayName(user) {
     if (!user) return '—';
-    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
-    return fullName || user.username || '—';
+    const p = user.player || {};
+    const fullName = [p.firstName || user.firstName, p.lastName || user.lastName]
+        .filter(Boolean)
+        .join(' ');
+    return fullName || user.displayName || user.username || '—';
 }

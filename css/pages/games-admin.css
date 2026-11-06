@@ -1,0 +1,243 @@
+/* ========================================
+   Страницы игр (GamesAdminPage, GameEditPage)
+   ======================================== */
+
+.games-page {
+    padding-top: calc(var(--header-height) + var(--space-2xl));
+    padding-bottom: var(--space-3xl);
+}
+
+.games-page__container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.games-page__title {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.games-page__desc {
+    color: var(--color-text-secondary);
+    margin: 0;
+    max-width: 680px;
+}
+
+.games-page__subtitle {
+    font-size: 1.1rem;
+    margin: var(--space-md) 0 0;
+}
+
+.games-page__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.games-page__status {
+    font-size: 0.75rem;
+    padding: 2px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.games-page__status--active {
+    color: #fff;
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.games-page__status--finished {
+    opacity: 0.6;
+}
+
+.games-page__banner {
+    margin: 0;
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    border-left: 4px solid var(--color-primary);
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+}
+
+/* --- Создание --- */
+
+.games-page__create {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg-secondary);
+}
+
+.games-page__field {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.games-page__label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-secondary);
+}
+
+.games-page__input,
+.games-page__textarea,
+.games-page__select {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.games-page__textarea {
+    resize: vertical;
+    min-height: 48px;
+}
+
+/* --- Список игр --- */
+
+.games-page__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.games-page__card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-left: 4px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    flex-wrap: wrap;
+}
+
+.games-page__card--active { border-left-color: var(--color-primary); }
+.games-page__card--finished { opacity: 0.75; }
+
+.games-page__info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.games-page__name { font-weight: 600; }
+
+.games-page__meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.games-page__actions {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.games-page__empty {
+    color: var(--color-text-secondary);
+    padding: var(--space-md) 0;
+}
+
+/* --- Персонажи --- */
+
+.games-page__characters {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.games-page__character {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    overflow: hidden;
+}
+
+.games-page__character--open {
+    border-color: var(--color-primary);
+}
+
+.games-page__character-row {
+    display: grid;
+    grid-template-columns: 1fr 180px auto;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+}
+
+.games-page__character-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.games-page__character-name {
+    font-weight: 600;
+}
+
+.games-page__character-player {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.games-page__character-prof {
+    font-size: 0.8rem;
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+
+.games-page__character-faction {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.games-page__select--faction {
+    font-weight: 600;
+}
+
+.games-page__character-actions {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.games-page__character-editor {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-secondary);
+}
+
+@media (max-width: 768px) {
+    .games-page__character-row {
+        grid-template-columns: 1fr;
+    }
+}
