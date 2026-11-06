@@ -1,6 +1,6 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { Button } from '../components/Button.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { store } from '../core/Store.js?v=5';
+import { Button } from '../components/Button.js?v=5';
 
 const LORE_ITEMS = [
     { icon: '✦', title: 'Три расы', text: 'Красные, Синие и Фиолетовые ведут бесконечную информационную войну в секторе BlueRed. Каждая фракция имеет свою идеологию, язык и цели.' },

@@ -1,19 +1,19 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { createAvatar } from '../core/Avatar.js?v=4';
-import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=4';
-import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=4';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=4';
-import { getNote, saveNote } from '../firebase/notesService.js?v=4';
-import { getAllDocuments } from '../firebase/documentsService.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
-import { Button } from '../components/Button.js?v=4';
-import { Chip } from '../components/Chip.js?v=4';
-import { FactionBadge } from '../components/FactionBadge.js?v=4';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
-import { FormField } from '../components/FormField.js?v=4';
-import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=4';
-import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { store } from '../core/Store.js?v=5';
+import { createAvatar } from '../core/Avatar.js?v=5';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=5';
+import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=5';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=5';
+import { getNote, saveNote } from '../firebase/notesService.js?v=5';
+import { getAllDocuments } from '../firebase/documentsService.js?v=5';
+import { translateError } from '../utils/translateError.js?v=5';
+import { Button } from '../components/Button.js?v=5';
+import { Chip } from '../components/Chip.js?v=5';
+import { FactionBadge } from '../components/FactionBadge.js?v=5';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=5';
+import { FormField } from '../components/FormField.js?v=5';
+import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=5';
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=5';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });

@@ -8,8 +8,8 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=4';
-import { store } from '../core/Store.js?v=4';
+import { getFirebase } from './firebase.js?v=5';
+import { store } from '../core/Store.js?v=5';
 
 export async function getAllGames() {
     const { db } = getFirebase();

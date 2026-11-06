@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
 import {
     getDocument,
     getVersionsByNumber,
@@ -6,13 +6,13 @@ import {
     addVersion,
     updateDocument,
     deleteDocument
-} from '../firebase/documentsService.js?v=4';
-import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=4';
-import { FACTION_LABELS } from '../utils/profile.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
-import { Button } from '../components/Button.js?v=4';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=4';
-import { requireAuth } from '../components/PageLayout.js?v=4';
+} from '../firebase/documentsService.js?v=5';
+import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=5';
+import { FACTION_LABELS } from '../utils/profile.js?v=5';
+import { translateError } from '../utils/translateError.js?v=5';
+import { Button } from '../components/Button.js?v=5';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=5';
+import { requireAuth } from '../components/PageLayout.js?v=5';
 
 /** Одна строка версии: фракция + уровень + текст */
 function createVersionRow(initial = {}) {

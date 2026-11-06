@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=4';
-import { store } from '../core/Store.js?v=4';
+import { getFirebase } from './firebase.js?v=5';
+import { store } from '../core/Store.js?v=5';
 
 function randomDigits(n) {
     let s = '';
@@ -162,7 +162,7 @@ export async function getDocumentReaders(versionId) {
     }));
 }
 
-/** Индекс доступов (один запрос users) для админки */
+/** пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ users) пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 export async function getAccessIndex() {
     const { db } = getFirebase();
     const usersSnap = await getDocs(collection(db, 'users'));

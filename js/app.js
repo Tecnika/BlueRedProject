@@ -10,38 +10,39 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=4';
-import { Footer } from './components/Footer.js?v=4';
-import { HomePage } from './pages/HomePage.js?v=4';
-import { AuthPage } from './pages/AuthPage.js?v=4';
-import { ProfilePage } from './pages/ProfilePage.js?v=4';
-import { FactionPage } from './pages/FactionPage.js?v=4';
-import { AdminPage } from './pages/AdminPage.js?v=4';
-import { PagesListPage } from './pages/PagesListPage.js?v=4';
-import { PageViewPage } from './pages/PageViewPage.js?v=4';
-import { PageEditPage } from './pages/PageEditPage.js?v=4';
-import { RulesPage } from './pages/RulesPage.js?v=4';
-import { RulesEditPage } from './pages/RulesEditPage.js?v=4';
-import { DocumentsListPage } from './pages/DocumentsListPage.js?v=4';
-import { DocumentViewPage } from './pages/DocumentViewPage.js?v=4';
-import { DocumentEditPage } from './pages/DocumentEditPage.js?v=4';
-import { DocumentAddPage } from './pages/DocumentAddPage.js?v=4';
-import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=4';
-import { UsersAdminPage } from './pages/UsersAdminPage.js?v=4';
-import { GamesAdminPage } from './pages/GamesAdminPage.js?v=4';
-import { GameEditPage } from './pages/GameEditPage.js?v=4';
-import { render, createElement } from './utils/dom.js?v=4';
-import { ThemeManager } from './core/ThemeManager.js?v=4';
-import { Router } from './core/Router.js?v=4';
-import { store } from './core/Store.js?v=4';
-import { initFirebase } from './firebase/firebase.js?v=4';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=4';
-import { getActiveGame } from './firebase/gamesService.js?v=4';
-import { getCharacterForPlayer } from './firebase/charactersService.js?v=4';
-import { seedInitialTags } from './firebase/tagsService.js?v=4';
-import { seedInitialPages } from './firebase/pagesService.js?v=4';
-import { seedInitialRules } from './firebase/rulesService.js?v=4';
-import { subscribeDesign } from './firebase/settingsService.js?v=4';
+import { Header } from './components/Header.js?v=5';
+import { Footer } from './components/Footer.js?v=5';
+import { HomePage } from './pages/HomePage.js?v=5';
+import { AuthPage } from './pages/AuthPage.js?v=5';
+import { ProfilePage } from './pages/ProfilePage.js?v=5';
+import { FactionPage } from './pages/FactionPage.js?v=5';
+import { AdminPage } from './pages/AdminPage.js?v=5';
+import { PagesListPage } from './pages/PagesListPage.js?v=5';
+import { PageViewPage } from './pages/PageViewPage.js?v=5';
+import { PageEditPage } from './pages/PageEditPage.js?v=5';
+import { RulesPage } from './pages/RulesPage.js?v=5';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=5';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=5';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=5';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=5';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=5';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=5';
+import { UsersAdminPage } from './pages/UsersAdminPage.js?v=5';
+import { GamesAdminPage } from './pages/GamesAdminPage.js?v=5';
+import { GameEditPage } from './pages/GameEditPage.js?v=5';
+import { render, createElement } from './utils/dom.js?v=5';
+import { ThemeManager } from './core/ThemeManager.js?v=5';
+import { initPWA } from './core/pwa.js?v=5';
+import { Router } from './core/Router.js?v=5';
+import { store } from './core/Store.js?v=5';
+import { initFirebase } from './firebase/firebase.js?v=5';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=5';
+import { getActiveGame } from './firebase/gamesService.js?v=5';
+import { getCharacterForPlayer } from './firebase/charactersService.js?v=5';
+import { seedInitialTags } from './firebase/tagsService.js?v=5';
+import { seedInitialPages } from './firebase/pagesService.js?v=5';
+import { seedInitialRules } from './firebase/rulesService.js?v=5';
+import { subscribeDesign } from './firebase/settingsService.js?v=5';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -50,6 +51,9 @@ let designUnsub = null;
 
 async function init() {
     const app = document.getElementById('app');
+
+    // PWA: service worker и установка приложения
+    initPWA();
 
     // Сначала применяем закешированный дизайн (если есть), иначе v1
     const cachedDesign = localStorage.getItem('bluered_design');

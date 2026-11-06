@@ -1,24 +1,24 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { store } from '../core/Store.js?v=5';
 import {
     getDocument,
     getVersionsByNumber,
     deleteVersionGroup
-} from '../firebase/documentsService.js?v=4';
-import { updateUserProfile } from '../firebase/authService.js?v=4';
+} from '../firebase/documentsService.js?v=5';
+import { updateUserProfile } from '../firebase/authService.js?v=5';
 import {
     getAccessibleVersions,
     getVersionView,
     LEVEL_LABELS
-} from '../domain/documents.js?v=4';
-import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
-import { BackButton } from '../components/BackButton.js?v=4';
-import { FactionBadge } from '../components/FactionBadge.js?v=4';
-import { Button } from '../components/Button.js?v=4';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
-import { QRCode } from '../components/QRCode.js?v=4';
-import { getActiveFaction } from '../utils/profile.js?v=4';
+} from '../domain/documents.js?v=5';
+import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=5';
+import { translateError } from '../utils/translateError.js?v=5';
+import { BackButton } from '../components/BackButton.js?v=5';
+import { FactionBadge } from '../components/FactionBadge.js?v=5';
+import { Button } from '../components/Button.js?v=5';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=5';
+import { QRCode } from '../components/QRCode.js?v=5';
+import { getActiveFaction } from '../utils/profile.js?v=5';
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });

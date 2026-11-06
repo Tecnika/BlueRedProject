@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=4';
-import { Button } from '../components/Button.js?v=4';
-import { FactionBadge } from '../components/FactionBadge.js?v=4';
-import { StatusMessage } from '../components/StatusMessage.js?v=4';
-import { getActiveFaction } from '../utils/profile.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { store } from '../core/Store.js?v=5';
+import { translateError } from '../utils/translateError.js?v=5';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=5';
+import { Button } from '../components/Button.js?v=5';
+import { FactionBadge } from '../components/FactionBadge.js?v=5';
+import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { getActiveFaction } from '../utils/profile.js?v=5';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {

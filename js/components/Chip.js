@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
 
 const VARIANT_PREFIX = {
     lang: 'chip--lang-',

@@ -140,3 +140,39 @@
     color: #fff;
     border-color: var(--color-primary);
 }
+
+/* --- PWA: установка и офлайн --- */
+.header__install {
+    padding: 6px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.header__install:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.header__offline {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(249, 115, 22, 0.15);
+    color: #f97316;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .header__install {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+    }
+}
+

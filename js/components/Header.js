@@ -1,8 +1,9 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { Navigation } from './Navigation.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { signOutUser } from '../firebase/authService.js?v=4';
-import { ROLE_LABELS } from '../utils/constants.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { Navigation } from './Navigation.js?v=5';
+import { store } from '../core/Store.js?v=5';
+import { signOutUser } from '../firebase/authService.js?v=5';
+import { ROLE_LABELS } from '../utils/constants.js?v=5';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=5';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -23,9 +24,21 @@ export function Header(navItems, themeManager) {
         text: '☰'
     });
 
+    const installBtn = createElement('button', {
+        className: 'header__install',
+        text: 'Установить',
+        attributes: { type: 'button', 'aria-label': 'Установить приложение' }
+    });
+
+    const offlineBadge = createElement('span', {
+        className: 'header__offline',
+        text: 'Офлайн',
+        attributes: { title: 'Нет сети — показаны сохранённые данные' }
+    });
+
     const rightGroup = createElement('div', {
         className: 'header__right',
-        children: [nav, createAuthBlock()]
+        children: [nav, installBtn, offlineBadge, createAuthBlock()]
     });
 
     container.appendChild(logo);
@@ -61,6 +74,23 @@ export function Header(navItems, themeManager) {
     });
 
     toggleAdminLink(navList);
+
+    // Установка приложения
+    const updateInstall = () => {
+        installBtn.hidden = !canInstall() || isStandalone();
+    };
+    updateInstall();
+    window.addEventListener('pwa:installable', updateInstall);
+    window.addEventListener('pwa:installed', updateInstall);
+    installBtn.addEventListener('click', async () => {
+        await promptInstall();
+        updateInstall();
+    });
+
+    // Индикатор офлайна
+    offlineBadge.hidden = navigator.onLine !== false;
+    window.addEventListener('online', () => { offlineBadge.hidden = true; });
+    window.addEventListener('offline', () => { offlineBadge.hidden = false; });
 
     return header;
 }

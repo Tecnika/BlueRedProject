@@ -1,9 +1,9 @@
-import { createElement } from '../utils/dom.js?v=4';
-import { store } from '../core/Store.js?v=4';
-import { translateError } from '../utils/translateError.js?v=4';
-import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=4';
-import { Button } from '../components/Button.js?v=4';
-import { StatusMessage } from '../components/StatusMessage.js?v=4';
+import { createElement } from '../utils/dom.js?v=5';
+import { store } from '../core/Store.js?v=5';
+import { translateError } from '../utils/translateError.js?v=5';
+import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=5';
+import { Button } from '../components/Button.js?v=5';
+import { StatusMessage } from '../components/StatusMessage.js?v=5';
 
 const TYPE_LABELS = { general: 'Основные', site: 'Правила сайта', hidden: 'Скрытые механики' };
 const TYPE_ORDER = ['general', 'site', 'hidden'];
