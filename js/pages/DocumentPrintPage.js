@@ -6,6 +6,7 @@ import { BackButton } from '../components/BackButton.js?v=4';
 import { Button } from '../components/Button.js?v=4';
 import { QRCode } from '../components/QRCode.js?v=4';
 import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { LEVEL_LABELS } from '../domain/documents.js?v=4';
 import { StatusMessage } from '../components/StatusMessage.js?v=4';
 
 export async function DocumentPrintPage() {
@@ -45,6 +46,7 @@ export async function DocumentPrintPage() {
             const header = createElement('div', { className: 'document-print-page__doc-header' });
             header.appendChild(createElement('span', { text: '№ ' + doc.number }));
             header.appendChild(FactionBadge({ faction: doc.faction, size: 'sm' }));
+            header.appendChild(createElement('span', { className: 'document-print-page__level', text: LEVEL_LABELS[doc.level] || doc.level || 'Официальная версия' }));
             block.appendChild(header);
 
             const textEl = createElement('div', { className: 'document-print-page__doc-text', text: doc.content });

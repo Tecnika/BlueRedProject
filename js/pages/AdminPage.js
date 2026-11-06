@@ -2,7 +2,8 @@ import { store } from '../core/Store.js?v=4';
 import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=4';
 import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=4';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=4';
-import { getAllDocuments, getDocumentReaders } from '../firebase/documentsService.js?v=4';
+import { getAllDocuments, getAccessIndex } from '../firebase/documentsService.js?v=4';
+import { groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=4';
 import { setDesign } from '../firebase/settingsService.js?v=4';
 import { createElement } from '../utils/dom.js?v=4';
 import { translateError } from '../utils/translateError.js?v=4';
@@ -319,31 +320,56 @@ async function loadAdminDocuments() {
             return;
         }
 
+        const accessIndex = await getAccessIndex();
+        const groups = groupByNumber(docs);
         listEl.innerHTML = '';
 
-        for (const doc of docs) {
+        for (const number of [...groups.keys()].sort()) {
+            const versions = groups.get(number);
             const item = createElement('div', { className: 'admin-documents__item' });
 
             const header = createElement('div', { className: 'admin-documents__header' });
-            header.appendChild(createElement('a', { className: 'admin-documents__number', attributes: { href: `#/documents/view?id=${doc.id}` }, text: `№ ${doc.number}` }));
-            header.appendChild(FactionBadge({ faction: doc.faction }));
-            header.appendChild(createElement('span', { className: 'admin-documents__key', attributes: { title: 'Код доступа' }, text: doc.accessKey }));
+            header.appendChild(createElement('a', {
+                className: 'admin-documents__number',
+                attributes: { href: `#/documents/view?id=${versions[0].id}` },
+                text: `№ ${number}`
+            }));
             item.appendChild(header);
 
-            try {
-                const readers = await getDocumentReaders(doc.id);
-                if (readers.length > 0) {
-                    const readersList = createElement('div', { className: 'admin-documents__readers' });
-                    readersList.appendChild(createElement('span', { className: 'admin-documents__readers-label', text: 'Читатели:' }));
-                    for (const r of readers) {
-                        readersList.appendChild(createElement('a', { className: 'admin-documents__reader', attributes: { href: `#/profile?uid=${r.uid}` }, text: r.displayName || r.username }));
-                    }
-                    item.appendChild(readersList);
-                } else {
-                    item.appendChild(createElement('span', { className: 'admin-documents__readers-empty', text: 'Нет читателей' }));
+            // Версии документа
+            const versionsList = createElement('div', { className: 'admin-documents__versions' });
+            for (const version of versions) {
+                const versionRow = createElement('div', { className: 'admin-documents__version' });
+                versionRow.appendChild(FactionBadge({ faction: version.faction }));
+                versionRow.appendChild(createElement('span', {
+                    className: 'admin-documents__version-level',
+                    text: LEVEL_LABELS[version.level] || version.level
+                }));
+                versionRow.appendChild(createElement('span', {
+                    className: 'admin-documents__key',
+                    attributes: { title: 'Код доступа' },
+                    text: version.accessKey
+                }));
+                versionsList.appendChild(versionRow);
+            }
+            item.appendChild(versionsList);
+
+            // Читатели по всем версиям (запрос users уже сделан один раз)
+            const ids = versions.map(v => v.id);
+            const readers = accessIndex.filter(u => u.documents.some(id => ids.includes(id)));
+            if (readers.length > 0) {
+                const readersList = createElement('div', { className: 'admin-documents__readers' });
+                readersList.appendChild(createElement('span', { className: 'admin-documents__readers-label', text: 'Читатели:' }));
+                for (const r of readers) {
+                    readersList.appendChild(createElement('a', {
+                        className: 'admin-documents__reader',
+                        attributes: { href: `#/profile?uid=${r.uid}` },
+                        text: r.displayName || r.username
+                    }));
                 }
-            } catch (_) {
-                item.appendChild(createElement('span', { className: 'admin-documents__readers-empty', text: 'Ошибка загрузки читателей' }));
+                item.appendChild(readersList);
+            } else {
+                item.appendChild(createElement('span', { className: 'admin-documents__readers-empty', text: 'Нет читателей' }));
             }
 
             listEl.appendChild(item);

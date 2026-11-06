@@ -9,9 +9,15 @@ function randomDigits(n) {
 }
 
 function randomAccessKey() {
-    let s = '';
-    for (let i = 0; i < 8; i++) s += Math.floor(Math.random() * 10);
-    return s;
+    return randomDigits(8);
+}
+
+function normalize(version) {
+    return { ...version, level: version.level || 'official' };
+}
+
+function makeVersionId() {
+    return `doc_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export async function getAllDocuments() {
@@ -19,43 +25,82 @@ export async function getAllDocuments() {
     const q = query(collection(db, 'documents'), orderBy('number', 'asc'));
     const snap = await getDocs(q);
     const list = [];
-    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    snap.forEach(d => list.push(normalize({ id: d.id, ...d.data() })));
     return list;
 }
 
 export async function getDocument(id) {
     const { db } = getFirebase();
     const snap = await getDoc(doc(db, 'documents', id));
-    return snap.exists() ? { id: snap.id, ...snap.data() } : null;
+    return snap.exists() ? normalize({ id: snap.id, ...snap.data() }) : null;
 }
 
-export async function createDocument(data) {
+/** Все версии документа с общим номером */
+export async function getVersionsByNumber(number) {
+    const { db } = getFirebase();
+    const snap = await getDocs(query(collection(db, 'documents'), where('number', '==', String(number))));
+    const list = [];
+    snap.forEach(d => list.push(normalize({ id: d.id, ...d.data() })));
+    return list;
+}
+
+/** Уникальный 4-значный номер документа (общий для всех версий) */
+async function generateNumber() {
+    const all = await getAllDocuments();
+    const used = new Set(all.map(d => String(d.number)));
+    for (let attempt = 0; attempt < 50; attempt++) {
+        const candidate = randomDigits(4);
+        if (!used.has(candidate)) return candidate;
+    }
+    return randomDigits(4);
+}
+
+/**
+ * Создать группу версий одного документа (общий номер, у каждой свой ключ).
+ * @param {Array} items — [{ faction, level, content }]
+ */
+export async function createVersions(items) {
     const { db } = getFirebase();
     const user = store.get('user');
+    const number = await generateNumber();
+    const created = [];
 
-    let number;
-    let numberOk = false;
-    while (!numberOk) {
-        number = randomDigits(4);
-        const check = await getDocs(query(collection(db, 'documents'), where('number', '==', number)));
-        if (check.empty) numberOk = true;
+    for (const item of items) {
+        const id = makeVersionId();
+        const accessKey = randomAccessKey();
+        const payload = {
+            number,
+            faction: item.faction,
+            level: item.level,
+            content: item.content || '',
+            accessKey,
+            createdBy: user?.uid || '',
+            createdAt: new Date().toISOString()
+        };
+        await setDoc(doc(db, 'documents', id), payload);
+        created.push({ id, ...payload });
     }
 
+    return { number, versions: created };
+}
+
+/** Добавить ещё одну версию к существующему номеру */
+export async function addVersion(number, item) {
+    const { db } = getFirebase();
+    const user = store.get('user');
+    const id = makeVersionId();
     const accessKey = randomAccessKey();
-    const docId = `doc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
-
-    await setDoc(doc(db, 'documents', docId), {
-        number,
+    const payload = {
+        number: String(number),
+        faction: item.faction,
+        level: item.level,
+        content: item.content || '',
         accessKey,
-        faction: data.faction || 'common',
-        content: data.content || '',
-        views: data.views || {},
-        propaganda: data.propaganda || { enabled: false, content: '', images: [] },
-        createdBy: user.uid,
+        createdBy: user?.uid || '',
         createdAt: new Date().toISOString()
-    });
-
-    return { id: docId, number, accessKey };
+    };
+    await setDoc(doc(db, 'documents', id), payload);
+    return { id, ...payload };
 }
 
 export async function updateDocument(id, data) {
@@ -63,47 +108,47 @@ export async function updateDocument(id, data) {
     await setDoc(doc(db, 'documents', id), data, { merge: true });
 }
 
+/** Удалить одну версию */
 export async function deleteDocument(id) {
     const { db } = getFirebase();
     await deleteDoc(doc(db, 'documents', id));
 }
 
-export async function grantDocumentAccess(documentId, uid) {
+/** Удалить все версии документа по номеру */
+export async function deleteVersionGroup(number) {
+    const versions = await getVersionsByNumber(number);
+    for (const version of versions) {
+        await deleteDocument(version.id);
+    }
+}
+
+export async function grantDocumentAccess(versionId, uid) {
     const { db } = getFirebase();
     const profile = await getDoc(doc(db, 'users', uid));
     if (!profile.exists()) return;
     const docs = profile.data().documents || [];
-    if (docs.includes(documentId)) return;
-    docs.push(documentId);
+    if (docs.includes(versionId)) return;
+    docs.push(versionId);
     await setDoc(doc(db, 'users', uid), { documents: docs }, { merge: true });
 }
 
+/** Найти версию по номеру документа и коду доступа */
 export async function addDocumentByCode(number, accessKey) {
-    const { db } = getFirebase();
-    const snap = await getDocs(collection(db, 'documents'));
-    let found = null;
-    snap.forEach(d => {
-        const data = d.data();
-        if (data.number === number && data.accessKey === accessKey) {
-            found = { id: d.id, ...data };
-        }
-    });
-    return found;
+    const versions = await getVersionsByNumber(number);
+    return versions.find(v => v.accessKey === accessKey) || null;
 }
 
-export async function getDocumentReaders(documentId) {
+export async function getDocumentReaders(versionId) {
     const { db } = getFirebase();
-    // Читатели ищутся по доступам в users (только мастер имеет право читать users целиком)
     const snap = await getDocs(collection(db, 'users'));
     const readers = [];
     snap.forEach(d => {
         const data = d.data();
-        if (data.documents && data.documents.includes(documentId)) {
+        if (data.documents && data.documents.includes(versionId)) {
             readers.push({ uid: d.id, username: data.username });
         }
     });
 
-    // Дополняем публичными данными (имя, персонаж, фракция)
     const publicSnap = await getDocs(collection(db, 'publicPlayers'));
     const pubMap = {};
     publicSnap.forEach(d => { pubMap[d.id] = d.data(); });
@@ -114,5 +159,26 @@ export async function getDocumentReaders(documentId) {
         displayName: pubMap[r.uid]?.displayName || r.username,
         characterName: pubMap[r.uid]?.characterName || '',
         faction: pubMap[r.uid]?.faction || null
+    }));
+}
+
+/** ������ �������� (���� ������ users) ��� ������� */
+export async function getAccessIndex() {
+    const { db } = getFirebase();
+    const usersSnap = await getDocs(collection(db, 'users'));
+    const users = [];
+    usersSnap.forEach(d => {
+        const data = d.data();
+        users.push({ uid: d.id, username: data.username, documents: data.documents || [] });
+    });
+
+    const pubSnap = await getDocs(collection(db, 'publicPlayers'));
+    const pubMap = {};
+    pubSnap.forEach(d => { pubMap[d.id] = d.data(); });
+
+    return users.map(u => ({
+        ...u,
+        displayName: pubMap[u.uid]?.displayName || u.username,
+        faction: pubMap[u.uid]?.faction || null
     }));
 }

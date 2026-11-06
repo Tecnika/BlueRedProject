@@ -1,8 +1,17 @@
 import { createElement } from '../utils/dom.js?v=4';
 import { store } from '../core/Store.js?v=4';
-import { getDocument, getDocumentReaders, deleteDocument } from '../firebase/documentsService.js?v=4';
+import {
+    getDocument,
+    getVersionsByNumber,
+    deleteVersionGroup
+} from '../firebase/documentsService.js?v=4';
 import { updateUserProfile } from '../firebase/authService.js?v=4';
-import { encryptToFaction, renderCipher, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=4';
+import {
+    getAccessibleVersions,
+    getVersionView,
+    LEVEL_LABELS
+} from '../domain/documents.js?v=4';
+import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=4';
 import { translateError } from '../utils/translateError.js?v=4';
 import { BackButton } from '../components/BackButton.js?v=4';
 import { FactionBadge } from '../components/FactionBadge.js?v=4';
@@ -10,7 +19,6 @@ import { Button } from '../components/Button.js?v=4';
 import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
 import { QRCode } from '../components/QRCode.js?v=4';
 import { getActiveFaction } from '../utils/profile.js?v=4';
-
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });
@@ -21,299 +29,261 @@ export async function DocumentViewPage(docId) {
         return section;
     }
 
+    let group = [];
+    let number = '';
+    let notice = null;
+
     try {
-        const doc = await getDocument(docId);
-        if (!doc) {
+        const seed = await getDocument(docId);
+        if (!seed) {
             section.appendChild(StatusMessage({ type: 'err', text: 'Документ не найден' }));
             return section;
         }
+        number = seed.number;
+        group = await getVersionsByNumber(number);
+        if (!group.length) group = [seed];
+    } catch (err) {
+        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
+        return section;
+    }
 
-        const isMaster = user.role === 'master';
-        const hasAccess = isMaster || (user.documents || []).includes(docId) || doc.faction === 'common';
+    const isMaster = user.role === 'master';
+    const character = store.get('character') || null;
 
-        if (!hasAccess) {
+    render();
+    return section;
+
+    // ---------- внутренние ----------
+
+    function currentUser() {
+        return store.get('user');
+    }
+
+    function render() {
+        section.innerHTML = '';
+        const viewer = currentUser();
+        const accessible = getAccessibleVersions(group, viewer, store.get('character') || null);
+
+        if (accessible.length === 0) {
             section.appendChild(StatusMessage({ type: 'err', text: 'Нет доступа к этому документу' }));
-            return section;
+            return;
         }
 
-        render();
-        return section;
+        const container = createElement('div', { className: 'document-view-page__container' });
+        container.appendChild(BackButton({ fallback: '#/documents' }));
 
-        // ---------- внутренние ----------
-        function render() {
-            section.innerHTML = '';
-            const viewerFaction = getActiveFaction();
-            const isCommon = doc.faction === 'common';
-            const isOwn = !isCommon && viewerFaction === doc.faction;
-            const pov = (!isCommon && !isOwn) ? (doc.views || {})[viewerFaction] : null;
+        const titleRow = createElement('div', { className: 'document-view-page__title-row' });
+        titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Документ № ${number}` }));
+        titleRow.appendChild(createElement('span', {
+            className: 'document-view-page__versions-count',
+            text: `Версий: ${accessible.length}`
+        }));
+        container.appendChild(titleRow);
 
-            const lang = isCommon ? null : doc.faction;
-            const progress = lang ? (store.get('user').decryptions || {})[lang] || 0 : 0;
-            const learned = progress >= LANGUAGE_THRESHOLDS.full;
-            const encrypted = !isCommon && !isOwn && !pov && !learned && !isMaster;
+        if (notice) {
+            container.appendChild(StatusMessage({ type: notice.type, text: notice.text }));
+        }
 
-            const container = createElement('div', { className: 'document-view-page__container' });
-            container.appendChild(BackButton({ fallback: '#/documents' }));
+        if (isMaster) {
+            container.appendChild(createElement('p', {
+                className: 'document-view-page__master-note',
+                text: 'Вы видите оригиналы, потому что у вас права мастера. Игроки увидят доступные им версии.'
+            }));
+        }
 
-            const titleRow = createElement('div', { className: 'document-view-page__title-row' });
-            titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Документ № ${doc.number}` }));
-            titleRow.appendChild(FactionBadge({ faction: doc.faction }));
-            container.appendChild(titleRow);
+        for (const version of accessible) {
+            container.appendChild(buildVersionCard(version, viewer));
+        }
 
-            if (isMaster && !isCommon) {
-                container.appendChild(createElement('p', {
-                    className: 'document-view-page__master-note',
-                    text: 'Вы видите оригинал, потому что у вас права мастера. Игроки другой фракции увидят шифр.'
-                }));
-            }
+        if (isMaster) {
+            const actions = createElement('div', { className: 'document-view-page__master-actions' });
+            actions.appendChild(Button({
+                text: 'Редактировать',
+                variant: 'secondary',
+                size: 'sm',
+                href: `#/documents/edit?id=${accessible[0].id}`
+            }));
+            actions.appendChild(Button({
+                text: 'Печать',
+                variant: 'secondary',
+                size: 'sm',
+                onClick: () => window.print()
+            }));
+            actions.appendChild(Button({
+                text: 'Удалить документ',
+                variant: 'danger',
+                size: 'sm',
+                onClick: async () => {
+                    if (!confirm(`Удалить документ № ${number} и все его версии?`)) return;
+                    try {
+                        await deleteVersionGroup(number);
+                        window.location.hash = '#/documents';
+                    } catch (err) {
+                        alert('Ошибка: ' + translateError(err));
+                    }
+                }
+            }));
+            container.appendChild(actions);
+        }
 
-            const body = createElement('div', { className: 'document-view-page__body' });
-            const contentBlock = createElement('div', { className: 'document-view-page__content' });
+        section.appendChild(container);
+    }
 
-            let shownText;
-            if (isMaster || isCommon) {
-                shownText = doc.content;
-            } else if (isOwn) {
-                shownText = doc.content;
-            } else if (pov) {
-                shownText = pov;
-            } else {
-                shownText = renderCipher(doc.content, lang, docId, progress);
-            }
+    function buildVersionCard(version, viewer) {
+        const card = createElement('div', {
+            className: `document-view-page__version document-view-page__version--${version.faction}`
+        });
 
-            const contentEl = createElement('p', { text: shownText });
-            contentBlock.appendChild(contentEl);
+        const head = createElement('div', { className: 'document-view-page__version-head' });
+        head.appendChild(FactionBadge({ faction: version.faction, size: 'sm' }));
+        head.appendChild(createElement('span', {
+            className: 'document-view-page__version-level',
+            text: LEVEL_LABELS[version.level] || version.level
+        }));
+        card.appendChild(head);
 
-            if (encrypted) {
-                contentBlock.appendChild(createElement('div', { className: 'document-view-page__language', text: `Язык документа: ${LANGUAGE_LABELS[lang] || lang}` }));
-            }
-            body.appendChild(contentBlock);
+        const decryptions = viewer.decryptions || {};
+        const view = getVersionView(version, getActiveFaction(), decryptions, viewer.role === 'master', store.get('character'));
 
-            // --- Пропаганда ---
-            if (doc.propaganda && doc.propaganda.enabled && doc.propaganda.content) {
-                const prop = createElement('div', { className: 'document-view-page__propaganda' });
-                prop.appendChild(createElement('h2', { className: 'document-view-page__propaganda-title', text: 'Официальная версия' }));
-                prop.appendChild(createElement('p', { text: doc.propaganda.content }));
-                body.appendChild(prop);
-            }
+        const contentEl = createElement('p', { text: view.text });
+        const contentBlock = createElement('div', { className: 'document-view-page__content' });
+        contentBlock.appendChild(contentEl);
+        if (view.encrypted) {
+            contentBlock.appendChild(createElement('div', {
+                className: 'document-view-page__language',
+                text: `Язык: ${LANGUAGE_LABELS[version.faction] || version.faction}`
+            }));
+            contentBlock.appendChild(createDecryptBlock(version, viewer));
+        }
+        card.appendChild(contentBlock);
 
-            // --- Панель мастера ---
-            if (isMaster) {
-                const actionsRow = createElement('div', { className: 'document-view-page__master-actions' });
-                actionsRow.appendChild(Button({ text: 'Редактировать', variant: 'secondary', size: 'sm', href: `#/documents/edit?id=${doc.id}` }));
+        // Мастер: переключатель шифра и доступы версии
+        if (viewer.role === 'master') {
+            const tools = createElement('div', { className: 'document-view-page__version-tools' });
 
+            if (version.faction !== 'common') {
                 const toggleBtn = Button({
                     text: 'Показать шифр',
                     variant: 'secondary',
                     size: 'sm',
                     onClick: () => {
-                        if (contentEl.textContent === doc.content) {
-                            contentEl.textContent = encryptToFaction(doc.content, doc.faction);
+                        if (contentEl.textContent === version.content) {
+                            contentEl.textContent = encryptToFaction(version.content, version.faction);
                             toggleBtn.textContent = 'Показать оригинал';
                         } else {
-                            contentEl.textContent = doc.content;
+                            contentEl.textContent = version.content;
                             toggleBtn.textContent = 'Показать шифр';
                         }
                     }
                 });
-                // Для «Общего» документа шифр не предусмотрен
-                if (!isCommon) actionsRow.appendChild(toggleBtn);
-                actionsRow.appendChild(Button({ text: 'Печать', variant: 'secondary', size: 'sm', onClick: () => window.print() }));
-                actionsRow.appendChild(Button({
-                    text: 'Удалить',
-                    variant: 'danger',
-                    size: 'sm',
-                    onClick: async () => {
-                        if (!confirm('Удалить документ навсегда?')) return;
-                        try {
-                            await deleteDocument(docId);
-                            window.location.hash = '#/documents';
-                        } catch (err) {
-                            alert('Ошибка: ' + translateError(err));
-                        }
-                    }
-                }));
-                container.appendChild(actionsRow);
+                tools.appendChild(toggleBtn);
             }
 
-            // --- Расшифровка ---
-            if (encrypted) {
-                container.appendChild(createDecryptBlock(contentEl));
-            } else if (!isMaster && !isCommon && !isOwn && !pov && lang) {
-                container.appendChild(createProgressBlock(progress));
-            }
+            const qrDetails = createElement('details', { className: 'document-view-page__version-qr' });
+            qrDetails.appendChild(createElement('summary', { text: 'QR и код доступа' }));
+            const url = window.location.origin + window.location.pathname
+                + '#/documents/add?id=' + version.id
+                + '&number=' + version.number
+                + '&key=' + encodeURIComponent(version.accessKey);
+            qrDetails.appendChild(QRCode({ data: url, size: 120 }));
+            qrDetails.appendChild(createElement('p', {
+                className: 'document-view-page__qr-key',
+                html: `Код: <strong>${version.accessKey}</strong>`
+            }));
+            tools.appendChild(qrDetails);
 
-            // --- QR ---
-            const qrContainer = createElement('div', { className: 'document-view-page__qr' });
-            const addPageUrl = window.location.origin + window.location.pathname
-                + '#/documents/add?id=' + doc.id + '&number=' + doc.number + '&key=' + encodeURIComponent(doc.accessKey);
-            const qrCodeBox = createElement('div', { className: 'document-view-page__qr-code' });
-            qrCodeBox.appendChild(QRCode({ data: addPageUrl }));
-            qrContainer.appendChild(qrCodeBox);
-
-            if (isMaster) {
-                qrContainer.appendChild(createElement('p', {
-                    className: 'document-view-page__qr-key',
-                    html: `Код доступа: <strong>${doc.accessKey}</strong>`
-                }));
-            }
-
-            body.appendChild(qrContainer);
-            container.appendChild(body);
-
-            if (isMaster) container.appendChild(buildReadersBlock());
-
-            section.appendChild(container);
+            card.appendChild(tools);
         }
 
-        function createDecryptBlock(contentEl) {
-            const block = createElement('div', { className: 'document-view-page__decrypt' });
-            const lang = doc.faction;
-            const label = LANGUAGE_LABELS[lang] || lang;
+        return card;
+    }
 
-            block.appendChild(createElement('h2', { className: 'document-view-page__decrypt-title', text: 'Расшифровать документ' }));
-            block.appendChild(createElement('p', {
-                className: 'document-view-page__decrypt-hint',
-                text: 'Введите расшифрованный текст. Верная расшифровка приближает изучение языка.'
-            }));
+    function createDecryptBlock(version, viewer) {
+        const block = createElement('div', { className: 'document-view-page__decrypt' });
+        const lang = version.faction;
+        const label = LANGUAGE_LABELS[lang] || lang;
+        const count = (viewer.decryptions || {})[lang] || 0;
 
-            const progressEl = createElement('p', { className: 'document-view-page__decrypt-progress' });
-            block.appendChild(progressEl);
+        block.appendChild(createElement('p', {
+            className: 'document-view-page__decrypt-hint',
+            text: 'Введите расшифрованный текст. Верная расшифровка приближает изучение языка.'
+        }));
 
-            const textarea = createElement('textarea', {
-                className: 'document-view-page__decrypt-input',
-                attributes: { rows: 4, placeholder: 'Расшифрованный текст...', 'aria-label': 'Расшифрованный текст документа' }
-            });
-            block.appendChild(textarea);
+        const progressEl = createElement('p', {
+            className: 'document-view-page__decrypt-progress',
+            text: progressText(count, label)
+        });
+        block.appendChild(progressEl);
 
-            const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
-            const btn = Button({
-                text: 'Расшифровать',
-                variant: 'primary',
-                size: 'sm',
-                onClick: async () => {
-                    hideMessage(msg);
-                    const expected = normalizeForCompare(doc.content);
-                    const typed = normalizeForCompare(textarea.value);
-                    if (!typed) { showMessage(msg, 'Введите текст', 'err'); return; }
-                    if (typed !== expected) {
-                        showMessage(msg, 'Текст не совпадает. Попробуйте ещё раз.', 'err');
+        const textarea = createElement('textarea', {
+            className: 'document-view-page__decrypt-input',
+            attributes: { rows: 3, placeholder: 'Расшифрованный текст...', 'aria-label': 'Расшифрованный текст документа' }
+        });
+        block.appendChild(textarea);
+
+        const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
+
+        const btn = Button({
+            text: 'Расшифровать',
+            variant: 'primary',
+            size: 'sm',
+            onClick: async () => {
+                hideMessage(msg);
+                const typed = normalizeForCompare(textarea.value);
+                if (!typed) { showMessage(msg, 'Введите текст', 'err'); return; }
+                if (typed !== normalizeForCompare(version.content)) {
+                    showMessage(msg, 'Текст не совпадает. Попробуйте ещё раз.', 'err');
+                    return;
+                }
+
+                try {
+                    const current = store.get('user');
+                    const already = (current.decryptedDocs || []).includes(version.id);
+                    let nextCount = (current.decryptions || {})[lang] || 0;
+
+                    if (already) {
+                        showMessage(msg, 'Этот документ уже учтён. Расшифруйте другие документы этого языка.', 'ok');
                         return;
                     }
 
-                    try {
-                        const current = store.get('user');
-                        const already = (current.decryptedDocs || []).includes(docId);
-                        let count = (current.decryptions || {})[lang] || 0;
+                    nextCount += 1;
+                    const decryptions = { ...(current.decryptions || {}), [lang]: nextCount };
+                    const decryptedDocs = [...(current.decryptedDocs || []), version.id];
+                    await updateUserProfile(current.uid, { decryptions, decryptedDocs });
+                    store.set('user', { ...current, decryptions, decryptedDocs });
 
-                        if (!already) {
-                            count += 1;
-                            const decryptions = { ...(current.decryptions || {}), [lang]: count };
-                            const decryptedDocs = [...(current.decryptedDocs || []), docId];
-                            await updateUserProfile(current.uid, { decryptions, decryptedDocs });
-                            store.set('user', { ...current, decryptions, decryptedDocs });
-                        }
-
-                        // Обновляем текст документа и прогресс без полной перерисовки
-                        contentEl.textContent = renderCipher(doc.content, lang, docId, count);
-                        progressEl.textContent = decryptProgressText(count, label);
-
-                        if (count >= LANGUAGE_THRESHOLDS.full) {
-                            // Язык изучен — убираем поле ввода, оставляем подтверждение
-                            block.querySelectorAll('.document-view-page__decrypt-hint, .document-view-page__decrypt-progress, .document-view-page__decrypt-input')
-                                .forEach(el => el.remove());
-                            btn.remove();
-                            const titleEl = block.querySelector('.document-view-page__decrypt-title');
-                            if (titleEl) titleEl.textContent = `Язык «${label}» изучен`;
-                            showMessage(msg, 'Теперь документы этого языка доступны полностью.', 'ok');
-                        } else if (already) {
-                            showMessage(msg, 'Этот документ уже учтён. Расшифруйте другие документы этого языка.', 'ok');
-                        } else {
-                            showMessage(msg, `Верно! Расшифровано: ${count}.`, 'ok');
-                        }
-
-                        textarea.value = '';
-                    } catch (err) {
-                        showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
-                    }
+                    notice = {
+                        type: 'ok',
+                        text: nextCount >= LANGUAGE_THRESHOLDS.full
+                            ? `Язык «${label}» изучен полностью.`
+                            : `Верно! Расшифровано: ${nextCount}.`
+                    };
+                    render();
+                } catch (err) {
+                    showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
                 }
-            });
-            block.appendChild(btn);
-            block.appendChild(msg);
-
-            progressEl.textContent = decryptProgressText(
-                (store.get('user').decryptions || {})[lang] || 0,
-                label
-            );
-
-            return block;
-        }
-
-        function decryptProgressText(count, label) {
-            if (count >= LANGUAGE_THRESHOLDS.full) return `Язык «${label}» изучен.`;
-            if (count >= LANGUAGE_THRESHOLDS.half) {
-                const left = LANGUAGE_THRESHOLDS.full - count;
-                return `Язык «${label}»: открыта половина букв. Ещё ${left} ${plural(left, 'расшифровка', 'расшифровки', 'расшифровок')} до полного изучения.`;
             }
-            return `Язык «${label}»: расшифровано ${count} из ${LANGUAGE_THRESHOLDS.half} до открытия половины букв.`;
+        });
+
+        block.appendChild(btn);
+        block.appendChild(msg);
+        return block;
+    }
+
+    function progressText(count, label) {
+        if (count >= LANGUAGE_THRESHOLDS.full) return `Язык «${label}» изучен.`;
+        if (count >= LANGUAGE_THRESHOLDS.half) {
+            const left = LANGUAGE_THRESHOLDS.full - count;
+            return `Язык «${label}»: открыта половина букв. Ещё ${left} ${plural(left, 'расшифровка', 'расшифровки', 'расшифровок')} до полного изучения.`;
         }
+        return `Язык «${label}»: расшифровано ${count} из ${LANGUAGE_THRESHOLDS.half} до открытия половины букв.`;
+    }
 
-        function plural(n, one, few, many) {
-            const mod10 = n % 10;
-            const mod100 = n % 100;
-            if (mod10 === 1 && mod100 !== 11) return one;
-            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
-            return many;
-        }
-
-        function createProgressBlock(progress) {
-            const block = createElement('div', { className: 'document-view-page__progress' });
-            const lang = doc.faction;
-            const label = LANGUAGE_LABELS[lang] || lang;
-
-            if (progress >= LANGUAGE_THRESHOLDS.full) {
-                block.appendChild(createElement('p', { text: `Язык «${label}» изучен — документы доступны полностью.` }));
-            } else if (progress >= LANGUAGE_THRESHOLDS.half) {
-                block.appendChild(createElement('p', {
-                    text: `Язык «${label}»: открыта половина букв. Ещё ${LANGUAGE_THRESHOLDS.full - progress} расшифровок до полного изучения.`
-                }));
-            } else {
-                block.appendChild(createElement('p', {
-                    text: `Язык «${label}»: расшифровано ${progress} из ${LANGUAGE_THRESHOLDS.half} до открытия половины букв.`
-                }));
-            }
-            return block;
-        }
-
-        function buildReadersBlock() {
-            const readersSection = createElement('div', { className: 'document-view-page__readers' });
-            readersSection.appendChild(createElement('h2', { className: 'document-view-page__readers-title', text: 'Доступ к документу' }));
-
-            getDocumentReaders(docId).then(readers => {
-                readersSection.querySelectorAll('.document-view-page__readers-list, .document-view-page__readers-empty').forEach(el => el.remove());
-                readersSection.querySelector('h2').textContent = 'Доступ к документу имеют (' + readers.length + ')';
-
-                if (readers.length === 0) {
-                    readersSection.appendChild(createElement('p', { className: 'document-view-page__readers-empty', text: 'Нет читателей' }));
-                    return;
-                }
-                const list = createElement('div', { className: 'document-view-page__readers-list' });
-                for (const r of readers) {
-                    const item = createElement('a', {
-                        className: 'document-view-page__readers-item',
-                        attributes: { href: `#/profile?uid=${r.uid}` }
-                    });
-                    item.appendChild(createElement('span', { text: r.displayName || r.username }));
-                    if (r.faction) item.appendChild(FactionBadge({ faction: r.faction, size: 'sm' }));
-                    list.appendChild(item);
-                }
-                readersSection.appendChild(list);
-            }).catch(() => {});
-
-            return readersSection;
-        }
-    } catch (err) {
-        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка: ' + translateError(err) }));
-        return section;
+    function plural(n, one, few, many) {
+        const mod10 = n % 10;
+        const mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return one;
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+        return many;
     }
 }
