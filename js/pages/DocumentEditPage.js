@@ -5,6 +5,7 @@ import { Button } from '../components/Button.js?v=4';
 import { FormField } from '../components/FormField.js?v=4';
 import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=4';
 import { requireAuth } from '../components/PageLayout.js?v=4';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=4';
 
 const FACTION_OPTIONS = [
     { value: 'common', text: 'Общий (всем)' },
@@ -13,7 +14,6 @@ const FACTION_OPTIONS = [
     { value: 'purple', text: 'Фиолетовые' }
 ];
 
-const VIEW_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 
 export async function DocumentEditPage(docId) {
     const section = createElement('section', { className: 'document-edit-page' });
@@ -57,9 +57,9 @@ export async function DocumentEditPage(docId) {
         }));
 
         const views = existing?.views || {};
-        for (const f of ['red', 'blue', 'purple']) {
+        for (const f of FACTIONS) {
             form.appendChild(FormField({
-                type: 'textarea', id: `doc-view-${f}`, label: `Точка зрения: ${VIEW_LABELS[f]}`,
+                type: 'textarea', id: `doc-view-${f}`, label: `Точка зрения: ${FACTION_LABELS[f]}`,
                 value: views[f] || '', rows: 5,
                 placeholder: 'Можно оставить пустым'
             }));
@@ -113,7 +113,7 @@ export async function DocumentEditPage(docId) {
                 if (!content) throw new Error('Текст документа не может быть пустым');
 
                 const viewsData = {};
-                for (const f of ['red', 'blue', 'purple']) {
+                for (const f of FACTIONS) {
                     const value = form.querySelector(`#doc-view-${f}`).value.trim();
                     if (value) viewsData[f] = value;
                 }

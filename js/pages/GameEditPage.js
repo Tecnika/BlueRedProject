@@ -21,9 +21,9 @@ import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=4';
 import { Button } from '../components/Button.js?v=4';
 import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=4';
 import { FormField } from '../components/FormField.js?v=4';
-import { FACTION_LABELS } from '../utils/profile.js?v=4';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=4';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=4';
 
-const STATUS_LABELS = { draft: 'Черновик', active: 'Активна', finished: 'Завершена' };
 
 export async function GameEditPage(gameId) {
     const section = createElement('section', { className: 'games-page' });
@@ -82,7 +82,7 @@ export async function GameEditPage(gameId) {
         head.appendChild(createElement('h1', { className: 'games-page__title', text: game.name }));
         head.appendChild(createElement('span', {
             className: 'games-page__status games-page__status--' + (game.status || 'draft'),
-            text: STATUS_LABELS[game.status] || game.status
+            text: GAME_STATUS_LABELS[game.status] || game.status
         }));
         container.appendChild(head);
 
@@ -140,7 +140,7 @@ export async function GameEditPage(gameId) {
         });
         createForm.appendChild(createElement('h2', { className: 'games-page__subtitle', text: 'Новый персонаж' }));
 
-        const playerSelect = createElement('select', { className: 'games-page__select' });
+        const playerSelect = createElement('select', { className: 'games-page__select', attributes: { 'aria-label': 'Игрок персонажа' } });
         playerSelect.appendChild(createElement('option', { text: '— игрок не назначен —', attributes: { value: '' } }));
         for (const p of players) {
             playerSelect.appendChild(createElement('option', {
@@ -214,10 +214,11 @@ export async function GameEditPage(gameId) {
         const factionWrap = createElement('div', { className: 'games-page__character-faction' });
         factionWrap.appendChild(createElement('span', { className: 'games-page__label', text: 'Фракция' }));
         const factionSelect = createElement('select', {
-            className: 'games-page__select games-page__select--faction'
+            className: 'games-page__select games-page__select--faction',
+            attributes: { 'aria-label': 'Фракция персонажа' }
         });
         factionSelect.appendChild(createElement('option', { text: '— не выдана —', attributes: { value: '' } }));
-        for (const f of ['red', 'blue', 'purple']) {
+        for (const f of FACTIONS) {
             const opt = createElement('option', { text: FACTION_LABELS[f], attributes: { value: f } });
             if (character.faction === f) opt.selected = true;
             factionSelect.appendChild(opt);

@@ -3,7 +3,11 @@ import { createElement } from '../utils/dom.js?v=4';
 export function StatusMessage({ type = 'err', text = '', hidden = false }) {
     const msg = createElement('p', {
         className: `msg msg--${type}`,
-        text
+        text,
+        attributes: {
+            role: type === 'err' ? 'alert' : 'status',
+            'aria-live': type === 'err' ? 'assertive' : 'polite'
+        }
     });
     if (hidden) msg.style.display = 'none';
     return msg;

@@ -8,10 +8,10 @@ import { Chip } from '../components/Chip.js?v=4';
 import { FactionBadge } from '../components/FactionBadge.js?v=4';
 import { StatusMessage } from '../components/StatusMessage.js?v=4';
 import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=4';
+import { ROLE_LABELS } from '../utils/constants.js?v=4';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
-const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
 
 export async function FactionPage() {
     const section = createElement('section', { className: 'faction-page' });

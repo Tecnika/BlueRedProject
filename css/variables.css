@@ -75,3 +75,17 @@ body {
 body, .header, .footer, .hero, .feature-card {
     transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
+
+/* --- Цвета фракций (не зависят от темы) --- */:root {
+    --faction-red: #dc2626;
+    --faction-red-soft: rgba(220, 38, 38, 0.15);
+    --faction-red-glow: rgba(220, 38, 38, 0.25);
+    --faction-blue: #2563eb;
+    --faction-blue-soft: rgba(37, 99, 235, 0.15);
+    --faction-blue-glow: rgba(37, 99, 235, 0.25);
+    --faction-purple: #7c3aed;
+    --faction-purple-soft: rgba(124, 58, 237, 0.15);
+    --faction-purple-glow: rgba(124, 58, 237, 0.25);
+    --faction-common: #6b7280;
+    --faction-common-soft: rgba(107, 114, 128, 0.15);
+}

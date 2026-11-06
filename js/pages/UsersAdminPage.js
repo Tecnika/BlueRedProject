@@ -16,8 +16,7 @@ import { translateError } from '../utils/translateError.js?v=4';
 import { Button } from '../components/Button.js?v=4';
 import { StatusMessage } from '../components/StatusMessage.js?v=4';
 import { FactionBadge } from '../components/FactionBadge.js?v=4';
-
-const ROLE_LABELS = { player: 'Игрок', igrotech: 'Игротех', master: 'Мастер' };
+import { ROLE_LABELS } from '../utils/constants.js?v=4';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });
@@ -38,7 +37,7 @@ export function UsersAdminPage() {
 
     const search = createElement('input', {
         className: 'users-admin-page__search',
-        attributes: { type: 'search', placeholder: 'Поиск по имени / позывному', autocomplete: 'off' }
+        attributes: { type: 'search', placeholder: 'Поиск по имени / позывному', autocomplete: 'off', 'aria-label': 'Поиск игроков' }
     });
     const listEl = createElement('div', { className: 'users-admin-page__list', text: 'Загрузка...' });
 

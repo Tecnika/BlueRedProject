@@ -13,8 +13,7 @@ import { FactionBadge } from '../components/FactionBadge.js?v=4';
 import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
 import { FormField } from '../components/FormField.js?v=4';
 import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=4';
-
-const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=4';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });
@@ -153,14 +152,12 @@ function createField(label, value) {
     return row;
 }
 
-const LANG_LABELS = { red: 'Красных', blue: 'Синих', purple: 'Фиолетовых', common: 'Общий' };
-
 function createLangRow(languages) {
     const row = createElement('div', { className: 'profile-sidebar__field' });
     row.appendChild(createElement('span', { className: 'profile-sidebar__field-label', text: 'Языки' }));
     const list = createElement('div', { className: 'profile-sidebar__langs' });
     for (const lang of languages) {
-        list.appendChild(Chip({ text: LANG_LABELS[lang] || lang, variant: 'lang', color: lang }));
+        list.appendChild(Chip({ text: LANGUAGE_LABELS[lang] || lang, variant: 'lang', color: lang }));
     }
     row.appendChild(list);
     return row;

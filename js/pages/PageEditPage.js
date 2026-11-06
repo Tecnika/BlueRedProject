@@ -6,8 +6,8 @@ import { translateError } from '../utils/translateError.js?v=4';
 import { Button } from '../components/Button.js?v=4';
 import { FormField } from '../components/FormField.js?v=4';
 import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=4';
 
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 
 export async function PageEditPage(slug) {
     const section = createElement('section', { className: 'page-edit-page' });
@@ -138,7 +138,7 @@ export async function PageEditPage(slug) {
                     imgInputs.forEach(inp => { if (inp.value.trim()) data.images.push(inp.value.trim()); });
                 } else {
                     const matrix = {};
-                    for (const f of ['red', 'blue', 'purple']) {
+                    for (const f of FACTIONS) {
                         const fGroup = {};
                         for (const row of ['info', 'propaganda', 'hard-propaganda']) {
                             const content = form.querySelector(`#cell-${f}-${row}`)?.value || '';
@@ -200,7 +200,7 @@ function renderFactionEditor(area, existing) {
 
         const cols = createElement('div', { className: 'page-edit__faction-cols' });
 
-        for (const f of ['red', 'blue', 'purple']) {
+        for (const f of FACTIONS) {
             const cell = matrix[f]?.[row] || { content: '', images: [] };
             const col = createElement('div', { className: `page-edit__faction-col page-edit__faction-col--${f}` });
 

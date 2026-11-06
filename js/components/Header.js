@@ -2,8 +2,7 @@ import { createElement } from '../utils/dom.js?v=4';
 import { Navigation } from './Navigation.js?v=4';
 import { store } from '../core/Store.js?v=4';
 import { signOutUser } from '../firebase/authService.js?v=4';
-
-const ROLE_LABELS = { master: 'Мастер', igrotech: 'Игротех', player: 'Игрок' };
+import { ROLE_LABELS } from '../utils/constants.js?v=4';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });

@@ -11,7 +11,6 @@ import { StatusMessage, showMessage, hideMessage } from '../components/StatusMes
 import { QRCode } from '../components/QRCode.js?v=4';
 import { getActiveFaction } from '../utils/profile.js?v=4';
 
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые', common: 'Общий' };
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });
@@ -60,6 +59,13 @@ export async function DocumentViewPage(docId) {
             titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Документ № ${doc.number}` }));
             titleRow.appendChild(FactionBadge({ faction: doc.faction }));
             container.appendChild(titleRow);
+
+            if (isMaster && !isCommon) {
+                container.appendChild(createElement('p', {
+                    className: 'document-view-page__master-note',
+                    text: 'Вы видите оригинал, потому что у вас права мастера. Игроки другой фракции увидят шифр.'
+                }));
+            }
 
             const body = createElement('div', { className: 'document-view-page__body' });
             const contentBlock = createElement('div', { className: 'document-view-page__content' });
@@ -175,7 +181,7 @@ export async function DocumentViewPage(docId) {
 
             const textarea = createElement('textarea', {
                 className: 'document-view-page__decrypt-input',
-                attributes: { rows: 4, placeholder: 'Расшифрованный текст...' }
+                attributes: { rows: 4, placeholder: 'Расшифрованный текст...', 'aria-label': 'Расшифрованный текст документа' }
             });
             block.appendChild(textarea);
 

@@ -1114,3 +1114,10 @@
     font-size: 0.85rem;
     color: var(--color-text-secondary);
 }
+
+.document-view-page__master-note {
+    margin: var(--space-xs) 0 0;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}

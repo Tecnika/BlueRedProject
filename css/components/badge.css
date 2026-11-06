@@ -8,12 +8,12 @@
 .badge--sm { padding: 1px var(--space-xs); font-size: var(--fs-xs); }
 .badge--md { padding: 2px var(--space-sm); font-size: var(--fs-sm); }
 
-.badge--red { background: rgba(220, 38, 38, 0.15); color: #dc2626; }
-.badge--blue { background: rgba(37, 99, 235, 0.15); color: #2563eb; }
-.badge--purple { background: rgba(124, 58, 237, 0.15); color: #7c3aed; }
-.badge--common { background: rgba(107, 114, 128, 0.15); color: var(--color-text-secondary, #6b7280); }
+.badge--red { background: var(--faction-red-soft); color: var(--faction-red); }
+.badge--blue { background: var(--faction-blue-soft); color: var(--faction-blue); }
+.badge--purple { background: var(--faction-purple-soft); color: var(--faction-purple); }
+.badge--common { background: var(--faction-common-soft); color: var(--faction-common); }
 .badge--none { background: var(--color-bg-tertiary, #374151); color: var(--color-text-muted); }
 
-.design-v2 .badge--red { background: rgba(220, 38, 38, 0.2); text-shadow: 0 0 4px rgba(220, 38, 38, 0.3); }
-.design-v2 .badge--blue { background: rgba(37, 99, 235, 0.2); text-shadow: 0 0 4px rgba(37, 99, 235, 0.3); }
-.design-v2 .badge--purple { background: rgba(124, 58, 237, 0.2); text-shadow: 0 0 4px rgba(124, 58, 237, 0.3); }
+.design-v2 .badge--red { background: var(--faction-red-soft); text-shadow: 0 0 4px var(--faction-red-glow); }
+.design-v2 .badge--blue { background: var(--faction-blue-soft); text-shadow: 0 0 4px var(--faction-blue-glow); }
+.design-v2 .badge--purple { background: var(--faction-purple-soft); text-shadow: 0 0 4px var(--faction-purple-glow); }

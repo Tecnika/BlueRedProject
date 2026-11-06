@@ -1,6 +1,5 @@
 import { createElement } from '../utils/dom.js?v=4';
-
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые', common: 'Общий' };
+import { FACTION_LABELS } from '../utils/profile.js?v=4';
 
 export function FactionBadge({ faction, size = 'md' }) {
     const label = FACTION_LABELS[faction] || faction || '—';

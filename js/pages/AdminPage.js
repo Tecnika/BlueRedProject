@@ -132,7 +132,7 @@ async function loadTagsList() {
         tags.forEach(tag => {
             const item = createElement('div', { className: 'admin-tags__item' });
             item.appendChild(createElement('span', { className: 'admin-tags__name', text: tag.name }));
-            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить гриф' } });
+            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить гриф', 'aria-label': 'Удалить гриф ' + tag.name } });
             item.appendChild(delBtn);
             fragment.appendChild(item);
         });
@@ -201,7 +201,7 @@ async function loadSubTagsList() {
         tags.forEach(tag => {
             const item = createElement('div', { className: 'admin-tags__item' });
             item.appendChild(createElement('span', { className: 'admin-tags__name', text: tag.name }));
-            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить субтег' } });
+            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить субтег', 'aria-label': 'Удалить субтег ' + tag.name } });
             item.appendChild(delBtn);
             fragment.appendChild(item);
         });

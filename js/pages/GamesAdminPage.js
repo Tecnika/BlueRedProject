@@ -12,8 +12,8 @@ import { getAllGames, createGame, deleteGame, activateGame, finishGame } from '.
 import { Button } from '../components/Button.js?v=4';
 import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
 import { FormField } from '../components/FormField.js?v=4';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=4';
 
-const STATUS_LABELS = { draft: 'Черновик', active: 'Активна', finished: 'Завершена' };
 
 export function GamesAdminPage() {
     const section = createElement('section', { className: 'games-page' });
@@ -94,7 +94,7 @@ export function GamesAdminPage() {
         const meta = createElement('div', { className: 'games-page__meta' });
         meta.appendChild(createElement('span', {
             className: 'games-page__status games-page__status--' + (game.status || 'draft'),
-            text: STATUS_LABELS[game.status] || game.status
+            text: GAME_STATUS_LABELS[game.status] || game.status
         }));
         if (game.startDate) meta.appendChild(createElement('span', { text: game.startDate }));
         info.appendChild(meta);

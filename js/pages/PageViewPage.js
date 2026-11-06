@@ -8,7 +8,6 @@ import { StatusMessage } from '../components/StatusMessage.js?v=4';
 import { getActiveFaction } from '../utils/profile.js?v=4';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
-const FACTION_LABELS = { red: 'Красные', blue: 'Синие', purple: 'Фиолетовые' };
 const TYPE_LABELS = {
     info: 'О фракции',
     propaganda: 'Пропаганда',
