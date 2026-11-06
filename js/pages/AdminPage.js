@@ -10,6 +10,8 @@ import { translateError } from '../utils/translateError.js?v=4';
 import { Button } from '../components/Button.js?v=4';
 import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=4';
 import { FactionBadge } from '../components/FactionBadge.js?v=4';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=4';
+import { FACTION_LABELS } from '../utils/profile.js?v=4';
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });
@@ -37,6 +39,7 @@ export function AdminPage() {
     roleActions.appendChild(Button({ text: 'Игроки', variant: 'secondary', href: '#/admin/users' }));
     roleSection.appendChild(roleActions);
     container.appendChild(roleSection);
+    container.appendChild(renderDecryptSection());
 
     container.appendChild(renderDesignSection());
     container.appendChild(renderTagsSection());
@@ -46,6 +49,105 @@ export function AdminPage() {
     section.appendChild(container);
 
     return section;
+}
+
+function renderDecryptSection() {
+    const container = createElement('div', { className: 'admin-section' });
+
+    container.appendChild(createElement('h2', { className: 'admin-section__title', text: 'Расшифровка текстов' }));
+    container.appendChild(createElement('p', {
+        className: 'admin-section__desc',
+        text: 'Перевод между шифром фракции и кириллицей. Работает в обе стороны.'
+    }));
+
+    const controls = createElement('div', { className: 'admin-cipher__controls' });
+
+    const langSelect = createElement('select', {
+        className: 'admin-cipher__select',
+        attributes: { 'aria-label': 'Язык шифра' }
+    });
+    for (const faction of ['red', 'blue', 'purple']) {
+        langSelect.appendChild(createElement('option', {
+            text: `${FACTION_LABELS[faction]} — ${LANGUAGE_LABELS[faction]}`,
+            attributes: { value: faction }
+        }));
+    }
+
+    const directionSelect = createElement('select', {
+        className: 'admin-cipher__select',
+        attributes: { 'aria-label': 'Направление' }
+    });
+    directionSelect.appendChild(createElement('option', { text: 'Расшифровать (шифр → кириллица)', attributes: { value: 'decode' } }));
+    directionSelect.appendChild(createElement('option', { text: 'Зашифровать (кириллица → шифр)', attributes: { value: 'encode' } }));
+
+    controls.appendChild(langSelect);
+    controls.appendChild(directionSelect);
+    container.appendChild(controls);
+
+    const inputLabel = createElement('label', { className: 'admin-cipher__label', text: 'Исходный текст' });
+    const input = createElement('textarea', {
+        className: 'admin-cipher__textarea',
+        attributes: { rows: 4, placeholder: 'Вставьте текст...', 'aria-label': 'Исходный текст' }
+    });
+
+    const outputLabel = createElement('label', { className: 'admin-cipher__label', text: 'Результат' });
+    const output = createElement('textarea', {
+        className: 'admin-cipher__textarea admin-cipher__textarea--output',
+        attributes: { rows: 4, readonly: '', 'aria-label': 'Результат' }
+    });
+
+    container.appendChild(inputLabel);
+    container.appendChild(input);
+    container.appendChild(outputLabel);
+    container.appendChild(output);
+
+    const alphabet = createElement('div', { className: 'admin-cipher__alphabet' });
+    container.appendChild(createElement('h3', { className: 'admin-section__title', text: 'Алфавит' }));
+    container.appendChild(alphabet);
+
+    function renderAlphabet(faction) {
+        alphabet.innerHTML = '';
+        for (const pair of getAlphabetPairs(faction)) {
+            const cell = createElement('span', { className: 'admin-cipher__pair' });
+            cell.appendChild(createElement('b', { text: pair.letter }));
+            cell.appendChild(createElement('span', { text: pair.symbol }));
+            alphabet.appendChild(cell);
+        }
+    }
+
+    function transform() {
+        const faction = langSelect.value;
+        const text = input.value || '';
+        output.value = directionSelect.value === 'decode'
+            ? decryptFromFaction(text, faction)
+            : encryptToFaction(text, faction);
+    }
+
+    input.addEventListener('input', transform);
+    langSelect.addEventListener('change', () => {
+        renderAlphabet(langSelect.value);
+        transform();
+    });
+    directionSelect.addEventListener('change', () => {
+        inputLabel.textContent = directionSelect.value === 'decode' ? 'Зашифрованный текст' : 'Текст на кириллице';
+        outputLabel.textContent = directionSelect.value === 'decode' ? 'Расшифровка' : 'Шифр';
+        transform();
+    });
+
+    renderAlphabet(langSelect.value);
+    transform();
+
+    container.appendChild(Button({
+        text: 'Очистить',
+        variant: 'secondary',
+        size: 'sm',
+        onClick: () => {
+            input.value = '';
+            transform();
+        }
+    }));
+
+    return container;
 }
 
 function renderDesignSection() {

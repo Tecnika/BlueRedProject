@@ -265,3 +265,67 @@
     flex-wrap: wrap;
     margin-top: var(--space-sm);
 }
+
+/* --- Расшифровка текстов --- */
+.admin-cipher__controls {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-sm);
+}
+
+.admin-cipher__select,
+.admin-cipher__textarea {
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.admin-cipher__textarea {
+    width: 100%;
+    resize: vertical;
+    margin-bottom: var(--space-sm);
+}
+
+.admin-cipher__textarea--output {
+    background: var(--color-bg-secondary);
+}
+
+.admin-cipher__label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-secondary);
+    margin-bottom: 2px;
+}
+
+.admin-cipher__alphabet {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: var(--space-xs);
+    margin: var(--space-sm) 0;
+}
+
+.admin-cipher__pair {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+    padding: 2px var(--space-xs);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+}
+
+.admin-cipher__pair b {
+    font-weight: 600;
+}
+
+.admin-cipher__pair span {
+    font-size: 1.05rem;
+}

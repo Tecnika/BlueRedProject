@@ -27,6 +27,15 @@ export const LANGUAGE_LABELS = {
     purple: 'Корейский'
 };
 
+/** Пары «кириллица → символ» для справки/таблицы */
+export function getAlphabetPairs(faction) {
+    const alphabet = FACTION_ALPHABETS[faction] || '';
+    return CYR.split('').map((letter, index) => ({
+        letter,
+        symbol: alphabet[index] || ''
+    }));
+}
+
 /** Пороги изучения языка */
 export const LANGUAGE_THRESHOLDS = { half: 4, full: 10 };
 
@@ -41,6 +50,16 @@ export function encryptToFaction(text, faction) {
     return (text || '').split('').map(ch => {
         const idx = CYR.indexOf(ch.toLowerCase());
         return idx === -1 ? ch : alphabet[idx];
+    }).join('');
+}
+
+/** Расшифровать текст (символы языка → кириллица). Обратная операция к encryptToFaction. */
+export function decryptFromFaction(text, faction) {
+    const alphabet = FACTION_ALPHABETS[faction];
+    if (!alphabet) return text || '';
+    return (text || '').split('').map(ch => {
+        const idx = alphabet.indexOf(ch);
+        return idx === -1 ? ch : CYR[idx];
     }).join('');
 }
 
