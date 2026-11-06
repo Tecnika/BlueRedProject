@@ -4,9 +4,8 @@ import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsSer
 import { updateUserProfile } from '../firebase/authService.js?v=4';
 import { translateError } from '../utils/translateError.js?v=4';
 import { BackButton } from '../components/BackButton.js?v=4';
-import { FormField } from '../components/FormField.js?v=4';
 import { Button } from '../components/Button.js?v=4';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=4';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=4';
 
 export function DocumentAddPage() {
     const section = createElement('section', { className: 'document-add-page' });
@@ -68,8 +67,7 @@ export function DocumentAddPage() {
             await updateUserProfile(user.uid, { documents: newDocs });
             store.set('user', { ...user, documents: newDocs });
 
-            msg.innerHTML = `Документ № ${found.number} добавлен. <a href="#/documents/view?id=${found.id}">Открыть</a>`;
-            showMessage(msg, '', 'ok');
+            showMessageHTML(msg, `Документ № ${found.number} добавлен. <a href="#/documents/view?id=${found.id}">Открыть</a>`, 'ok');
         } catch (err) {
             showMessage(msg, translateError(err), 'err');
         } finally {

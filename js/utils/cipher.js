@@ -44,13 +44,17 @@ export function encryptToFaction(text, faction) {
     }).join('');
 }
 
-/** Детерминированный хэш строки (для выбора открытых букв) */
+/** Детерминированный хэш строки (FNV-1a + финализатор) для выбора открытых букв */
 function hashString(str) {
-    let h = 0;
+    let h = 2166136261 >>> 0;
     for (let i = 0; i < str.length; i++) {
-        h = (h * 31 + str.charCodeAt(i)) | 0;
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
     }
-    return Math.abs(h);
+    h ^= h >>> 13;
+    h = Math.imul(h, 0x5bd1e995);
+    h ^= h >>> 15;
+    return h >>> 0;
 }
 
 /**

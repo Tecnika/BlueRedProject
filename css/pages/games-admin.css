@@ -241,3 +241,21 @@
         grid-template-columns: 1fr;
     }
 }
+
+.games-page__edit-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.games-page__edit-row .games-page__field {
+    flex: 1 1 200px;
+}
+
+.games-page__input--date {
+    max-width: 160px;
+}

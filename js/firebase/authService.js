@@ -124,6 +124,8 @@ export async function setUserRole(uid, role) {
         throw new Error('Недопустимая роль');
     }
     await updateUserProfile(uid, { role });
+    // Синхронизируем публичную проекцию (роль отображается в списках)
+    await syncPublicPlayer(uid, { role });
 }
 
 /**

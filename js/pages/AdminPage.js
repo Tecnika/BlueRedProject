@@ -3,7 +3,7 @@ import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=4';
 import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=4';
 import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=4';
 import { getAllDocuments, getDocumentReaders } from '../firebase/documentsService.js?v=4';
-import { getDesign, setDesign } from '../firebase/settingsService.js?v=4';
+import { setDesign } from '../firebase/settingsService.js?v=4';
 import { createElement } from '../utils/dom.js?v=4';
 import { translateError } from '../utils/translateError.js?v=4';
 import { Button } from '../components/Button.js?v=4';
@@ -112,7 +112,7 @@ function renderTagsSection() {
     tagsWrap.appendChild(form);
     container.appendChild(tagsWrap);
 
-    loadTagsList();
+    setTimeout(loadTagsList, 0);
 
     return container;
 }
@@ -181,7 +181,7 @@ function renderSubTagsSection() {
     wrap.appendChild(form);
     container.appendChild(wrap);
 
-    loadSubTagsList();
+    setTimeout(loadSubTagsList, 0);
 
     return container;
 }
@@ -241,7 +241,7 @@ function renderPagesSection() {
     const tree = createElement('div', { className: 'admin-pages__tree', id: 'admin-pages-tree', text: 'Загрузка...' });
     container.appendChild(tree);
 
-    loadPagesTree();
+    setTimeout(loadPagesTree, 0);
 
     return container;
 }
@@ -303,7 +303,7 @@ function renderDocumentsSection() {
     wrap.appendChild(list);
     container.appendChild(wrap);
 
-    loadAdminDocuments();
+    setTimeout(loadAdminDocuments, 0);
 
     return container;
 }

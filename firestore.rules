@@ -30,14 +30,19 @@ service cloud.firestore {
 
     // ========== users — профиль игрока (PII) ==========
     match /users/{userId} {
-      // Создать можно только свой профиль
-      allow create: if isOwner(userId);
+      // Создать можно только свой профиль и только с ролью player
+      allow create: if isOwner(userId)
+        && request.resource.data.role == 'player';
 
       // Читать: владелец, мастер, игротех (реальные ФИ, контакты, медданные)
       allow read: if isOwner(userId) || isMaster() || isIgrotech();
 
-      // Обновлять: владелец или мастер
-      allow update: if isOwner(userId) || isMaster();
+      // Обновлять: мастер всё; владелец — только игровые данные (не role/username)
+      allow update: if isMaster() || (
+        isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['player', 'decryptions', 'decryptedDocs', 'documents'])
+      );
 
       allow delete: if false;
     }
@@ -46,7 +51,8 @@ service cloud.firestore {
     match /usernames/{name} {
       // Нужен до входа (проверка уникальности при регистрации)
       allow read: if true;
-      allow create: if isSignedIn();
+      // Создавать можно только запись про себя
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
       allow update: if false;
       allow delete: if isMaster();
     }
@@ -54,7 +60,19 @@ service cloud.firestore {
     // ========== publicPlayers — публичная проекция (без PII) ==========
     match /publicPlayers/{uid} {
       allow read: if isSignedIn();
-      allow create, update: if isOwner(uid) || isMaster();
+
+      // Проекцию создаёт владелец (при регистрации) или мастер
+      allow create: if isMaster() || (
+        isOwner(uid) && request.resource.data.role == 'player'
+      );
+
+      // Владелец может менять только публичные поля, роль — только мастер
+      allow update: if isMaster() || (
+        isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['displayName', 'gameId', 'characterName', 'faction', 'updatedAt'])
+      );
+
       allow delete: if isMaster();
     }
 

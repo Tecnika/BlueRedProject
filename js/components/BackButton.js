@@ -1,4 +1,3 @@
-import { createElement } from '../utils/dom.js?v=4';
 import { Button } from './Button.js?v=4';
 
 export function BackButton({ fallback = '#/' }) {

@@ -1,7 +1,7 @@
 import { createElement } from '../utils/dom.js?v=4';
 import { store } from '../core/Store.js?v=4';
 import { createAvatar } from '../core/Avatar.js?v=4';
-import { getUserProfile, updateUserProfile, getPlayerDisplayName } from '../firebase/authService.js?v=4';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=4';
 import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=4';
 import { getCharacterForPlayer } from '../firebase/charactersService.js?v=4';
 import { getNote, saveNote } from '../firebase/notesService.js?v=4';
@@ -223,6 +223,10 @@ function createPlayerDataBlock(profile, isOwner) {
             };
             await updateUserProfile(store.get('user').uid, data);
             store.set('user', { ...store.get('user'), ...data });
+            // Обновляем публичное имя в проекции
+            await syncPublicPlayer(store.get('user').uid, {
+                displayName: [data.player.firstName, data.player.lastName].filter(Boolean).join(' ') || store.get('user').username
+            }).catch(() => {});
             showMessage(msg, 'Данные записаны', 'ok');
         } catch (err) {
             showMessage(msg, 'Ошибка: ' + translateError(err), 'err');

@@ -12,7 +12,6 @@ import { translateError } from '../utils/translateError.js?v=4';
 import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=4';
 import {
     getCharactersByGame,
-    getCharacter,
     createCharacter,
     updateCharacter,
     deleteCharacter,
@@ -86,6 +85,36 @@ export async function GameEditPage(gameId) {
             text: STATUS_LABELS[game.status] || game.status
         }));
         container.appendChild(head);
+
+        // Редактирование названия и даты
+        const editRow = createElement('div', { className: 'games-page__edit-row' });
+        const nameInput = createElement('input', {
+            className: 'games-page__input',
+            attributes: { type: 'text', value: game.name || '', placeholder: 'Название игры' }
+        });
+        const dateInput = createElement('input', {
+            className: 'games-page__input games-page__input--date',
+            attributes: { type: 'text', value: game.startDate || '', placeholder: 'Дата' }
+        });
+        editRow.appendChild(labelled('Название', nameInput));
+        editRow.appendChild(labelled('Дата', dateInput));
+        editRow.appendChild(Button({
+            text: 'Сохранить',
+            variant: 'secondary',
+            size: 'sm',
+            onClick: async () => {
+                try {
+                    await updateGame(gameId, {
+                        name: nameInput.value.trim() || game.name,
+                        startDate: dateInput.value.trim()
+                    });
+                    await load();
+                } catch (err) {
+                    alert('Ошибка: ' + translateError(err));
+                }
+            }
+        }));
+        container.appendChild(editRow);
 
         if (game.status === 'active') {
             container.appendChild(createElement('p', {

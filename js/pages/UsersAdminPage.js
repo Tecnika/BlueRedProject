@@ -124,23 +124,28 @@ export function UsersAdminPage() {
         card.appendChild(data);
 
         const actions = createElement('div', { className: 'users-admin-page__actions' });
-        actions.appendChild(Button({
-            text: user.role === 'igrotech' ? 'Снять игротехника' : 'Дать роль техника',
-            variant: user.role === 'igrotech' ? 'primary' : 'secondary',
-            size: 'sm',
-            disabled: isSelf,
-            attributes: { title: isSelf ? 'Нельзя менять права себе' : '' },
-            onClick: async () => {
-                const next = user.role === 'igrotech' ? 'player' : 'igrotech';
-                if (!confirm('Изменить права игротехника для ' + (getPlayerDisplayName(user) || user.username) + '?')) return;
-                try {
-                    await setUserRole(user.id, next);
-                    await load();
-                } catch (err) {
-                    alert('Ошибка: ' + translateError(err));
+        if (user.role === 'master') {
+            // Права мастера через эту страницу не выдаются и не снимаются
+            actions.appendChild(Button({ text: 'Мастер', variant: 'primary', size: 'sm', disabled: true }));
+        } else {
+            actions.appendChild(Button({
+                text: user.role === 'igrotech' ? 'Снять игротехника' : 'Дать роль техника',
+                variant: user.role === 'igrotech' ? 'primary' : 'secondary',
+                size: 'sm',
+                disabled: isSelf,
+                attributes: { title: isSelf ? 'Нельзя менять права себе' : '' },
+                onClick: async () => {
+                    const next = user.role === 'igrotech' ? 'player' : 'igrotech';
+                    if (!confirm('Изменить права игротехника для ' + (getPlayerDisplayName(user) || user.username) + '?')) return;
+                    try {
+                        await setUserRole(user.id, next);
+                        await load();
+                    } catch (err) {
+                        alert('Ошибка: ' + translateError(err));
+                    }
                 }
-            }
-        }));
+            }));
+        }
         card.appendChild(actions);
 
         return card;

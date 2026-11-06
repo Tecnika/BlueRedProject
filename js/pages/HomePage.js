@@ -33,7 +33,7 @@ function renderHero(user) {
     const badge = createElement('div', { className: 'hero__badge', text: 'СЕКТОР BLUERED' });
     section.appendChild(badge);
 
-    const greeting = user ? `${user.firstName || user.username}` : 'агент';
+    const greeting = user ? (user.player?.firstName || user.firstName || user.username) : 'агент';
     const title = createElement('h1', { className: 'hero__title', html: `Добро пожаловать, <span class="hero__title-name">${greeting}</span>` });
     section.appendChild(title);
 

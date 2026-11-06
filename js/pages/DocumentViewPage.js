@@ -131,8 +131,8 @@ export async function DocumentViewPage(docId) {
 
             // --- Расшифровка ---
             if (encrypted) {
-                container.appendChild(createDecryptBlock());
-            } else if (!isCommon && !isOwn && lang) {
+                container.appendChild(createDecryptBlock(contentEl));
+            } else if (!isCommon && !isOwn && !pov && lang) {
                 container.appendChild(createProgressBlock(progress));
             }
 
@@ -159,13 +159,19 @@ export async function DocumentViewPage(docId) {
             section.appendChild(container);
         }
 
-        function createDecryptBlock() {
+        function createDecryptBlock(contentEl) {
             const block = createElement('div', { className: 'document-view-page__decrypt' });
+            const lang = doc.faction;
+            const label = LANGUAGE_LABELS[lang] || lang;
+
             block.appendChild(createElement('h2', { className: 'document-view-page__decrypt-title', text: 'Расшифровать документ' }));
             block.appendChild(createElement('p', {
                 className: 'document-view-page__decrypt-hint',
                 text: 'Введите расшифрованный текст. Верная расшифровка приближает изучение языка.'
             }));
+
+            const progressEl = createElement('p', { className: 'document-view-page__decrypt-progress' });
+            block.appendChild(progressEl);
 
             const textarea = createElement('textarea', {
                 className: 'document-view-page__decrypt-input',
@@ -190,16 +196,36 @@ export async function DocumentViewPage(docId) {
 
                     try {
                         const current = store.get('user');
-                        const lang = doc.faction;
                         const already = (current.decryptedDocs || []).includes(docId);
+                        let count = (current.decryptions || {})[lang] || 0;
+
                         if (!already) {
-                            const decryptions = { ...(current.decryptions || {}), [lang]: ((current.decryptions || {})[lang] || 0) + 1 };
+                            count += 1;
+                            const decryptions = { ...(current.decryptions || {}), [lang]: count };
                             const decryptedDocs = [...(current.decryptedDocs || []), docId];
                             await updateUserProfile(current.uid, { decryptions, decryptedDocs });
                             store.set('user', { ...current, decryptions, decryptedDocs });
                         }
-                        showMessage(msg, 'Верно! Язык изучен чуть лучше.', 'ok');
-                        render();
+
+                        // Обновляем текст документа и прогресс без полной перерисовки
+                        contentEl.textContent = renderCipher(doc.content, lang, docId, count);
+                        progressEl.textContent = decryptProgressText(count, label);
+
+                        if (count >= LANGUAGE_THRESHOLDS.full) {
+                            // Язык изучен — убираем поле ввода, оставляем подтверждение
+                            block.querySelectorAll('.document-view-page__decrypt-hint, .document-view-page__decrypt-progress, .document-view-page__decrypt-input')
+                                .forEach(el => el.remove());
+                            btn.remove();
+                            const titleEl = block.querySelector('.document-view-page__decrypt-title');
+                            if (titleEl) titleEl.textContent = `Язык «${label}» изучен`;
+                            showMessage(msg, 'Теперь документы этого языка доступны полностью.', 'ok');
+                        } else if (already) {
+                            showMessage(msg, 'Этот документ уже учтён. Расшифруйте другие документы этого языка.', 'ok');
+                        } else {
+                            showMessage(msg, `Верно! Расшифровано: ${count}.`, 'ok');
+                        }
+
+                        textarea.value = '';
                     } catch (err) {
                         showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
                     }
@@ -207,7 +233,30 @@ export async function DocumentViewPage(docId) {
             });
             block.appendChild(btn);
             block.appendChild(msg);
+
+            progressEl.textContent = decryptProgressText(
+                (store.get('user').decryptions || {})[lang] || 0,
+                label
+            );
+
             return block;
+        }
+
+        function decryptProgressText(count, label) {
+            if (count >= LANGUAGE_THRESHOLDS.full) return `Язык «${label}» изучен.`;
+            if (count >= LANGUAGE_THRESHOLDS.half) {
+                const left = LANGUAGE_THRESHOLDS.full - count;
+                return `Язык «${label}»: открыта половина букв. Ещё ${left} ${plural(left, 'расшифровка', 'расшифровки', 'расшифровок')} до полного изучения.`;
+            }
+            return `Язык «${label}»: расшифровано ${count} из ${LANGUAGE_THRESHOLDS.half} до открытия половины букв.`;
+        }
+
+        function plural(n, one, few, many) {
+            const mod10 = n % 10;
+            const mod100 = n % 100;
+            if (mod10 === 1 && mod100 !== 11) return one;
+            if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
+            return many;
         }
 
         function createProgressBlock(progress) {

@@ -145,8 +145,14 @@ async function init() {
             // Сидируем начальные теги при первом входе
             try { await seedInitialTags(); } catch (e) { /* каталог уже есть */ }
 
-            // Загружаем профиль из Firestore и пишем в store
-            const profile = await getUserProfile(firebaseUser.uid);
+            // Загружаем профиль из Firestore и пишем в store.
+            // После регистрации документ users/{uid} может ещё не успеть записаться —
+            // поэтому делаем несколько попыток.
+            let profile = await getUserProfile(firebaseUser.uid);
+            for (let attempt = 0; !profile && attempt < 6; attempt++) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+                profile = await getUserProfile(firebaseUser.uid).catch(() => null);
+            }
             if (profile) {
                 store.set('user', { uid: firebaseUser.uid, ...profile });
 

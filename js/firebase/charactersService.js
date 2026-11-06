@@ -30,13 +30,13 @@ export async function getCharacter(id) {
 /** Персонаж конкретного игрока в игре (первый найденный) */
 export async function getCharacterForPlayer(gameId, uid) {
     const { db } = getFirebase();
-    const snap = await getDocs(query(
-        collection(db, 'characters'),
-        where('gameId', '==', gameId),
-        where('playerId', '==', uid)
-    ));
+    // Один фильтр по gameId, выбор игрока — на клиенте (не требует составного индекса)
+    const snap = await getDocs(query(collection(db, 'characters'), where('gameId', '==', gameId)));
     let found = null;
-    snap.forEach(d => { if (!found) found = { id: d.id, ...d.data() }; });
+    snap.forEach(d => {
+        const character = { id: d.id, ...d.data() };
+        if (!found && character.playerId === uid) found = character;
+    });
     return found;
 }
 
@@ -69,6 +69,16 @@ export async function updateCharacter(id, data) {
     if (!current) return;
     const next = { ...current, ...data };
     await setDoc(doc(db, 'characters', id), data, { merge: true });
+
+    // Если персонажа переназначили другому игроку — чистим старую проекцию
+    if (current.playerId && data.playerId !== undefined && data.playerId !== current.playerId) {
+        await syncPublicPlayer(current.playerId, {
+            gameId: current.gameId,
+            characterName: '',
+            faction: null
+        });
+    }
+
     await syncCharacterPublic(next);
 }
 
