@@ -1,0 +1,44 @@
+/* Material Icons (Round), локальный шрифт — работает офлайн */
+
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    font-display: block;
+    src: url('../../fonts/material-icons.woff2') format('woff2');
+}
+
+.icon {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 1.25em;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    vertical-align: -0.15em;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.icon--sm { font-size: 1em; }
+.icon--lg { font-size: 1.6em; }
+
+.btn .icon { vertical-align: -0.1em; }
+
+.page-edit-page__add-img,
+.rules-sidebar__close,
+.admin-tree__edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+}
+

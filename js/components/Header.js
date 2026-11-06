@@ -1,9 +1,10 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { Navigation } from './Navigation.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { signOutUser } from '../firebase/authService.js?v=5';
-import { ROLE_LABELS } from '../utils/constants.js?v=5';
-import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { Navigation } from './Navigation.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { signOutUser } from '../firebase/authService.js?v=6';
+import { ROLE_LABELS } from '../utils/constants.js?v=6';
+import { Icon } from './Icon.js?v=6';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=6';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -20,9 +21,9 @@ export function Header(navItems, themeManager) {
 
     const hamburger = createElement('button', {
         className: 'header__hamburger',
-        attributes: { type: 'button', 'aria-label': 'Меню' },
-        text: '☰'
+        attributes: { type: 'button', 'aria-label': 'Меню' }
     });
+    hamburger.appendChild(Icon({ name: 'menu' }));
 
     const installBtn = createElement('button', {
         className: 'header__install',
@@ -49,7 +50,7 @@ export function Header(navItems, themeManager) {
     function toggleMenu(open) {
         const isOpen = open !== undefined ? open : !header.classList.contains('header--menu-open');
         header.classList.toggle('header--menu-open', isOpen);
-        hamburger.textContent = isOpen ? '✕' : '☰';
+        hamburger.replaceChildren(Icon({ name: isOpen ? 'close' : 'menu' }));
     }
 
     hamburger.addEventListener('click', (e) => {

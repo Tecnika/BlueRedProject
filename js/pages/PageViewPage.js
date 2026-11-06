@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
-import { getActiveFaction } from '../utils/profile.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { getActiveFaction } from '../utils/profile.js?v=6';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {
@@ -51,7 +51,7 @@ export async function PageViewPage(slug) {
             section.classList.add('page-view-page--faction-' + getActiveFaction());
         }
 
-        container.appendChild(Button({ text: '← Назад к архиву', variant: 'secondary', size: 'sm', href: '#/pages' }));
+        container.appendChild(Button({ text: 'Назад к архиву', icon: 'arrow_back', variant: 'secondary', size: 'sm', href: '#/pages' }));
 
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
         const allPages = await getAllPages();

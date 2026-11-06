@@ -6,23 +6,23 @@
  * Отображение: данные игрока / ФИ персонажа с переключателем фракции.
  */
 
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=6';
 import {
     getCharactersByGame,
     createCharacter,
     updateCharacter,
     deleteCharacter,
     assignFaction
-} from '../firebase/charactersService.js?v=5';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=5';
-import { FormField } from '../components/FormField.js?v=5';
-import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=5';
-import { GAME_STATUS_LABELS } from '../utils/constants.js?v=5';
+} from '../firebase/charactersService.js?v=6';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=6';
+import { FormField } from '../components/FormField.js?v=6';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=6';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=6';
 
 
 export async function GameEditPage(gameId) {
@@ -74,7 +74,7 @@ export async function GameEditPage(gameId) {
     function renderPage() {
         container.innerHTML = '';
 
-        const back = Button({ text: '← К играм', variant: 'secondary', size: 'sm', href: '#/admin/games' });
+        const back = Button({ text: 'К играм', icon: 'arrow_back', variant: 'secondary', size: 'sm', href: '#/admin/games' });
         container.appendChild(back);
 
         // --- Шапка игры ---

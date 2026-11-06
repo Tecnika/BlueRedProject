@@ -5,14 +5,14 @@
  * Создание игры, активация/завершение/удаление, переход к персонажам.
  */
 
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getAllGames, createGame, deleteGame, activateGame, finishGame } from '../firebase/gamesService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=5';
-import { FormField } from '../components/FormField.js?v=5';
-import { GAME_STATUS_LABELS } from '../utils/constants.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getAllGames, createGame, deleteGame, activateGame, finishGame } from '../firebase/gamesService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=6';
+import { FormField } from '../components/FormField.js?v=6';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=6';
 
 
 export function GamesAdminPage() {
@@ -31,7 +31,7 @@ export function GamesAdminPage() {
         text: 'Создайте игру, добавьте персонажей и активируйте игру, чтобы выдать фракции.'
     }));
 
-    container.appendChild(Button({ text: '← В мастерскую', variant: 'secondary', size: 'sm', href: '#/admin' }));
+    container.appendChild(Button({ text: 'В мастерскую', icon: 'arrow_back', variant: 'secondary', size: 'sm', href: '#/admin' }));
 
     // --- Создание игры ---
     const createForm = createElement('form', {

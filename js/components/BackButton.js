@@ -1,8 +1,9 @@
-import { Button } from './Button.js?v=5';
+import { Button } from './Button.js?v=6';
 
 export function BackButton({ fallback = '#/' }) {
     return Button({
-        text: '← Назад',
+        text: 'Назад',
+        icon: 'arrow_back',
         variant: 'secondary',
         size: 'sm',
         onClick: () => {

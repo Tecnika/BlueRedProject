@@ -1,4 +1,5 @@
-import { createElement } from '../utils/dom.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { Icon } from './Icon.js?v=6';
 
 const VARIANT_PREFIX = {
     lang: 'chip--lang-',
@@ -17,10 +18,10 @@ export function Chip({ text, variant = 'default', color, removable = false, onRe
     if (removable && onRemove) {
         const removeBtn = createElement('button', {
             className: 'chip__remove',
-            text: '✕',
             attributes: { type: 'button', 'aria-label': 'Удалить' },
             events: { click: (e) => { e.stopPropagation(); onRemove(); } }
         });
+        removeBtn.appendChild(Icon({ name: 'close', size: 'sm' }));
         chip.appendChild(removeBtn);
     }
 

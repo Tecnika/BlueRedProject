@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { FormField } from '../components/FormField.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { FormField } from '../components/FormField.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
 
 export async function RulesEditPage() {
     const section = createElement('section', { className: 'rules-edit-page' });
@@ -102,11 +102,11 @@ export async function RulesEditPage() {
         shortcuts.appendChild(createElement('p', { className: 'rules-edit-page__shortcuts-label', text: 'Быстрая вставка контента:' }));
         const addBtnsContainer = createElement('div', { className: 'rules-edit-page__shortcuts-actions' });
 
-        addBtnsContainer.appendChild(Button({ text: '+ Основные', variant: 'secondary', size: 'sm', href: '#/rules/create?type=general' }));
-        addBtnsContainer.appendChild(Button({ text: '+ Правила сайта', variant: 'secondary', size: 'sm', href: '#/rules/create?type=site' }));
+        addBtnsContainer.appendChild(Button({ text: 'Основные', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=general' }));
+        addBtnsContainer.appendChild(Button({ text: 'Правила сайта', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=site' }));
 
         if (user.role === 'master') {
-            addBtnsContainer.appendChild(Button({ text: '+ Скрытые механики', variant: 'secondary', size: 'sm', href: '#/rules/create?type=hidden' }));
+            addBtnsContainer.appendChild(Button({ text: 'Скрытые механики', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=hidden' }));
         }
 
         shortcuts.appendChild(addBtnsContainer);

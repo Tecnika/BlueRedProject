@@ -1,9 +1,10 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { Icon } from '../components/Icon.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
 
 const TYPE_LABELS = { general: 'Основные', site: 'Правила сайта', hidden: 'Скрытые механики' };
 const TYPE_ORDER = ['general', 'site', 'hidden'];
@@ -59,9 +60,9 @@ function createSidebar(rules, activeId, user, onNavigate) {
 
     const closeBtn = createElement('button', {
         className: 'rules-sidebar__close',
-        html: '&times;',
         attributes: { type: 'button', 'aria-label': 'Закрыть' }
     });
+    closeBtn.appendChild(Icon({ name: 'close' }));
     closeBtn.addEventListener('click', closeDrawer);
     drawer.appendChild(closeBtn);
 
@@ -73,7 +74,8 @@ function createSidebar(rules, activeId, user, onNavigate) {
     sidebar.appendChild(staticNav);
 
     const mobileToggle = Button({
-        text: '☰ Содержание',
+        text: 'Содержание',
+        icon: 'menu',
         variant: 'secondary',
         size: 'sm',
         onClick: openDrawer

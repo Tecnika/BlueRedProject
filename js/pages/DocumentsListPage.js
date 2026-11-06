@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { getAllDocuments } from '../firebase/documentsService.js?v=5';
-import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { getAllDocuments } from '../firebase/documentsService.js?v=6';
+import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
 
 export async function DocumentsListPage() {
     const section = createElement('section', { className: 'documents-list-page' });
@@ -33,7 +33,7 @@ export async function DocumentsListPage() {
         header.appendChild(createElement('h1', { className: 'documents-list-page__title', text: 'Документы' }));
 
         const actions = createElement('div', { className: 'documents-list-page__actions' });
-        if (isMaster) actions.appendChild(Button({ text: '+ Создать', href: '#/documents/create' }));
+        if (isMaster) actions.appendChild(Button({ text: 'Создать', icon: 'add', href: '#/documents/create' }));
         actions.appendChild(Button({ text: 'Добавить документ', variant: 'secondary', href: '#/documents/add' }));
         header.appendChild(actions);
         container.appendChild(header);

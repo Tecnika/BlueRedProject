@@ -15,8 +15,9 @@
  * @returns {HTMLElement}
  */
 
-import { createElement } from '../utils/dom.js?v=5';
-import { searchTags, addTag } from '../firebase/tagsService.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { Icon } from './Icon.js?v=6';
+import { searchTags, addTag } from '../firebase/tagsService.js?v=6';
 
 export async function TagInput({ initialTags = [], onChange, placeholder = 'Добавить тег...' }) {
     const container = createElement('div', { className: 'tag-input' });
@@ -43,8 +44,7 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
             const chip = createElement('span', { className: 'tag-input__chip', text: tag });
             const removeBtn = createElement('button', {
                 className: 'tag-input__chip-remove',
-                text: '✕',
-                attributes: { type: 'button' },
+                attributes: { type: 'button', 'aria-label': 'Удалить' },
                 events: {
                     click: () => {
                         const idx = selectedTags.indexOf(tag);
@@ -54,6 +54,7 @@ export async function TagInput({ initialTags = [], onChange, placeholder = 'До
                     }
                 }
             });
+            removeBtn.appendChild(Icon({ name: 'close', size: 'sm' }));
             chip.appendChild(removeBtn);
             chipsContainer.appendChild(chip);
         }

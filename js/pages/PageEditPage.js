@@ -1,12 +1,13 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js?v=5';
-import { getAllTags } from '../firebase/tagsService.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { FormField } from '../components/FormField.js?v=5';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=5';
-import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js?v=6';
+import { getAllTags } from '../firebase/tagsService.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { FormField } from '../components/FormField.js?v=6';
+import { Icon } from '../components/Icon.js?v=6';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=6';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=6';
 
 
 export async function PageEditPage(slug) {
@@ -183,7 +184,9 @@ function renderGeneralEditor(area, existing) {
     const imgList = createElement('div', { className: 'page-edit__img-list' });
     const urls = existing && existing.images?.length ? existing.images : [''];
     urls.forEach(url => imgList.appendChild(createElement('input', { className: 'page-edit-page__input page-edit__img-input', attributes: { type: 'url', value: url || '', placeholder: 'https://...' } })));
-    const addBtn = createElement('button', { className: 'page-edit-page__add-img', text: '+ Добавить', attributes: { type: 'button' } });
+    const addBtn = createElement('button', { className: 'page-edit-page__add-img', attributes: { type: 'button' } });
+    addBtn.appendChild(Icon({ name: 'add', size: 'sm' }));
+    addBtn.appendChild(createElement('span', { text: 'Добавить' }));
     addBtn.addEventListener('click', () => {
         imgList.insertBefore(createElement('input', { className: 'page-edit-page__input page-edit__img-input', attributes: { type: 'url', placeholder: 'https://...' } }), addBtn);
     });

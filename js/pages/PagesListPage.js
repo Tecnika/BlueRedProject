@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });
@@ -27,7 +27,7 @@ export async function PagesListPage() {
         header.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Архив' }));
 
         if (user.role === 'master') {
-            header.appendChild(Button({ text: '+ Новое досье', href: '#/page/create' }));
+            header.appendChild(Button({ text: 'Новое досье', icon: 'add', href: '#/page/create' }));
         }
 
         container.appendChild(header);

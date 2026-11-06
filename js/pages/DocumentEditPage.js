@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
 import {
     getDocument,
     getVersionsByNumber,
@@ -6,13 +6,13 @@ import {
     addVersion,
     updateDocument,
     deleteDocument
-} from '../firebase/documentsService.js?v=5';
-import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=5';
-import { FACTION_LABELS } from '../utils/profile.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=5';
-import { requireAuth } from '../components/PageLayout.js?v=5';
+} from '../firebase/documentsService.js?v=6';
+import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=6';
+import { FACTION_LABELS } from '../utils/profile.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=6';
+import { requireAuth } from '../components/PageLayout.js?v=6';
 
 /** Одна строка версии: фракция + уровень + текст */
 function createVersionRow(initial = {}) {
@@ -49,7 +49,7 @@ function createVersionRow(initial = {}) {
     head.appendChild(levelSelect);
 
     const removeBtn = Button({
-        text: '✕',
+        icon: 'close',
         variant: 'danger',
         size: 'sm',
         attributes: { type: 'button', 'aria-label': 'Удалить версию' }
@@ -108,7 +108,7 @@ export async function DocumentEditPage(docId) {
         container.appendChild(createElement('h1', { className: 'document-edit-page__title', text: 'Создать документ' }));
         container.appendChild(createElement('p', {
             className: 'document-edit-page__hint',
-            text: 'У документа один номер и от 1 до 12 версий: фракция × уровень. У каждой версии свой код доступа и QR.'
+            text: 'У документа один номер и от 1 до 12 версий: фракция и уровень. У каждой версии свой код доступа и QR.'
         }));
 
         const rowsHost = createElement('div', { className: 'document-edit-page__versions' });
@@ -131,7 +131,8 @@ export async function DocumentEditPage(docId) {
         const saveBtn = Button({ text: 'Создать', attributes: { type: 'submit' } });
 
         const addBtn = Button({
-            text: '+ Добавить версию',
+            text: 'Добавить версию',
+            icon: 'add',
             variant: 'secondary',
             size: 'sm',
             attributes: { type: 'button' },
@@ -297,6 +298,7 @@ export async function DocumentEditPage(docId) {
         const addMsg = StatusMessage({ type: 'ok', text: '', hidden: true });
         addWrap.appendChild(Button({
             text: 'Добавить версию',
+            icon: 'add',
             variant: 'primary',
             size: 'sm',
             onClick: async () => {

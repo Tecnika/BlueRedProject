@@ -1,17 +1,18 @@
-import { store } from '../core/Store.js?v=5';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=5';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=5';
-import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=5';
-import { getAllDocuments, getAccessIndex } from '../firebase/documentsService.js?v=5';
-import { groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=5';
-import { setDesign } from '../firebase/settingsService.js?v=5';
-import { createElement } from '../utils/dom.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=5';
-import { FACTION_LABELS } from '../utils/profile.js?v=5';
+import { store } from '../core/Store.js?v=6';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=6';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=6';
+import { getAllPages, buildPageTree } from '../firebase/pagesService.js?v=6';
+import { getAllDocuments, getAccessIndex } from '../firebase/documentsService.js?v=6';
+import { groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=6';
+import { setDesign } from '../firebase/settingsService.js?v=6';
+import { createElement } from '../utils/dom.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=6';
+import { FACTION_LABELS } from '../utils/profile.js?v=6';
+import { Icon } from '../components/Icon.js?v=6';
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });
@@ -77,8 +78,8 @@ function renderDecryptSection() {
         className: 'admin-cipher__select',
         attributes: { 'aria-label': 'Направление' }
     });
-    directionSelect.appendChild(createElement('option', { text: 'Расшифровать (шифр → кириллица)', attributes: { value: 'decode' } }));
-    directionSelect.appendChild(createElement('option', { text: 'Зашифровать (кириллица → шифр)', attributes: { value: 'encode' } }));
+    directionSelect.appendChild(createElement('option', { text: 'Расшифровать (из шифра в кириллицу)', attributes: { value: 'decode' } }));
+    directionSelect.appendChild(createElement('option', { text: 'Зашифровать (из кириллицы в шифр)', attributes: { value: 'encode' } }));
 
     controls.appendChild(langSelect);
     controls.appendChild(directionSelect);
@@ -235,7 +236,7 @@ async function loadTagsList() {
         tags.forEach(tag => {
             const item = createElement('div', { className: 'admin-tags__item' });
             item.appendChild(createElement('span', { className: 'admin-tags__name', text: tag.name }));
-            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить гриф', 'aria-label': 'Удалить гриф ' + tag.name } });
+            const delBtn = Button({ icon: 'delete', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить гриф', 'aria-label': 'Удалить гриф ' + tag.name } });
             item.appendChild(delBtn);
             fragment.appendChild(item);
         });
@@ -304,7 +305,7 @@ async function loadSubTagsList() {
         tags.forEach(tag => {
             const item = createElement('div', { className: 'admin-tags__item' });
             item.appendChild(createElement('span', { className: 'admin-tags__name', text: tag.name }));
-            const delBtn = Button({ text: '✕', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить субтег', 'aria-label': 'Удалить субтег ' + tag.name } });
+            const delBtn = Button({ icon: 'delete', variant: 'danger', size: 'sm', attributes: { 'data-id': tag.id, title: 'Удалить субтег', 'aria-label': 'Удалить субтег ' + tag.name } });
             item.appendChild(delBtn);
             fragment.appendChild(item);
         });
@@ -338,7 +339,7 @@ function renderPagesSection() {
     container.appendChild(createElement('p', { className: 'admin-section__desc', text: 'Управление архивом досье.' }));
 
     const createBtnWrap = createElement('div', { className: 'admin-pages__create-wrap' });
-    createBtnWrap.appendChild(Button({ text: '+ Новое досье', href: '#/page/create' }));
+    createBtnWrap.appendChild(Button({ text: 'Новое досье', icon: 'add', href: '#/page/create' }));
     container.appendChild(createBtnWrap);
 
     const tree = createElement('div', { className: 'admin-pages__tree', id: 'admin-pages-tree', text: 'Загрузка...' });
@@ -380,7 +381,9 @@ function renderAdminTree(nodes) {
         header.appendChild(createElement('a', { className: 'admin-tree__link', attributes: { href: `#/page/view?slug=${node.slug}` }, text: node.title }));
 
         const actions = createElement('span', { className: 'admin-tree__actions' });
-        actions.appendChild(createElement('a', { className: 'admin-tree__edit', attributes: { href: `#/page/edit?slug=${node.slug}` }, text: '✎' }));
+        const editLink = createElement('a', { className: 'admin-tree__edit', attributes: { href: `#/page/edit?slug=${node.slug}`, 'aria-label': 'Редактировать' } });
+        editLink.appendChild(Icon({ name: 'edit', size: 'sm' }));
+        actions.appendChild(editLink);
         header.appendChild(actions);
         li.appendChild(header);
 

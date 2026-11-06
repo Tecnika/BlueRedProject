@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { getAllDocuments } from '../firebase/documentsService.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { BackButton } from '../components/BackButton.js?v=5';
-import { Button } from '../components/Button.js?v=5';
-import { QRCode } from '../components/QRCode.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { LEVEL_LABELS } from '../domain/documents.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { getAllDocuments } from '../firebase/documentsService.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { BackButton } from '../components/BackButton.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { QRCode } from '../components/QRCode.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { LEVEL_LABELS } from '../domain/documents.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
 
 export async function DocumentPrintPage() {
     const section = createElement('section', { className: 'document-print-page' });

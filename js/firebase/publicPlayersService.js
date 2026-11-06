@@ -6,7 +6,7 @@
  */
 
 import { collection, doc, getDocs, getDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=5';
+import { getFirebase } from './firebase.js?v=6';
 
 export async function getAllPublicPlayers() {
     const { db } = getFirebase();

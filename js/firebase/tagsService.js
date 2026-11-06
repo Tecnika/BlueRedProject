@@ -9,7 +9,7 @@
  */
 
 import { collection, doc, getDocs, setDoc, deleteDoc, query, limit } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=5';
+import { getFirebase } from './firebase.js?v=6';
 
 /** Стартовый пул тегов (космические навыки / должности) */
 const INITIAL_TAGS = [

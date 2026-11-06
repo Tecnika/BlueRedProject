@@ -1,19 +1,20 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { Button } from '../components/Button.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { Button } from '../components/Button.js?v=6';
+import { Icon } from '../components/Icon.js?v=6';
 
 const LORE_ITEMS = [
-    { icon: '✦', title: 'Три расы', text: 'Красные, Синие и Фиолетовые ведут бесконечную информационную войну в секторе BlueRed. Каждая фракция имеет свою идеологию, язык и цели.' },
-    { icon: '☄', title: 'Дрейфующий шаттл', text: 'Станция «BlueRed» — последний оплот цивилизации на границе известного сектора. Здесь пересекаются пути разведчиков, дипломатов и шпионов.' },
-    { icon: '⚡', title: 'Война данных', text: 'Документы, шифры, оперативные досье — информация — главное оружие. Доступ к данным определяет исход противостояния.' }
+    { icon: 'diversity_3', title: 'Три расы', text: 'Красные, Синие и Фиолетовые ведут бесконечную информационную войну в секторе BlueRed. Каждая фракция имеет свою идеологию, язык и цели.' },
+    { icon: 'rocket_launch', title: 'Дрейфующий шаттл', text: 'Станция «BlueRed» — последний оплот цивилизации на границе известного сектора. Здесь пересекаются пути разведчиков, дипломатов и шпионов.' },
+    { icon: 'bolt', title: 'Война данных', text: 'Документы, шифры, оперативные досье — информация — главное оружие. Доступ к данным определяет исход противостояния.' }
 ];
 
 const MODULES = [
-    { icon: '📜', title: 'Правила', desc: 'Свод законов сектора', href: '#/rules' },
-    { icon: '📚', title: 'Архив', desc: 'Досье и сводки', href: '#/pages' },
-    { icon: '📄', title: 'Документы', desc: 'Секретные документы', href: '#/documents' },
-    { icon: '👥', title: 'Фракция', desc: 'Личный состав', href: '#/faction' },
-    { icon: '📋', title: 'Досье', desc: 'Личное дело', href: '#/profile' }
+    { icon: 'gavel', title: 'Правила', desc: 'Свод законов сектора', href: '#/rules' },
+    { icon: 'menu_book', title: 'Архив', desc: 'Досье и сводки', href: '#/pages' },
+    { icon: 'description', title: 'Документы', desc: 'Секретные документы', href: '#/documents' },
+    { icon: 'groups', title: 'Фракция', desc: 'Личный состав', href: '#/faction' },
+    { icon: 'assignment', title: 'Досье', desc: 'Личное дело', href: '#/profile' }
 ];
 
 export function HomePage() {
@@ -64,7 +65,9 @@ function renderLore() {
     const cards = createElement('div', { className: 'lore__cards' });
     for (const item of LORE_ITEMS) {
         const card = createElement('article', { className: 'lore-card' });
-        card.appendChild(createElement('div', { className: 'lore-card__icon', text: item.icon }));
+        const loreIcon = createElement('div', { className: 'lore-card__icon' });
+        loreIcon.appendChild(Icon({ name: item.icon, size: 'sm' }));
+        card.appendChild(loreIcon);
         card.appendChild(createElement('h3', { className: 'lore-card__title', text: item.title }));
         card.appendChild(createElement('p', { className: 'lore-card__text', text: item.text }));
         cards.appendChild(card);
@@ -85,7 +88,7 @@ function renderModules(user) {
 
     const modules = [...MODULES];
     if (user && user.role === 'master') {
-        modules.push({ icon: '⚙', title: 'Мастерская', desc: 'Панель управления', href: '#/admin' });
+        modules.push({ icon: 'settings', title: 'Мастерская', desc: 'Панель управления', href: '#/admin' });
     }
 
     for (const mod of modules) {
@@ -93,7 +96,9 @@ function renderModules(user) {
             className: 'modules__card',
             attributes: { href: mod.href }
         });
-        card.appendChild(createElement('div', { className: 'modules__card-icon', text: mod.icon }));
+        const modIcon = createElement('div', { className: 'modules__card-icon' });
+        modIcon.appendChild(Icon({ name: mod.icon, size: 'sm' }));
+        card.appendChild(modIcon);
         card.appendChild(createElement('h3', { className: 'modules__card-title', text: mod.title }));
         card.appendChild(createElement('p', { className: 'modules__card-desc', text: mod.desc }));
         grid.appendChild(card);

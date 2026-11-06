@@ -1,14 +1,14 @@
-import { createElement } from '../utils/dom.js?v=5';
-import { translateError } from '../utils/translateError.js?v=5';
-import { store } from '../core/Store.js?v=5';
-import { createAvatar } from '../core/Avatar.js?v=5';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=5';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=5';
-import { Chip } from '../components/Chip.js?v=5';
-import { FactionBadge } from '../components/FactionBadge.js?v=5';
-import { StatusMessage } from '../components/StatusMessage.js?v=5';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=5';
-import { ROLE_LABELS } from '../utils/constants.js?v=5';
+import { createElement } from '../utils/dom.js?v=6';
+import { translateError } from '../utils/translateError.js?v=6';
+import { store } from '../core/Store.js?v=6';
+import { createAvatar } from '../core/Avatar.js?v=6';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=6';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=6';
+import { Chip } from '../components/Chip.js?v=6';
+import { FactionBadge } from '../components/FactionBadge.js?v=6';
+import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=6';
+import { ROLE_LABELS } from '../utils/constants.js?v=6';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
