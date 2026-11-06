@@ -108,7 +108,7 @@ export async function DocumentViewPage(docId) {
                     size: 'sm',
                     onClick: () => {
                         if (contentEl.textContent === doc.content) {
-                            contentEl.textContent = encryptToFaction(doc.content, doc.faction === 'common' ? 'blue' : doc.faction);
+                            contentEl.textContent = encryptToFaction(doc.content, doc.faction);
                             toggleBtn.textContent = 'Показать оригинал';
                         } else {
                             contentEl.textContent = doc.content;
@@ -116,7 +116,8 @@ export async function DocumentViewPage(docId) {
                         }
                     }
                 });
-                actionsRow.appendChild(toggleBtn);
+                // Для «Общего» документа шифр не предусмотрен
+                if (!isCommon) actionsRow.appendChild(toggleBtn);
                 actionsRow.appendChild(Button({ text: 'Печать', variant: 'secondary', size: 'sm', onClick: () => window.print() }));
                 actionsRow.appendChild(Button({
                     text: 'Удалить',
@@ -138,7 +139,7 @@ export async function DocumentViewPage(docId) {
             // --- Расшифровка ---
             if (encrypted) {
                 container.appendChild(createDecryptBlock(contentEl));
-            } else if (!isCommon && !isOwn && !pov && lang) {
+            } else if (!isMaster && !isCommon && !isOwn && !pov && lang) {
                 container.appendChild(createProgressBlock(progress));
             }
 
