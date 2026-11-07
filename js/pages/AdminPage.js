@@ -1,23 +1,23 @@
-import { store } from '../core/Store.js?v=14';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=14';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=14';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=14';
-import { getRecentLogs } from '../firebase/chatService.js?v=14';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=14';
-import { setDesign } from '../firebase/settingsService.js?v=14';
-import { createElement } from '../utils/dom.js?v=14';
-import { translateError } from '../utils/translateError.js?v=14';
-import { Button } from '../components/Button.js?v=14';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=14';
-import { Icon } from '../components/Icon.js?v=14';
-import { FactionBadge } from '../components/FactionBadge.js?v=14';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=14';
-import { FACTION_LABELS } from '../utils/profile.js?v=14';
+import { store } from '../core/Store.js?v=18';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=18';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=18';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=18';
+import { getRecentLogs } from '../firebase/chatService.js?v=18';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=18';
+import { setDesign } from '../firebase/settingsService.js?v=18';
+import { createElement } from '../utils/dom.js?v=18';
+import { translateError } from '../utils/translateError.js?v=18';
+import { Button } from '../components/Button.js?v=18';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=18';
+import { Icon } from '../components/Icon.js?v=18';
+import { FactionBadge } from '../components/FactionBadge.js?v=18';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=18';
+import { FACTION_LABELS } from '../utils/profile.js?v=18';
 
 const ADMIN_SECTIONS = [
     { id: 'game', label: 'Игра', icon: 'sports_esports' },
     { id: 'tech', label: 'Технические учётки', icon: 'badge' },
-    { id: 'tests', label: 'Тесты', icon: 'science' },
+    { id: 'tests', label: 'Коды шифрования', icon: 'key' },
     { id: 'catalogs', label: 'Каталоги', icon: 'category' },
     { id: 'logs', label: 'Логи', icon: 'receipt_long' },
     { id: 'design', label: 'Оформление', icon: 'palette' }
@@ -346,7 +346,7 @@ function renderTechAccountsSection() {
 }
 
 function renderTestsSection() {
-    const section = adminSection('Тесты', 'Инструменты для работы с шифрами фракций.', 'tests');
+    const section = adminSection('Коды шифрования', 'Расшифровка, шифрование и таблицы ключей фракций.', 'tests');
 
     const decrypt = collapse('Расшифровка текстов', buildDecryptor(), true);
     section.appendChild(decrypt);
@@ -607,18 +607,11 @@ function renderLogsSection() {
     section.appendChild(toolbar);
     section.appendChild(table);
 
-    function categoryOf(log) {
-        const source = `${log.chatTitle || ''} ${log.chatType || ''}`.toLowerCase();
-        if (source.includes('взлом')) return 'hack';
-        if (source.includes('радиорубка') || source.includes('связь:')) return 'radio';
-        return 'chat';
-    }
-
     function renderRows() {
         const query = search.value.trim().toLowerCase();
         const category = filter.value;
         const filtered = allLogs.filter(log => {
-            if (category !== 'all' && categoryOf(log) !== category) return false;
+            if (category !== 'all' && logCategory(log) !== category) return false;
             if (!query) return true;
             return `${log.authorName || ''} ${log.chatTitle || ''} ${log.text || ''}`
                 .toLowerCase()
@@ -637,7 +630,7 @@ function renderLogsSection() {
         }
 
         for (const log of filtered) {
-            const categoryName = categoryOf(log);
+            const categoryName = logCategory(log);
             const row = createElement('div', {
                 className: `admin-logs__item admin-logs__item--${categoryName}`
             });
@@ -645,14 +638,28 @@ function renderLogsSection() {
                 className: 'admin-logs__time',
                 text: formatLogTime(log.createdAt)
             }));
-            row.appendChild(createElement('span', {
-                className: 'admin-logs__author',
-                text: log.authorName || '—'
-            }));
-            row.appendChild(createElement('span', {
+
+            const authorCell = createElement('span', { className: 'admin-logs__author' });
+            authorCell.appendChild(Icon({ name: logIconName(log), size: 'sm' }));
+            if (log.authorId) {
+                authorCell.appendChild(createElement('a', {
+                    className: 'admin-logs__author-link',
+                    text: log.authorName || '—',
+                    attributes: { href: '#/profile?uid=' + log.authorId }
+                }));
+            } else {
+                authorCell.appendChild(createElement('span', { text: log.authorName || '—' }));
+            }
+            row.appendChild(authorCell);
+
+            const href = logChatHref(log);
+            const chatEl = createElement(href ? 'a' : 'span', {
                 className: 'admin-logs__chat',
-                text: log.chatTitle || log.chatType || '—'
-            }));
+                text: log.chatTitle || log.chatType || '—',
+                attributes: href ? { href, title: 'Открыть источник' } : {}
+            });
+            row.appendChild(chatEl);
+
             const textEl = createElement('span', {
                 className: 'admin-logs__text',
                 text: log.text || '',
@@ -689,6 +696,46 @@ function formatLogTime(iso) {
     });
 }
 
+function logCategory(log) {
+    const source = `${log.chatTitle || ''} ${log.chatType || ''}`.toLowerCase();
+    if (source.includes('взлом')) return 'hack';
+    if (source.includes('радиорубка') || source.includes('связь:')) return 'radio';
+    return 'chat';
+}
+
+function logIconName(log) {
+    const type = (log.chatType || '').toLowerCase();
+    if (type === 'faction') return 'groups';
+    if (type === 'master') return 'admin_panel_settings';
+    if (type === 'dm') return 'person';
+    if (type === 'cross') return 'settings_input_antenna';
+    const category = logCategory(log);
+    if (category === 'hack') return 'warning';
+    if (category === 'radio') return 'settings_input_antenna';
+    return 'chat_bubble';
+}
+
+function logChatHref(log) {
+    const type = (log.chatType || '').toLowerCase();
+    if (type === 'faction' || type === 'cross') return '#/faction';
+
+    if (type === 'master') {
+        const uid = String(log.chatId || '').replace(/^master_/, '');
+        if (uid) return '#/profile?uid=' + uid;
+    }
+
+    if (type === 'dm') {
+        const ids = String(log.chatId || '').replace(/^dm_/, '').split('_');
+        const other = ids.find(id => id && id !== log.authorId);
+        if (other) return '#/profile?uid=' + other;
+    }
+
+    const category = logCategory(log);
+    if (category === 'hack') return '#/admin?tab=tech';
+    if (category === 'radio') return '#/faction';
+    return '';
+}
+
 function renderDesignSection() {
     const section = adminSection(
         'Оформление',
@@ -696,7 +743,7 @@ function renderDesignSection() {
         'design'
     );
 
-    const current = store.get('design') || localStorage.getItem('bluered_design') || 'v1';
+    const current = store.get('design') || localStorage.getItem('bluered_design') || 'v2';
     const wrap = createElement('div', { className: 'admin-design' });
     const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
     const cards = {};

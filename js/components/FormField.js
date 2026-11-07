@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=14';
+import { createElement } from '../utils/dom.js?v=18';
 
 export function FormField({ type = 'input', id, label, value = '', placeholder = '', options = [], rows = 4, required = false }) {
     const group = createElement('div', { className: 'field' });

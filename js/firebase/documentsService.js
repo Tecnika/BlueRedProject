@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=14';
-import { store } from '../core/Store.js?v=14';
+import { getFirebase } from './firebase.js?v=18';
+import { store } from '../core/Store.js?v=18';
 
 function randomDigits(n) {
     let s = '';

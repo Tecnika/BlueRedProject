@@ -9,7 +9,7 @@
  * Активная фракция определяется персонажем в активной игре.
  */
 
-import { store } from '../core/Store.js?v=14';
+import { store } from '../core/Store.js?v=18';
 
 /** Фракции */
 export const FACTIONS = ['red', 'blue', 'purple'];
@@ -35,6 +35,8 @@ export function getActiveCharacter() {
 /** Фракция активного персонажа */
 export function getActiveFaction() {
     const user = store.get('user');
+    // Все мастера и игротехи — фиолетовые
+    if (user && (user.role === 'master' || user.role === 'igrotech')) return 'purple';
     // Аккаунт радиорубки действует как терминал своей фракции
     if (user?.radioFaction) return user.radioFaction;
     const character = getActiveCharacter();

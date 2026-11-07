@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=14';
+import { createElement } from '../utils/dom.js?v=18';
 
 /** Мини-игра «повтори последовательность» (инженер / хакер) */
 export function SequenceGame({ length = 4, timeLimit = 60, onSuccess, onFail }) {

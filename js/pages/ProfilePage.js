@@ -1,20 +1,20 @@
-import { createElement } from '../utils/dom.js?v=14';
-import { store } from '../core/Store.js?v=14';
-import { createAvatar } from '../core/Avatar.js?v=14';
-import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=14';
-import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=14';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=14';
-import { getNote, saveNote } from '../firebase/notesService.js?v=14';
-import { getAllDocuments } from '../firebase/documentsService.js?v=14';
-import { translateError } from '../utils/translateError.js?v=14';
-import { Button } from '../components/Button.js?v=14';
-import { Chip } from '../components/Chip.js?v=14';
-import { FactionBadge } from '../components/FactionBadge.js?v=14';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=14';
-import { FormField } from '../components/FormField.js?v=14';
-import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=14';
-import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=14';
-import { isAdminMode } from '../components/ViewModeToggle.js?v=14';
+import { createElement } from '../utils/dom.js?v=18';
+import { store } from '../core/Store.js?v=18';
+import { createAvatar } from '../core/Avatar.js?v=18';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=18';
+import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=18';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=18';
+import { getNote, saveNote } from '../firebase/notesService.js?v=18';
+import { getAllDocuments } from '../firebase/documentsService.js?v=18';
+import { translateError } from '../utils/translateError.js?v=18';
+import { Button } from '../components/Button.js?v=18';
+import { Chip } from '../components/Chip.js?v=18';
+import { FactionBadge } from '../components/FactionBadge.js?v=18';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=18';
+import { FormField } from '../components/FormField.js?v=18';
+import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=18';
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=18';
+import { isAdminMode } from '../components/ViewModeToggle.js?v=18';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });
@@ -70,7 +70,7 @@ export async function ProfilePage(targetUid) {
         }
 
         if (character) {
-            content.appendChild(createCharacterBlock(character));
+            content.appendChild(createCharacterBlock(character, role));
         }
 
         if (profile && canSeePii) {
@@ -94,8 +94,12 @@ export async function ProfilePage(targetUid) {
 
 function createSidebar({ displayName, username, role, character, isOwner, isAdmin }) {
     const sidebar = createElement('aside', { className: 'profile-sidebar' });
+    // Мастера и игротехи — фиолетовые, даже если у персонажа старая фракция
+    const faction = (role === 'master' || role === 'igrotech')
+        ? 'purple'
+        : (character?.faction || null);
 
-    sidebar.appendChild(createAvatar(username, character?.faction || null, 'profile-sidebar__avatar', null));
+    sidebar.appendChild(createAvatar(username, faction, 'profile-sidebar__avatar', null));
 
     sidebar.appendChild(createElement('h1', {
         className: 'profile-sidebar__username',
@@ -112,10 +116,10 @@ function createSidebar({ displayName, username, role, character, isOwner, isAdmi
     }
 
     if (character) {
-        if (character.faction) {
+        if (faction) {
             sidebar.appendChild(createElement('div', {
-                className: `profile-sidebar__faction profile-sidebar__faction--${character.faction}`,
-                text: FACTION_LABELS[character.faction] || character.faction
+                className: `profile-sidebar__faction profile-sidebar__faction--${faction}`,
+                text: FACTION_LABELS[faction] || faction
             }));
         } else {
             sidebar.appendChild(createElement('div', {
@@ -139,6 +143,11 @@ function createSidebar({ displayName, username, role, character, isOwner, isAdmi
         if ((character.languages || []).length) {
             sidebar.appendChild(createLangRow(character.languages));
         }
+    } else if (faction) {
+        sidebar.appendChild(createElement('div', {
+            className: `profile-sidebar__faction profile-sidebar__faction--${faction}`,
+            text: FACTION_LABELS[faction] || faction
+        }));
     } else {
         sidebar.appendChild(createElement('div', {
             className: 'profile-sidebar__faction profile-sidebar__faction--none',
@@ -241,12 +250,15 @@ function createPlayerDataBlock(profile, isOwner) {
     return block;
 }
 
-function createCharacterBlock(character) {
+function createCharacterBlock(character, role) {
     const block = createElement('div', { className: 'profile-about' });
     block.appendChild(createElement('div', { className: 'profile-about__label', text: 'Персонаж' }));
 
     const head = createElement('div', { className: 'profile-tags__list' });
-    if (character.faction) head.appendChild(FactionBadge({ faction: character.faction }));
+    const faction = (role === 'master' || role === 'igrotech')
+        ? 'purple'
+        : character.faction;
+    if (faction) head.appendChild(FactionBadge({ faction }));
     head.appendChild(createElement('span', { text: character.name || 'Без имени' }));
     if (character.profession) head.appendChild(createElement('span', { text: character.profession }));
     block.appendChild(head);

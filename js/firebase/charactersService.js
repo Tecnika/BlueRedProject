@@ -10,8 +10,8 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=14';
-import { syncPublicPlayer } from './authService.js?v=14';
+import { getFirebase } from './firebase.js?v=18';
+import { syncPublicPlayer } from './authService.js?v=18';
 
 export async function getCharactersByGame(gameId) {
     const { db } = getFirebase();
@@ -32,12 +32,22 @@ export async function getCharacterForPlayer(gameId, uid) {
     const { db } = getFirebase();
     // Один фильтр по gameId, выбор игрока — на клиенте (не требует составного индекса)
     const snap = await getDocs(query(collection(db, 'characters'), where('gameId', '==', gameId)));
-    let found = null;
+    const mine = [];
     snap.forEach(d => {
         const character = { id: d.id, ...d.data() };
-        if (!found && character.playerId === uid) found = character;
+        if (character.playerId === uid) mine.push(character);
     });
-    return found;
+
+    const active = mine.find(c => c.active === true);
+    if (active) return active;
+
+    // Совместимость со старыми персонажами без поля active
+    return mine.find(c => c.active === undefined) || null;
+}
+
+/** Активен ли персонаж (старые записи без active считаем активными) */
+export function isActiveCharacter(character) {
+    return character?.active !== false;
 }
 
 export async function createCharacter(gameId, data) {
@@ -56,6 +66,8 @@ export async function createCharacter(gameId, data) {
         hiddenTags: data.hiddenTags || [],
         factionAccessTags: data.factionAccessTags || [],
         faction: data.faction || null,
+        variant: data.variant || data.faction || null,
+        active: data.active !== false,
         createdAt: new Date().toISOString()
     };
     await setDoc(doc(db, 'characters', id), payload);
@@ -86,13 +98,125 @@ export async function deleteCharacter(id) {
     const { db } = getFirebase();
     const current = await getCharacter(id);
     await deleteDoc(doc(db, 'characters', id));
-    if (current?.playerId) {
+    if (current?.playerId && current.active !== false) {
         await syncPublicPlayer(current.playerId, {
             gameId: current.gameId,
             characterName: '',
             faction: null
         });
     }
+}
+
+/** Активировать одну из версий персонажа (red/blue) и погасить вторую */
+export async function activateCharacterVariant(gameId, playerId, variant) {
+    const { db } = getFirebase();
+    const all = await getCharactersByGame(gameId);
+    const mine = all.filter(c => c.playerId === playerId);
+    const target = mine.find(c => (c.variant || c.faction) === variant);
+    if (!target) return null;
+
+    for (const character of mine) {
+        const active = character.id === target.id;
+        if (character.active !== active || (active && character.faction !== variant)) {
+            await setDoc(doc(db, 'characters', character.id), {
+                active,
+                faction: active ? variant : character.faction
+            }, { merge: true });
+        }
+    }
+
+    await syncPublicPlayer(playerId, {
+        gameId,
+        characterName: target.name || '',
+        faction: variant
+    });
+
+    return { ...target, active: true, faction: variant };
+}
+
+/**
+ * Добавить игрока в игру: обычному игроку — красная и синяя версии,
+ * мастеру/игротеху — фиолетовая (все мастера и игротехи фиолетовые).
+ */
+export async function ensurePlayerCharacters(gameId, player) {
+    const { db } = getFirebase();
+    const all = await getCharactersByGame(gameId);
+    const mine = all.filter(c => c.playerId === player.uid);
+    const isStaff = player.role === 'master' || player.role === 'igrotech';
+    const displayName = player.displayName || player.username || 'Персонаж';
+
+    if (isStaff) {
+        let purple = mine.find(c => (c.variant || c.faction) === 'purple');
+        for (const character of mine) {
+            if (purple && character.id === purple.id) continue;
+            if (character.active !== false) {
+                await setDoc(doc(db, 'characters', character.id), { active: false }, { merge: true });
+            }
+        }
+        if (!purple) {
+            purple = await createCharacter(gameId, {
+                playerId: player.uid,
+                name: displayName,
+                faction: 'purple',
+                variant: 'purple',
+                active: true
+            });
+        } else if (purple.active !== true || purple.faction !== 'purple') {
+            await setDoc(doc(db, 'characters', purple.id), {
+                active: true,
+                faction: 'purple',
+                variant: 'purple'
+            }, { merge: true });
+        }
+
+        await syncPublicPlayer(player.uid, {
+            gameId,
+            characterName: purple.name || '',
+            faction: 'purple'
+        });
+        return { staff: true, purple };
+    }
+
+    const findVariant = (name) => mine.find(c => (c.variant || c.faction) === name);
+    let red = findVariant('red');
+    let blue = findVariant('blue');
+
+    if (!red) {
+        red = await createCharacter(gameId, {
+            playerId: player.uid,
+            name: displayName,
+            faction: 'red',
+            variant: 'red',
+            active: false
+        });
+    }
+    if (!blue) {
+        blue = await createCharacter(gameId, {
+            playerId: player.uid,
+            name: displayName,
+            faction: 'blue',
+            variant: 'blue',
+            active: false
+        });
+    }
+
+    // Старые персонажи без variant получают свою фракцию как вариант
+    for (const character of mine) {
+        if (!character.variant && character.faction) {
+            await setDoc(doc(db, 'characters', character.id), { variant: character.faction }, { merge: true });
+        }
+    }
+
+    const hasActive = mine.some(c => c.active === true || c.active === undefined);
+    if (!hasActive) {
+        await syncPublicPlayer(player.uid, {
+            gameId,
+            characterName: '',
+            faction: null
+        });
+    }
+
+    return { red, blue };
 }
 
 /** Назначает фракцию персонажу (при активации игры) */
@@ -103,6 +227,7 @@ export async function assignFaction(id, faction) {
 /** Синхронизация публичной проекции (без PII) */
 async function syncCharacterPublic(character) {
     if (!character?.playerId) return;
+    if (character.active === false) return;
     await syncPublicPlayer(character.playerId, {
         gameId: character.gameId,
         characterName: character.name || '',

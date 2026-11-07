@@ -10,43 +10,43 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=14';
-import { Footer } from './components/Footer.js?v=14';
-import { ChatWidget } from './components/ChatWidget.js?v=14';
-import { HomePage } from './pages/HomePage.js?v=14';
-import { AuthPage } from './pages/AuthPage.js?v=14';
-import { ProfilePage } from './pages/ProfilePage.js?v=14';
-import { FactionPage } from './pages/FactionPage.js?v=14';
-import { AdminPage } from './pages/AdminPage.js?v=14';
-import { PagesListPage } from './pages/PagesListPage.js?v=14';
-import { PageViewPage } from './pages/PageViewPage.js?v=14';
-import { PageEditPage } from './pages/PageEditPage.js?v=14';
-import { RulesPage } from './pages/RulesPage.js?v=14';
-import { RulesEditPage } from './pages/RulesEditPage.js?v=14';
-import { DocumentsListPage } from './pages/DocumentsListPage.js?v=14';
-import { DocumentViewPage } from './pages/DocumentViewPage.js?v=14';
-import { DocumentEditPage } from './pages/DocumentEditPage.js?v=14';
-import { DocumentAddPage } from './pages/DocumentAddPage.js?v=14';
-import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=14';
-import { UsersAdminPage } from './pages/UsersAdminPage.js?v=14';
-import { RadioRoomPage } from './pages/RadioRoomPage.js?v=14';
-import { RadioScanPage } from './pages/RadioScanPage.js?v=14';
-import { GamesAdminPage } from './pages/GamesAdminPage.js?v=14';
-import { GameEditPage } from './pages/GameEditPage.js?v=14';
-import { render, createElement } from './utils/dom.js?v=14';
-import { ThemeManager } from './core/ThemeManager.js?v=14';
-import { initPWA } from './core/pwa.js?v=14';
-import { initViewMode } from './components/ViewModeToggle.js?v=14';
-import { Router } from './core/Router.js?v=14';
-import { store } from './core/Store.js?v=14';
-import { initFirebase } from './firebase/firebase.js?v=14';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=14';
-import { getActiveGame } from './firebase/gamesService.js?v=14';
-import { getCharacterForPlayer } from './firebase/charactersService.js?v=14';
-import { seedInitialTags } from './firebase/tagsService.js?v=14';
-import { seedInitialPages } from './firebase/pagesService.js?v=14';
-import { seedInitialRules } from './firebase/rulesService.js?v=14';
-import { subscribeDesign } from './firebase/settingsService.js?v=14';
+import { Header } from './components/Header.js?v=18';
+import { Footer } from './components/Footer.js?v=18';
+import { ChatWidget } from './components/ChatWidget.js?v=18';
+import { HomePage } from './pages/HomePage.js?v=18';
+import { AuthPage } from './pages/AuthPage.js?v=18';
+import { ProfilePage } from './pages/ProfilePage.js?v=18';
+import { FactionPage } from './pages/FactionPage.js?v=18';
+import { AdminPage } from './pages/AdminPage.js?v=18';
+import { PagesListPage } from './pages/PagesListPage.js?v=18';
+import { PageViewPage } from './pages/PageViewPage.js?v=18';
+import { PageEditPage } from './pages/PageEditPage.js?v=18';
+import { RulesPage } from './pages/RulesPage.js?v=18';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=18';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=18';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=18';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=18';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=18';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=18';
+import { UsersAdminPage } from './pages/UsersAdminPage.js?v=18';
+import { RadioRoomPage } from './pages/RadioRoomPage.js?v=18';
+import { RadioScanPage } from './pages/RadioScanPage.js?v=18';
+import { GamesAdminPage } from './pages/GamesAdminPage.js?v=18';
+import { GameEditPage } from './pages/GameEditPage.js?v=18';
+import { render, createElement } from './utils/dom.js?v=18';
+import { ThemeManager } from './core/ThemeManager.js?v=18';
+import { initPWA } from './core/pwa.js?v=18';
+import { initViewMode } from './components/ViewModeToggle.js?v=18';
+import { Router } from './core/Router.js?v=18';
+import { store } from './core/Store.js?v=18';
+import { initFirebase } from './firebase/firebase.js?v=18';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=18';
+import { getActiveGame } from './firebase/gamesService.js?v=18';
+import { getCharacterForPlayer } from './firebase/charactersService.js?v=18';
+import { seedInitialTags } from './firebase/tagsService.js?v=18';
+import { seedInitialPages } from './firebase/pagesService.js?v=18';
+import { seedInitialRules } from './firebase/rulesService.js?v=18';
+import { subscribeDesign } from './firebase/settingsService.js?v=18';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -60,9 +60,9 @@ async function init() {
     initPWA();
     initViewMode();
 
-    // Сначала применяем закешированный дизайн (если есть), иначе v1
+    // Сначала применяем закешированный дизайн (если есть), иначе тёмная тема v2
     const cachedDesign = localStorage.getItem('bluered_design');
-    document.documentElement.classList.add(cachedDesign ? 'design-' + cachedDesign : 'design-v1');
+    document.documentElement.classList.add(cachedDesign ? 'design-' + cachedDesign : 'design-v2');
 
     // Восстанавливаем сохранённую тему или ставим 'purple'
     themeManager.init();
@@ -191,8 +191,11 @@ async function init() {
                     store.set('activeGame', game);
                     store.set('character', character);
 
-                    // Тема автоматически подстраивается под фракцию персонажа или радиорубки
-                    themeManager.setThemeByFaction(profile.radioFaction || character?.faction || null);
+                    // Мастера и игротехи — фиолетовые; радиорубка — своя фракция; иначе персонаж
+                    const faction = (profile.role === 'master' || profile.role === 'igrotech')
+                        ? 'purple'
+                        : (profile.radioFaction || character?.faction || null);
+                    themeManager.setThemeByFaction(faction);
 
                     // Сидируем стартовую страницу, если пусто (только для мастеров)
                     if (profile.role === 'master') {
@@ -205,13 +208,13 @@ async function init() {
                 if (designUnsub) designUnsub();
                 designUnsub = subscribeDesign((version) => {
                     document.documentElement.classList.remove('design-v1', 'design-v2');
-                    document.documentElement.classList.add('design-' + (version || 'v1'));
-                    store.set('design', version || 'v1');
+                    document.documentElement.classList.add('design-' + (version || 'v2'));
+                    store.set('design', version || 'v2');
                 });
             } else {
                 document.documentElement.classList.remove('design-v1', 'design-v2');
-                document.documentElement.classList.add('design-v1');
-                store.set('design', 'v1');
+                document.documentElement.classList.add('design-v2');
+                store.set('design', 'v2');
                 store.set('user', null);
                 store.set('activeGame', null);
                 store.set('character', null);

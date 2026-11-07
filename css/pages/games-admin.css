@@ -259,3 +259,197 @@
 .games-page__input--date {
     max-width: 160px;
 }
+
+/* --- Игроки и пары персонажей --- */
+
+.games-page__add-player {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+    padding: var(--space-md);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+}
+
+.games-page__add-title {
+    width: 100%;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.games-page__add-player .games-page__select {
+    flex: 1 1 260px;
+}
+
+.games-page__players {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.games-page__player {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-bg);
+    overflow: hidden;
+}
+
+.games-page__player--staff {
+    border-left: 4px solid var(--faction-purple);
+}
+
+.games-page__player-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    flex-wrap: wrap;
+}
+
+.games-page__player-info {
+    min-width: 0;
+}
+
+.games-page__player-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.games-page__player-meta {
+    margin-top: 2px;
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+}
+
+.games-page__player-state {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    flex-wrap: wrap;
+}
+
+.games-page__player-inactive {
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.games-page__staff-note {
+    color: var(--faction-purple);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.games-page__variants {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-sm);
+    padding: var(--space-md);
+}
+
+.games-page__variant {
+    --variant-accent: var(--color-primary);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    min-height: 190px;
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--variant-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+}
+
+.games-page__variant--red { --variant-accent: var(--faction-red); }
+.games-page__variant--blue { --variant-accent: var(--faction-blue); }
+.games-page__variant--purple { --variant-accent: var(--faction-purple); }
+
+.games-page__variant--active {
+    border-color: var(--variant-accent);
+    box-shadow: 0 0 0 2px var(--variant-accent) inset;
+}
+
+.games-page__variant--empty {
+    border-top-style: dashed;
+    opacity: 0.85;
+}
+
+.games-page__variant-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-xs);
+}
+
+.games-page__variant-status {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.games-page__variant--active .games-page__variant-status {
+    color: var(--variant-accent);
+    font-weight: 700;
+}
+
+.games-page__variant-name {
+    font-weight: 650;
+    font-size: 1rem;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.games-page__variant-prof {
+    font-size: 0.83rem;
+    font-style: italic;
+    color: var(--color-text-secondary);
+}
+
+.games-page__variant-meta {
+    font-size: 0.76rem;
+    color: var(--color-text-secondary);
+}
+
+.games-page__variant-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin-top: auto;
+    padding-top: var(--space-xs);
+}
+
+.games-page__variant-note {
+    font-size: 0.72rem;
+    color: var(--faction-purple);
+    font-weight: 600;
+}
+
+.games-page__editor-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.games-page__editor-footer {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin-top: var(--space-xs);
+}
+
+@media (max-width: 768px) {
+    .games-page__variants {
+        grid-template-columns: 1fr;
+    }
+
+    .games-page__player-head {
+        align-items: flex-start;
+    }
+}

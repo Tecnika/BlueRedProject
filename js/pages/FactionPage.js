@@ -1,16 +1,16 @@
-import { createElement } from '../utils/dom.js?v=14';
-import { translateError } from '../utils/translateError.js?v=14';
-import { store } from '../core/Store.js?v=14';
-import { createAvatar } from '../core/Avatar.js?v=14';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=14';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=14';
-import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=14';
-import { FactionBadge } from '../components/FactionBadge.js?v=14';
-import { Icon } from '../components/Icon.js?v=14';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=14';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=14';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=14';
-import { ROLE_LABELS } from '../utils/constants.js?v=14';
+import { createElement } from '../utils/dom.js?v=18';
+import { translateError } from '../utils/translateError.js?v=18';
+import { store } from '../core/Store.js?v=18';
+import { createAvatar } from '../core/Avatar.js?v=18';
+import { getCharactersByGame, isActiveCharacter } from '../firebase/charactersService.js?v=18';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=18';
+import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=18';
+import { FactionBadge } from '../components/FactionBadge.js?v=18';
+import { Icon } from '../components/Icon.js?v=18';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=18';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=18';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=18';
+import { ROLE_LABELS } from '../utils/constants.js?v=18';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
@@ -62,17 +62,26 @@ export async function FactionPage() {
         const playerMap = {};
         for (const p of players) playerMap[p.uid] = p;
 
-        // Аккаунты радиорубок не показываем в личном составе фракции
-        const roster = characters.filter(c => !playerMap[c.playerId]?.radioFaction);
+        // Показываем только активные версии и не показываем терминалы радиорубок
+        const roster = characters.filter(c =>
+            isActiveCharacter(c) && !playerMap[c.playerId]?.radioFaction
+        );
+
+        // Мастера и игротехи всегда фиолетовые
+        const factionOf = (character) => {
+            const role = playerMap[character.playerId]?.role;
+            if (role === 'master' || role === 'igrotech') return 'purple';
+            return character.faction || null;
+        };
 
         const visible = fullView
             ? roster
-            : roster.filter(c => c.faction === myFaction);
+            : roster.filter(c => factionOf(c) === myFaction);
 
         if (fullView) {
             for (const faction of FACTION_ORDER) {
                 const members = visible.filter(c => {
-                    const key = c.faction && FACTION_LABELS[c.faction] ? c.faction : '__unassigned';
+                    const key = factionOf(c) && FACTION_LABELS[factionOf(c)] ? factionOf(c) : '__unassigned';
                     return key === faction;
                 });
                 if (members.length === 0) continue;
