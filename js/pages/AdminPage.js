@@ -1,18 +1,29 @@
-import { store } from '../core/Store.js?v=13';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=13';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=13';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=13';
-import { getRecentLogs } from '../firebase/chatService.js?v=13';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=13';
-import { setDesign } from '../firebase/settingsService.js?v=13';
-import { createElement } from '../utils/dom.js?v=13';
-import { translateError } from '../utils/translateError.js?v=13';
-import { Button } from '../components/Button.js?v=13';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=13';
-import { Icon } from '../components/Icon.js?v=13';
-import { FactionBadge } from '../components/FactionBadge.js?v=13';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=13';
-import { FACTION_LABELS } from '../utils/profile.js?v=13';
+import { store } from '../core/Store.js?v=14';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=14';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=14';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=14';
+import { getRecentLogs } from '../firebase/chatService.js?v=14';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=14';
+import { setDesign } from '../firebase/settingsService.js?v=14';
+import { createElement } from '../utils/dom.js?v=14';
+import { translateError } from '../utils/translateError.js?v=14';
+import { Button } from '../components/Button.js?v=14';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=14';
+import { Icon } from '../components/Icon.js?v=14';
+import { FactionBadge } from '../components/FactionBadge.js?v=14';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=14';
+import { FACTION_LABELS } from '../utils/profile.js?v=14';
+
+const ADMIN_SECTIONS = [
+    { id: 'game', label: 'Игра', icon: 'sports_esports' },
+    { id: 'tech', label: 'Технические учётки', icon: 'badge' },
+    { id: 'tests', label: 'Тесты', icon: 'science' },
+    { id: 'catalogs', label: 'Каталоги', icon: 'category' },
+    { id: 'logs', label: 'Логи', icon: 'receipt_long' },
+    { id: 'design', label: 'Оформление', icon: 'palette' }
+];
+
+const GAME_STATUS_LABELS = { draft: 'черновик', active: 'активна', finished: 'завершена' };
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });
@@ -23,18 +34,126 @@ export function AdminPage() {
         return section;
     }
 
+    const initialTab = readAdminTab();
     const container = createElement('div', { className: 'admin-page__container' });
-    container.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Мастерская' }));
+    container.appendChild(buildAdminHeader(user));
 
-    container.appendChild(renderGameSection());
-    container.appendChild(renderTechAccountsSection());
-    container.appendChild(renderTestsSection());
-    container.appendChild(renderCatalogsSection());
-    container.appendChild(renderLogsSection());
-    container.appendChild(renderDesignSection());
+    const layout = createElement('div', { className: 'admin-page__layout' });
+    const content = createElement('div', { className: 'admin-content' });
 
+    const sections = {
+        game: renderGameSection(),
+        tech: renderTechAccountsSection(),
+        tests: renderTestsSection(),
+        catalogs: renderCatalogsSection(),
+        logs: renderLogsSection(),
+        design: renderDesignSection()
+    };
+
+    for (const def of ADMIN_SECTIONS) {
+        const panel = sections[def.id];
+        panel.hidden = def.id !== initialTab;
+        content.appendChild(panel);
+    }
+
+    layout.appendChild(buildAdminNav(initialTab, selectAdminTab));
+    layout.appendChild(content);
+    container.appendChild(layout);
     section.appendChild(container);
+
+    function selectAdminTab(id) {
+        if (!sections[id]) return;
+        for (const def of ADMIN_SECTIONS) {
+            sections[def.id].hidden = def.id !== id;
+        }
+        layout.querySelectorAll('.admin-nav__item').forEach(btn => {
+            const active = btn.dataset.adminTab === id;
+            btn.classList.toggle('admin-nav__item--active', active);
+            btn.setAttribute('aria-selected', String(active));
+        });
+        const url = id === 'game' ? '#/admin' : '#/admin?tab=' + id;
+        history.replaceState(null, '', url);
+    }
+
     return section;
+}
+
+function readAdminTab() {
+    const query = window.location.hash.split('?')[1] || '';
+    const tab = new URLSearchParams(query).get('tab');
+    return ADMIN_SECTIONS.some(s => s.id === tab) ? tab : 'game';
+}
+
+function buildAdminHeader(user) {
+    const header = createElement('header', { className: 'admin-page__header' });
+
+    const text = createElement('div', { className: 'admin-page__head-text' });
+    text.appendChild(createElement('p', { className: 'admin-page__eyebrow', text: 'Сектор BlueRed · мастерская' }));
+    text.appendChild(createElement('h1', { className: 'admin-page__title', text: 'Мастерская' }));
+    text.appendChild(createElement('p', {
+        className: 'admin-page__subtitle',
+        text: 'Игры, персонажи, доступы, материалы и журнал событий — в одном месте.'
+    }));
+    header.appendChild(text);
+
+    const meta = createElement('div', { className: 'admin-page__meta' });
+
+    const game = store.get('activeGame');
+    const gameChip = createElement('span', {
+        className: 'admin-page__chip' + (game ? ' admin-page__chip--active' : '')
+    });
+    gameChip.appendChild(createElement('span', { className: 'admin-page__chip-dot' }));
+    gameChip.appendChild(createElement('span', {
+        text: game
+            ? `Игра: ${game.name} · ${GAME_STATUS_LABELS[game.status] || game.status}`
+            : 'Нет активной игры'
+    }));
+    meta.appendChild(gameChip);
+
+    const userChip = createElement('span', { className: 'admin-page__chip' });
+    userChip.appendChild(Icon({ name: 'shield_person', size: 'sm' }));
+    userChip.appendChild(createElement('span', { text: 'Мастер · ' + (user.username || '') }));
+    meta.appendChild(userChip);
+
+    header.appendChild(meta);
+    return header;
+}
+
+function buildAdminNav(activeId, onSelect) {
+    const aside = createElement('aside', { className: 'admin-nav' });
+    const list = createElement('nav', {
+        className: 'admin-nav__list',
+        attributes: { 'aria-label': 'Разделы мастерской' }
+    });
+
+    for (const def of ADMIN_SECTIONS) {
+        const active = def.id === activeId;
+        const btn = createElement('button', {
+            className: 'admin-nav__item' + (active ? ' admin-nav__item--active' : ''),
+            attributes: {
+                type: 'button',
+                role: 'tab',
+                'data-admin-tab': def.id,
+                'aria-selected': String(active),
+                'aria-controls': 'admin-panel-' + def.id
+            }
+        });
+        btn.appendChild(Icon({ name: def.icon, size: 'sm' }));
+        btn.appendChild(createElement('span', { text: def.label }));
+        btn.addEventListener('click', () => onSelect(def.id));
+        list.appendChild(btn);
+    }
+
+    aside.appendChild(list);
+
+    const hint = createElement('div', { className: 'admin-nav__hint' });
+    hint.appendChild(Icon({ name: 'info', size: 'sm' }));
+    hint.appendChild(createElement('p', {
+        text: 'Логи фиксируют сообщения чатов, открытие радиоканалов и действия хакеров.'
+    }));
+    aside.appendChild(hint);
+
+    return aside;
 }
 
 /* ============================================================
@@ -42,29 +161,64 @@ export function AdminPage() {
    ============================================================ */
 
 function renderGameSection() {
-    const section = adminSection('Игра', 'Создание и активация игры, персонажи игроков.');
+    const section = adminSection('Игра', 'Активная игра, персонажи и реальные данные игроков.', 'game');
 
-    const actions = createElement('div', { className: 'admin-section__actions' });
-    actions.appendChild(Button({
-        text: 'Создать / активировать игру',
+    const game = store.get('activeGame');
+    const status = createElement('div', {
+        className: 'admin-game-status' + (game ? '' : ' admin-game-status--empty')
+    });
+    status.appendChild(Icon({ name: game ? 'sports_esports' : 'info', size: 'md' }));
+    const statusInfo = createElement('div', { className: 'admin-game-status__info' });
+    statusInfo.appendChild(createElement('div', {
+        className: 'admin-game-status__name',
+        text: game ? game.name : 'Активная игра не выбрана'
+    }));
+    statusInfo.appendChild(createElement('div', {
+        className: 'admin-game-status__meta',
+        text: game
+            ? `Статус: ${GAME_STATUS_LABELS[game.status] || game.status}${game.startDate ? ' · старт ' + game.startDate : ''}`
+            : 'Создайте игру во вкладке «Игры и персонажи», чтобы открыть эфир и фракции.'
+    }));
+    status.appendChild(statusInfo);
+    section.appendChild(status);
+
+    const grid = createElement('div', { className: 'admin-action-grid' });
+    grid.appendChild(actionTile({
+        href: '#/admin/games',
         icon: 'sports_esports',
-        href: '#/admin/games'
+        title: 'Игры и персонажи',
+        desc: 'Создание, активация, состав и фракции'
     }));
-    actions.appendChild(Button({
-        text: 'Управление персонажами',
-        icon: 'groups',
-        variant: 'secondary',
-        href: '#/admin/games'
-    }));
-    actions.appendChild(Button({
-        text: 'Игроки (реальные данные)',
+    grid.appendChild(actionTile({
+        href: '#/admin/users',
         icon: 'badge',
-        variant: 'secondary',
-        href: '#/admin/users'
+        title: 'Игроки и роли',
+        desc: 'Реальные данные, игротехники, радиорубки'
     }));
-    section.appendChild(actions);
+    grid.appendChild(actionTile({
+        href: '#/rules',
+        icon: 'menu_book',
+        title: 'Правила',
+        desc: 'Статьи, механики и скрытые разделы'
+    }));
+    section.appendChild(grid);
 
     return section;
+}
+
+function actionTile({ href, icon, title, desc }) {
+    const link = createElement('a', { className: 'admin-action', attributes: { href } });
+    const iconBox = createElement('span', { className: 'admin-action__icon' });
+    iconBox.appendChild(Icon({ name: icon, size: 'md' }));
+    link.appendChild(iconBox);
+
+    const body = createElement('span', { className: 'admin-action__body' });
+    body.appendChild(createElement('span', { className: 'admin-action__title', text: title }));
+    body.appendChild(createElement('span', { className: 'admin-action__desc', text: desc }));
+    link.appendChild(body);
+    link.appendChild(Icon({ name: 'arrow_forward', size: 'sm' }));
+
+    return link;
 }
 
 /* ============================================================
@@ -74,7 +228,8 @@ function renderGameSection() {
 function renderTechAccountsSection() {
     const section = adminSection(
         'Технические учётки',
-        'Логины и пароли аккаунтов радиорубок. Видны только мастерам — не передавайте их игрокам.'
+        'Логины и пароли аккаунтов радиорубок. Видны только мастерам — не передавайте их игрокам.',
+        'tech'
     );
 
     const refreshBtn = Button({
@@ -84,12 +239,43 @@ function renderTechAccountsSection() {
         size: 'sm'
     });
 
+    const copyAllBtn = Button({
+        text: 'Скопировать все',
+        icon: 'content_copy',
+        variant: 'secondary',
+        size: 'sm'
+    });
+
+    const countEl = createElement('span', { className: 'admin-toolbar__count', text: '' });
+    const toolbar = createElement('div', { className: 'admin-toolbar' });
+    toolbar.appendChild(refreshBtn);
+    toolbar.appendChild(copyAllBtn);
+    toolbar.appendChild(countEl);
+
     const listEl = createElement('div', { className: 'admin-tech', text: 'Загрузка...' });
     const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
 
-    section.appendChild(refreshBtn);
+    section.appendChild(toolbar);
     section.appendChild(listEl);
     section.appendChild(msg);
+
+    let accountsCache = [];
+
+    async function copyAllCredentials() {
+        if (accountsCache.length === 0) {
+            showMessage(msg, 'Список учёток пуст', 'err');
+            return;
+        }
+        const text = accountsCache.map(account =>
+            `${account.label || account.faction}\nПозывной: ${account.username}\nПароль: ${account.password}`
+        ).join('\n\n');
+        try {
+            await navigator.clipboard.writeText(text);
+            showMessage(msg, `Скопировано учёток: ${accountsCache.length}`, 'ok');
+        } catch (e) {
+            showMessage(msg, 'Браузер не дал скопировать. Выделите данные вручную.', 'err');
+        }
+    }
 
     async function copyCredentials(account) {
         const text = `Фракция: ${account.label || account.faction}\nПозывной: ${account.username}\nПароль: ${account.password}`;
@@ -104,6 +290,8 @@ function renderTechAccountsSection() {
     async function refresh() {
         try {
             const accounts = await getTechAccounts();
+            accountsCache = accounts;
+            countEl.textContent = accounts.length ? `${accounts.length} учётки` : '';
             listEl.innerHTML = '';
             if (accounts.length === 0) {
                 listEl.textContent = 'Технические учётки ещё не созданы';
@@ -152,14 +340,15 @@ function renderTechAccountsSection() {
     }
 
     refreshBtn.addEventListener('click', refresh);
+    copyAllBtn.addEventListener('click', copyAllCredentials);
     refresh();
     return section;
 }
 
 function renderTestsSection() {
-    const section = adminSection('Тесты', 'Инструменты для работы с шифрами фракций.');
+    const section = adminSection('Тесты', 'Инструменты для работы с шифрами фракций.', 'tests');
 
-    const decrypt = collapse('Расшифровка текстов', buildDecryptor(), false);
+    const decrypt = collapse('Расшифровка текстов', buildDecryptor(), true);
     section.appendChild(decrypt);
 
     const keys = collapse('Таблицы ключей', buildKeyTables(), false);
@@ -267,7 +456,7 @@ function buildKeyTables() {
    ============================================================ */
 
 function renderCatalogsSection() {
-    const section = adminSection('Каталоги', 'Грифы, профессии и теги.');
+    const section = adminSection('Каталоги', 'Грифы, профессии и теги для персонажей и страниц.', 'catalogs');
 
     section.appendChild(collapse('Грифы', buildCatalog({
         load: getAllTags,
@@ -362,7 +551,35 @@ function buildCatalog({ load, add, remove, placeholder, empty }) {
    ============================================================ */
 
 function renderLogsSection() {
-    const section = adminSection('Логи', 'Кто, кому, что и когда: журнал сообщений.');
+    const section = adminSection(
+        'Логи',
+        'Кто, кому, что и когда: сообщения чатов, радиорубки и действия хакеров.',
+        'logs'
+    );
+
+    let allLogs = [];
+
+    const search = createElement('input', {
+        className: 'admin-log-toolbar__search',
+        attributes: {
+            type: 'search',
+            placeholder: 'Поиск по автору, каналу или тексту',
+            'aria-label': 'Поиск по логам'
+        }
+    });
+
+    const filter = createElement('select', {
+        className: 'admin-log-toolbar__filter',
+        attributes: { 'aria-label': 'Фильтр по типу события' }
+    });
+    for (const [value, label] of [
+        ['all', 'Все события'],
+        ['chat', 'Чаты'],
+        ['radio', 'Радиорубка'],
+        ['hack', 'Взломы']
+    ]) {
+        filter.appendChild(createElement('option', { text: label, attributes: { value } }));
+    }
 
     const refreshBtn = Button({
         text: 'Обновить',
@@ -371,43 +588,93 @@ function renderLogsSection() {
         size: 'sm'
     });
 
-    const listEl = createElement('div', { className: 'admin-logs', text: 'Загрузка...' });
-    section.appendChild(refreshBtn);
-    section.appendChild(listEl);
+    const countEl = createElement('span', { className: 'admin-log-toolbar__count', text: '' });
+    const toolbar = createElement('div', { className: 'admin-log-toolbar' });
+    toolbar.appendChild(search);
+    toolbar.appendChild(filter);
+    toolbar.appendChild(refreshBtn);
+    toolbar.appendChild(countEl);
 
-    async function refresh() {
-        try {
-            const logs = await getRecentLogs(200);
-            listEl.innerHTML = '';
-            if (logs.length === 0) {
-                listEl.textContent = 'Пока пусто';
-                return;
-            }
-            for (const log of logs) {
-                const row = createElement('div', { className: 'admin-logs__item' });
-                row.appendChild(createElement('span', {
-                    className: 'admin-logs__time',
-                    text: formatLogTime(log.createdAt)
-                }));
-                row.appendChild(createElement('span', {
-                    className: 'admin-logs__author',
-                    text: log.authorName || '—'
-                }));
-                row.appendChild(createElement('span', {
-                    className: 'admin-logs__chat',
-                    text: log.chatTitle || log.chatType || '—'
-                }));
-                row.appendChild(createElement('span', {
-                    className: 'admin-logs__text',
-                    text: log.text || ''
-                }));
-                listEl.appendChild(row);
-            }
-        } catch (err) {
-            listEl.textContent = 'Ошибка загрузки: ' + translateError(err);
+    const table = createElement('div', { className: 'admin-logs' });
+    const head = createElement('div', { className: 'admin-logs__head' });
+    for (const label of ['Время', 'Автор', 'Канал', 'Текст']) {
+        head.appendChild(createElement('span', { text: label }));
+    }
+    const body = createElement('div', { className: 'admin-logs__body', text: 'Загрузка...' });
+    table.appendChild(head);
+    table.appendChild(body);
+
+    section.appendChild(toolbar);
+    section.appendChild(table);
+
+    function categoryOf(log) {
+        const source = `${log.chatTitle || ''} ${log.chatType || ''}`.toLowerCase();
+        if (source.includes('взлом')) return 'hack';
+        if (source.includes('радиорубка') || source.includes('связь:')) return 'radio';
+        return 'chat';
+    }
+
+    function renderRows() {
+        const query = search.value.trim().toLowerCase();
+        const category = filter.value;
+        const filtered = allLogs.filter(log => {
+            if (category !== 'all' && categoryOf(log) !== category) return false;
+            if (!query) return true;
+            return `${log.authorName || ''} ${log.chatTitle || ''} ${log.text || ''}`
+                .toLowerCase()
+                .includes(query);
+        });
+
+        countEl.textContent = `${filtered.length} из ${allLogs.length}`;
+        body.innerHTML = '';
+
+        if (filtered.length === 0) {
+            body.appendChild(createElement('div', {
+                className: 'admin-logs__empty',
+                text: allLogs.length === 0 ? 'Пока пусто' : 'Ничего не найдено'
+            }));
+            return;
+        }
+
+        for (const log of filtered) {
+            const categoryName = categoryOf(log);
+            const row = createElement('div', {
+                className: `admin-logs__item admin-logs__item--${categoryName}`
+            });
+            row.appendChild(createElement('span', {
+                className: 'admin-logs__time',
+                text: formatLogTime(log.createdAt)
+            }));
+            row.appendChild(createElement('span', {
+                className: 'admin-logs__author',
+                text: log.authorName || '—'
+            }));
+            row.appendChild(createElement('span', {
+                className: 'admin-logs__chat',
+                text: log.chatTitle || log.chatType || '—'
+            }));
+            const textEl = createElement('span', {
+                className: 'admin-logs__text',
+                text: log.text || '',
+                attributes: { title: log.text || '' }
+            });
+            row.appendChild(textEl);
+            body.appendChild(row);
         }
     }
 
+    async function refresh() {
+        body.textContent = 'Загрузка...';
+        try {
+            allLogs = await getRecentLogs(200);
+            renderRows();
+        } catch (err) {
+            body.textContent = 'Ошибка загрузки: ' + translateError(err);
+        }
+    }
+
+    search.addEventListener('input', renderRows);
+    filter.addEventListener('change', renderRows);
     refreshBtn.addEventListener('click', refresh);
     refresh();
     return section;
@@ -423,39 +690,58 @@ function formatLogTime(iso) {
 }
 
 function renderDesignSection() {
-    const section = adminSection('Оформление', 'Тема для всех агентов.');
+    const section = adminSection(
+        'Оформление',
+        'Тема интерфейса для всех агентов сектора.',
+        'design'
+    );
 
-    const current = store.get('design') || 'v1';
+    const current = store.get('design') || localStorage.getItem('bluered_design') || 'v1';
     const wrap = createElement('div', { className: 'admin-design' });
-
-    const btnV1 = Button({
-        text: 'Версия 1',
-        variant: current === 'v1' ? 'primary' : 'secondary',
-        onClick: () => switchDesign('v1')
-    });
-    const btnV2 = Button({
-        text: 'Версия 2',
-        variant: current === 'v2' ? 'primary' : 'secondary',
-        onClick: () => switchDesign('v2')
-    });
-
     const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
+    const cards = {};
+
+    function buildCard(version, title, desc) {
+        const card = createElement('button', {
+            className: 'admin-design-card' + (version === current ? ' admin-design-card--active' : ''),
+            attributes: { type: 'button', 'data-version': version }
+        });
+
+        const preview = createElement('span', {
+            className: `admin-design-card__preview admin-design-card__preview--${version}`
+        });
+        preview.appendChild(createElement('span', { className: 'admin-design-card__side' }));
+        const body = createElement('span', { className: 'admin-design-card__body' });
+        body.appendChild(createElement('span', { className: 'admin-design-card__line admin-design-card__line--head' }));
+        body.appendChild(createElement('span', { className: 'admin-design-card__line' }));
+        body.appendChild(createElement('span', { className: 'admin-design-card__line admin-design-card__line--short' }));
+        preview.appendChild(body);
+        card.appendChild(preview);
+
+        card.appendChild(createElement('span', { className: 'admin-design-card__title', text: title }));
+        card.appendChild(createElement('span', { className: 'admin-design-card__desc', text: desc }));
+        card.addEventListener('click', () => switchDesign(version));
+        return card;
+    }
+
+    cards.v1 = buildCard('v1', 'Версия 1', 'Светлая тема');
+    cards.v2 = buildCard('v2', 'Версия 2', 'Тёмный неон');
+    wrap.appendChild(cards.v1);
+    wrap.appendChild(cards.v2);
 
     function switchDesign(version) {
         setDesign(version).then(() => {
-            btnV1.className = btnV1.className.replace(/btn--(primary|secondary)/g, version === 'v1' ? 'btn--primary' : 'btn--secondary');
-            btnV2.className = btnV2.className.replace(/btn--(primary|secondary)/g, version === 'v2' ? 'btn--primary' : 'btn--secondary');
+            for (const key of Object.keys(cards)) {
+                cards[key].classList.toggle('admin-design-card--active', key === version);
+            }
             showMessage(msg, `Дизайн «${version}» применён`, 'ok');
         }).catch(err => {
             showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
         });
     }
 
-    wrap.appendChild(btnV1);
-    wrap.appendChild(btnV2);
     section.appendChild(wrap);
     section.appendChild(msg);
-
     return section;
 }
 
@@ -463,10 +749,23 @@ function renderDesignSection() {
    Помощники
    ============================================================ */
 
-function adminSection(title, desc) {
-    const section = createElement('div', { className: 'admin-section' });
-    section.appendChild(createElement('h2', { className: 'admin-section__title', text: title }));
-    if (desc) section.appendChild(createElement('p', { className: 'admin-section__desc', text: desc }));
+function adminSection(title, desc, id) {
+    const section = createElement('div', {
+        className: 'admin-section',
+        attributes: {
+            id: 'admin-panel-' + id,
+            role: 'tabpanel',
+            'data-admin-section': id
+        }
+    });
+
+    const head = createElement('div', { className: 'admin-section__head' });
+    const text = createElement('div', { className: 'admin-section__head-text' });
+    text.appendChild(createElement('h2', { className: 'admin-section__title', text: title }));
+    if (desc) text.appendChild(createElement('p', { className: 'admin-section__desc', text: desc }));
+    head.appendChild(text);
+    section.appendChild(head);
+
     return section;
 }
 

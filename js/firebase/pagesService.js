@@ -22,9 +22,9 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=13';
-import { addSubTag } from './subtagsService.js?v=13';
-import { getActiveFaction } from '../utils/profile.js?v=13';
+import { getFirebase } from './firebase.js?v=14';
+import { addSubTag } from './subtagsService.js?v=14';
+import { getActiveFaction } from '../utils/profile.js?v=14';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
