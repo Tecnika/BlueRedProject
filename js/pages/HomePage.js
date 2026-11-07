@@ -1,7 +1,7 @@
-import { createElement } from '../utils/dom.js?v=8';
-import { store } from '../core/Store.js?v=8';
-import { Button } from '../components/Button.js?v=8';
-import { Icon } from '../components/Icon.js?v=8';
+import { createElement } from '../utils/dom.js?v=9';
+import { store } from '../core/Store.js?v=9';
+import { Button } from '../components/Button.js?v=9';
+import { Icon } from '../components/Icon.js?v=9';
 
 const LORE_ITEMS = [
     { icon: 'diversity_3', title: 'Три расы', text: 'Красные, Синие и Фиолетовые ведут бесконечную информационную войну в секторе BlueRed. Каждая фракция имеет свою идеологию, язык и цели.' },

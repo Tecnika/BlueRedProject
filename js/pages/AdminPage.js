@@ -1,15 +1,15 @@
-import { store } from '../core/Store.js?v=8';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=8';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=8';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=8';
-import { setDesign } from '../firebase/settingsService.js?v=8';
-import { createElement } from '../utils/dom.js?v=8';
-import { translateError } from '../utils/translateError.js?v=8';
-import { Button } from '../components/Button.js?v=8';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=8';
-import { Icon } from '../components/Icon.js?v=8';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=8';
-import { FACTION_LABELS } from '../utils/profile.js?v=8';
+import { store } from '../core/Store.js?v=9';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=9';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=9';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=9';
+import { setDesign } from '../firebase/settingsService.js?v=9';
+import { createElement } from '../utils/dom.js?v=9';
+import { translateError } from '../utils/translateError.js?v=9';
+import { Button } from '../components/Button.js?v=9';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=9';
+import { Icon } from '../components/Icon.js?v=9';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=9';
+import { FACTION_LABELS } from '../utils/profile.js?v=9';
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });

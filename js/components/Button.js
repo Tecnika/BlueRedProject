@@ -1,5 +1,5 @@
-import { createElement } from '../utils/dom.js?v=8';
-import { Icon } from './Icon.js?v=8';
+import { createElement } from '../utils/dom.js?v=9';
+import { Icon } from './Icon.js?v=9';
 
 const VARIANT_CLASS = {
     primary: 'btn--primary',

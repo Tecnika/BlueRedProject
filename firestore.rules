@@ -28,6 +28,23 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Фракция игрока из публичной проекции (без PII)
+    function myPublicFaction() {
+      return exists(/databases/$(database)/documents/publicPlayers/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/publicPlayers/$(request.auth.uid)).data.faction
+        : '';
+    }
+
+    // Может ли текущий пользователь читать чат (по данным документа)
+    function canReadChatData(c) {
+      return isSignedIn() && (
+        isMaster()
+        || (c.type == 'faction' && c.faction == myPublicFaction())
+        || (c.type == 'master' && c.playerId == request.auth.uid)
+        || (request.auth.uid in c.members)
+      );
+    }
+
     // ========== users — профиль игрока (PII) ==========
     match /users/{userId} {
       // Создать можно только свой профиль и только с ролью player
@@ -41,7 +58,7 @@ service cloud.firestore {
       allow update: if isMaster() || (
         isOwner(userId)
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['player', 'decryptions', 'decryptedDocs', 'documents'])
+             .hasOnly(['player', 'decryptions', 'decryptedDocs', 'documents', 'lastRead'])
       );
 
       allow delete: if false;
@@ -99,6 +116,33 @@ service cloud.firestore {
     match /professions/{profId} {
       allow read: if isSignedIn();
       allow create, update, delete: if isMaster();
+    }
+
+    // ========== chats — каналы связи ==========
+    match /chats/{chatId} {
+      allow read: if canReadChatData(resource.data);
+
+      allow create: if isSignedIn() && (
+        isMaster()
+        || (request.resource.data.type == 'faction')
+        || (request.resource.data.type == 'dm' && request.auth.uid in request.resource.data.members)
+        || (request.resource.data.type == 'master' && request.resource.data.playerId == request.auth.uid)
+      );
+
+      allow update: if isMaster() || (
+        (resource.data.type == 'faction' && resource.data.faction == myPublicFaction())
+        || (resource.data.type == 'dm' && request.auth.uid in resource.data.members)
+        || (resource.data.type == 'master' && resource.data.playerId == request.auth.uid)
+      );
+
+      allow delete: if isMaster();
+
+      match /messages/{messageId} {
+        allow read: if canReadChatData(get(/databases/$(database)/documents/chats/$(chatId)).data);
+        allow create: if canReadChatData(get(/databases/$(database)/documents/chats/$(chatId)).data)
+          && request.resource.data.authorId == request.auth.uid;
+        allow update, delete: if false;
+      }
     }
 
     // ========== documents ==========
