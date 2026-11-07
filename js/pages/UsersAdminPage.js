@@ -6,17 +6,17 @@
  * Управление ролями игротехника.
  */
 
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { createAvatar } from '../core/Avatar.js?v=6';
-import { getCollection } from '../firebase/dbService.js?v=6';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=6';
-import { setUserRole, getPlayerDisplayName } from '../firebase/authService.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { ROLE_LABELS } from '../utils/constants.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { createAvatar } from '../core/Avatar.js?v=8';
+import { getCollection } from '../firebase/dbService.js?v=8';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=8';
+import { setUserRole, getPlayerDisplayName } from '../firebase/authService.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { ROLE_LABELS } from '../utils/constants.js?v=8';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });

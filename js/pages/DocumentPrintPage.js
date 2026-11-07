@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { getAllDocuments } from '../firebase/documentsService.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { BackButton } from '../components/BackButton.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { QRCode } from '../components/QRCode.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { LEVEL_LABELS } from '../domain/documents.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { getAllDocuments } from '../firebase/documentsService.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { BackButton } from '../components/BackButton.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { QRCode } from '../components/QRCode.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { LEVEL_LABELS } from '../domain/documents.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
 
 export async function DocumentPrintPage() {
     const section = createElement('section', { className: 'document-print-page' });
@@ -22,7 +22,7 @@ export async function DocumentPrintPage() {
     const ids = (params.get('ids') || '').split(',').filter(Boolean);
 
     if (ids.length === 0) {
-        section.appendChild(StatusMessage({ type: 'err', text: 'Нет выбранных документов' }));
+        section.appendChild(StatusMessage({ type: 'err', text: 'Нет выбранных файлов' }));
         return section;
     }
 
@@ -31,12 +31,12 @@ export async function DocumentPrintPage() {
         const docs = allDocs.filter(d => ids.includes(d.id));
 
         if (docs.length === 0) {
-            section.appendChild(StatusMessage({ type: 'err', text: 'Документы не найдены' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Файлы не найдены' }));
             return section;
         }
 
         const container = createElement('div', { className: 'document-print-page__container' });
-        container.appendChild(createElement('h1', { className: 'document-print-page__title', text: 'Печать документов (' + docs.length + ')' }));
+        container.appendChild(createElement('h1', { className: 'document-print-page__title', text: 'Печать файлов (' + docs.length + ')' }));
 
         const grid = createElement('div', { className: 'document-print-page__grid' });
 

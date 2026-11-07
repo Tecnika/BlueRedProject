@@ -9,7 +9,7 @@
  * При релизе меняйте CACHE_VERSION — старые кеши удалятся.
  */
 
-const CACHE_VERSION = 'bluered-v2-2026-11-06';
+const CACHE_VERSION = 'bluered-v4-2026-11-07';
 const SHELL_CACHE = 'shell-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'runtime-' + CACHE_VERSION;
 
@@ -25,33 +25,34 @@ const SHELL = [
     './icons/apple-touch-icon.png',
     './icons/favicon-32.png',
     './fonts/material-icons.woff2',
-    './css/reset.css?v=7',
-    './css/variables.css?v=7',
-    './css/themes.css?v=7',
-    './css/cosmic.css?v=7',
-    './css/design-v2.css?v=7',
-    './css/responsive.css?v=7',
-    './css/components/header.css?v=7',
-    './css/components/navigation.css?v=7',
-    './css/components/footer.css?v=7',
-    './css/components/tag-input.css?v=7',
-    './css/components/button.css?v=7',
-    './css/components/badge.css?v=7',
-    './css/components/message.css?v=7',
-    './css/components/form-field.css?v=7',
-    './css/components/chip.css?v=7',
-    './css/components/qr.css?v=7',
-    './css/components/icons.css?v=7',
-    './css/pages/home.css?v=7',
-    './css/pages/auth.css?v=7',
-    './css/pages/profile.css?v=7',
-    './css/pages/faction.css?v=7',
-    './css/pages/pages.css?v=7',
-    './css/pages/admin-page.css?v=7',
-    './css/pages/users-admin.css?v=7',
-    './css/pages/games-admin.css?v=7',
-    './css/pages/documents.css?v=7',
-    './css/pages/rules.css?v=7'
+    './css/reset.css?v=9',
+    './css/variables.css?v=9',
+    './css/themes.css?v=9',
+    './css/cosmic.css?v=9',
+    './css/design-v2.css?v=9',
+    './css/responsive.css?v=9',
+    './css/components/header.css?v=9',
+    './css/components/navigation.css?v=9',
+    './css/components/footer.css?v=9',
+    './css/components/tag-input.css?v=9',
+    './css/components/button.css?v=9',
+    './css/components/badge.css?v=9',
+    './css/components/message.css?v=9',
+    './css/components/form-field.css?v=9',
+    './css/components/chip.css?v=9',
+    './css/components/qr.css?v=9',
+    './css/components/icons.css?v=9',
+    './css/components/view-mode.css?v=9',
+    './css/pages/home.css?v=9',
+    './css/pages/auth.css?v=9',
+    './css/pages/profile.css?v=9',
+    './css/pages/faction.css?v=9',
+    './css/pages/pages.css?v=9',
+    './css/pages/admin-page.css?v=9',
+    './css/pages/users-admin.css?v=9',
+    './css/pages/games-admin.css?v=9',
+    './css/pages/documents.css?v=9',
+    './css/pages/rules.css?v=9'
 ];
 
 self.addEventListener('install', (event) => {

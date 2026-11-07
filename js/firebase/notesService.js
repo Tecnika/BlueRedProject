@@ -9,7 +9,7 @@
  */
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=6';
+import { getFirebase } from './firebase.js?v=8';
 
 /** Составной id: автор + цель */
 function noteId(authorId, targetId) {
@@ -25,7 +25,7 @@ export async function getNote(authorId, targetId) {
 
 /**
  * Сохранить (создать или обновить) заметку.
- * Если документ существует — updateDoc, иначе setDoc с createdAt.
+ * Если файл существует — updateDoc, иначе setDoc с createdAt.
  */
 export async function saveNote(authorId, targetId, content) {
     const { db } = getFirebase();

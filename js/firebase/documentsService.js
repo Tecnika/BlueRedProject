@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, setDoc, deleteDoc, query, orderBy, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=6';
-import { store } from '../core/Store.js?v=6';
+import { getFirebase } from './firebase.js?v=8';
+import { store } from '../core/Store.js?v=8';
 
 function randomDigits(n) {
     let s = '';
@@ -35,7 +35,7 @@ export async function getDocument(id) {
     return snap.exists() ? normalize({ id: snap.id, ...snap.data() }) : null;
 }
 
-/** Все версии документа с общим номером */
+/** Все версии файла с общим номером */
 export async function getVersionsByNumber(number) {
     const { db } = getFirebase();
     const snap = await getDocs(query(collection(db, 'documents'), where('number', '==', String(number))));
@@ -44,7 +44,7 @@ export async function getVersionsByNumber(number) {
     return list;
 }
 
-/** Уникальный 4-значный номер документа (общий для всех версий) */
+/** Уникальный 4-значный номер файла (общий для всех версий) */
 async function generateNumber() {
     const all = await getAllDocuments();
     const used = new Set(all.map(d => String(d.number)));
@@ -56,7 +56,7 @@ async function generateNumber() {
 }
 
 /**
- * Создать группу версий одного документа (общий номер, у каждой свой ключ).
+ * Создать группу версий одного файла (общий номер, у каждой свой ключ).
  * @param {Array} items — [{ faction, level, content }]
  */
 export async function createVersions(items) {
@@ -114,7 +114,7 @@ export async function deleteDocument(id) {
     await deleteDoc(doc(db, 'documents', id));
 }
 
-/** Удалить все версии документа по номеру */
+/** Удалить все версии файла по номеру */
 export async function deleteVersionGroup(number) {
     const versions = await getVersionsByNumber(number);
     for (const version of versions) {
@@ -132,7 +132,7 @@ export async function grantDocumentAccess(versionId, uid) {
     await setDoc(doc(db, 'users', uid), { documents: docs }, { merge: true });
 }
 
-/** Найти версию по номеру документа и коду доступа */
+/** Найти версию по номеру файла и коду доступа */
 export async function addDocumentByCode(number, accessKey) {
     const versions = await getVersionsByNumber(number);
     return versions.find(v => v.accessKey === accessKey) || null;

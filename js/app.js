@@ -10,39 +10,40 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=6';
-import { Footer } from './components/Footer.js?v=6';
-import { HomePage } from './pages/HomePage.js?v=6';
-import { AuthPage } from './pages/AuthPage.js?v=6';
-import { ProfilePage } from './pages/ProfilePage.js?v=6';
-import { FactionPage } from './pages/FactionPage.js?v=6';
-import { AdminPage } from './pages/AdminPage.js?v=6';
-import { PagesListPage } from './pages/PagesListPage.js?v=6';
-import { PageViewPage } from './pages/PageViewPage.js?v=6';
-import { PageEditPage } from './pages/PageEditPage.js?v=6';
-import { RulesPage } from './pages/RulesPage.js?v=6';
-import { RulesEditPage } from './pages/RulesEditPage.js?v=6';
-import { DocumentsListPage } from './pages/DocumentsListPage.js?v=6';
-import { DocumentViewPage } from './pages/DocumentViewPage.js?v=6';
-import { DocumentEditPage } from './pages/DocumentEditPage.js?v=6';
-import { DocumentAddPage } from './pages/DocumentAddPage.js?v=6';
-import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=6';
-import { UsersAdminPage } from './pages/UsersAdminPage.js?v=6';
-import { GamesAdminPage } from './pages/GamesAdminPage.js?v=6';
-import { GameEditPage } from './pages/GameEditPage.js?v=6';
-import { render, createElement } from './utils/dom.js?v=6';
-import { ThemeManager } from './core/ThemeManager.js?v=6';
-import { initPWA } from './core/pwa.js?v=6';
-import { Router } from './core/Router.js?v=6';
-import { store } from './core/Store.js?v=6';
-import { initFirebase } from './firebase/firebase.js?v=6';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=6';
-import { getActiveGame } from './firebase/gamesService.js?v=6';
-import { getCharacterForPlayer } from './firebase/charactersService.js?v=6';
-import { seedInitialTags } from './firebase/tagsService.js?v=6';
-import { seedInitialPages } from './firebase/pagesService.js?v=6';
-import { seedInitialRules } from './firebase/rulesService.js?v=6';
-import { subscribeDesign } from './firebase/settingsService.js?v=6';
+import { Header } from './components/Header.js?v=8';
+import { Footer } from './components/Footer.js?v=8';
+import { HomePage } from './pages/HomePage.js?v=8';
+import { AuthPage } from './pages/AuthPage.js?v=8';
+import { ProfilePage } from './pages/ProfilePage.js?v=8';
+import { FactionPage } from './pages/FactionPage.js?v=8';
+import { AdminPage } from './pages/AdminPage.js?v=8';
+import { PagesListPage } from './pages/PagesListPage.js?v=8';
+import { PageViewPage } from './pages/PageViewPage.js?v=8';
+import { PageEditPage } from './pages/PageEditPage.js?v=8';
+import { RulesPage } from './pages/RulesPage.js?v=8';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=8';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=8';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=8';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=8';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=8';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=8';
+import { UsersAdminPage } from './pages/UsersAdminPage.js?v=8';
+import { GamesAdminPage } from './pages/GamesAdminPage.js?v=8';
+import { GameEditPage } from './pages/GameEditPage.js?v=8';
+import { render, createElement } from './utils/dom.js?v=8';
+import { ThemeManager } from './core/ThemeManager.js?v=8';
+import { initPWA } from './core/pwa.js?v=8';
+import { initViewMode } from './components/ViewModeToggle.js?v=8';
+import { Router } from './core/Router.js?v=8';
+import { store } from './core/Store.js?v=8';
+import { initFirebase } from './firebase/firebase.js?v=8';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=8';
+import { getActiveGame } from './firebase/gamesService.js?v=8';
+import { getCharacterForPlayer } from './firebase/charactersService.js?v=8';
+import { seedInitialTags } from './firebase/tagsService.js?v=8';
+import { seedInitialPages } from './firebase/pagesService.js?v=8';
+import { seedInitialRules } from './firebase/rulesService.js?v=8';
+import { subscribeDesign } from './firebase/settingsService.js?v=8';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -54,6 +55,7 @@ async function init() {
 
     // PWA: service worker и установка приложения
     initPWA();
+    initViewMode();
 
     // Сначала применяем закешированный дизайн (если есть), иначе v1
     const cachedDesign = localStorage.getItem('bluered_design');
@@ -108,7 +110,7 @@ async function init() {
     router.register('/documents/view', () => {
         const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
         const user = store.get('user');
-        if (!user || !params.get('id')) return Promise.resolve(createElement('p', { className: 'error-text', text: 'Ошибка: нужен ID документа' }));
+        if (!user || !params.get('id')) return Promise.resolve(createElement('p', { className: 'error-text', text: 'Ошибка: нужен ID файла' }));
         return DocumentViewPage(params.get('id'));
     });
     router.register('/documents/create', () => DocumentEditPage(null));
@@ -141,66 +143,87 @@ async function init() {
         }
     });
 
+    // Ждём восстановления сессии Firebase перед первым переходом,
+    // но не дольше 6 секунд — иначе страница останется пустой при сбое сети.
+    router.beforeEach(async () => {
+        if (!store.get('isAuthReady')) {
+            await Promise.race([
+                new Promise(resolve => {
+                    const unsub = store.subscribe('isAuthReady', (ready) => {
+                        if (ready) { unsub(); resolve(); }
+                    });
+                }),
+                new Promise(resolve => setTimeout(resolve, 6000))
+            ]);
+        }
+    });
+
     router.start();
 
     // Слушаем изменения статуса авторизации
     onAuthChange(async (firebaseUser) => {
-        if (firebaseUser) {
-            // Сидируем начальные теги при первом входе
-            try { await seedInitialTags(); } catch (e) { /* каталог уже есть */ }
+        try {
+            if (firebaseUser) {
+                // Сидируем начальные теги при первом входе
+                await withTimeout(seedInitialTags(), 4000);
 
-            // Загружаем профиль из Firestore и пишем в store.
-            // После регистрации документ users/{uid} может ещё не успеть записаться —
-            // поэтому делаем несколько попыток.
-            let profile = await getUserProfile(firebaseUser.uid);
-            for (let attempt = 0; !profile && attempt < 6; attempt++) {
-                await new Promise(resolve => setTimeout(resolve, 300));
-                profile = await getUserProfile(firebaseUser.uid).catch(() => null);
-            }
-            if (profile) {
-                store.set('user', { uid: firebaseUser.uid, ...profile });
-
-                // Активная игра и персонаж игрока
-                let game = null;
-                let character = null;
-                try {
-                    game = await getActiveGame();
-                    if (game) character = await getCharacterForPlayer(game.id, firebaseUser.uid);
-                } catch (e) {
-                    console.warn('Не удалось загрузить активную игру:', e);
+                // Загружаем профиль из Firestore (с повторами после регистрации)
+                let profile = await withTimeout(getUserProfile(firebaseUser.uid), 6000);
+                for (let attempt = 0; !profile && attempt < 6; attempt++) {
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    profile = await withTimeout(getUserProfile(firebaseUser.uid), 6000);
                 }
-                store.set('activeGame', game);
-                store.set('character', character);
 
-                // Тема автоматически подстраивается под фракцию персонажа
-                themeManager.setThemeByFaction(character?.faction || null);
+                if (profile) {
+                    store.set('user', { uid: firebaseUser.uid, ...profile });
 
-                // Сидируем стартовую страницу, если пусто (только для мастеров)
-                if (profile.role === 'master') {
-                    try { await seedInitialPages(); } catch (e) { /* страница уже есть */ }
-                    try { await seedInitialRules(); } catch (e) { /* правила уже есть */ }
+                    // Активная игра и персонаж игрока (не блокируем старт при сбое)
+                    const game = await withTimeout(getActiveGame(), 5000);
+                    const character = game
+                        ? await withTimeout(getCharacterForPlayer(game.id, firebaseUser.uid), 5000)
+                        : null;
+                    store.set('activeGame', game);
+                    store.set('character', character);
+
+                    // Тема автоматически подстраивается под фракцию персонажа
+                    themeManager.setThemeByFaction(character?.faction || null);
+
+                    // Сидируем стартовую страницу, если пусто (только для мастеров)
+                    if (profile.role === 'master') {
+                        await withTimeout(seedInitialPages(), 5000);
+                        await withTimeout(seedInitialRules(), 5000);
+                    }
                 }
-            }
 
-            // Подписываемся на глобальный дизайн (только после авторизации)
-            if (designUnsub) designUnsub();
-            designUnsub = subscribeDesign((version) => {
+                // Подписываемся на глобальный дизайн (только после авторизации)
+                if (designUnsub) designUnsub();
+                designUnsub = subscribeDesign((version) => {
+                    document.documentElement.classList.remove('design-v1', 'design-v2');
+                    document.documentElement.classList.add('design-' + (version || 'v1'));
+                    store.set('design', version || 'v1');
+                });
+            } else {
                 document.documentElement.classList.remove('design-v1', 'design-v2');
-                document.documentElement.classList.add('design-' + (version || 'v1'));
-                store.set('design', version || 'v1');
-            });
-        } else {
-            document.documentElement.classList.remove('design-v1', 'design-v2');
-            document.documentElement.classList.add('design-v1');
-            store.set('design', 'v1');
-            store.set('user', null);
-            store.set('activeGame', null);
-            store.set('character', null);
-            if (designUnsub) { designUnsub(); designUnsub = null; }
-            themeManager.setThemeByFaction(null);
+                document.documentElement.classList.add('design-v1');
+                store.set('design', 'v1');
+                store.set('user', null);
+                store.set('activeGame', null);
+                store.set('character', null);
+                if (designUnsub) { designUnsub(); designUnsub = null; }
+                themeManager.setThemeByFaction(null);
+            }
+        } finally {
+            store.set('isAuthReady', true);
         }
-        store.set('isAuthReady', true);
     });
+}
+
+/** Промис с таймаутом: при зависании возвращает fallback */
+function withTimeout(promise, ms, fallback = null) {
+    return Promise.race([
+        Promise.resolve(promise).catch(() => fallback),
+        new Promise(resolve => setTimeout(() => resolve(fallback), ms))
+    ]);
 }
 
 // Стартуем после загрузки DOM

@@ -1,11 +1,12 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { getAllDocuments } from '../firebase/documentsService.js?v=6';
-import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { getAllDocuments } from '../firebase/documentsService.js?v=8';
+import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=8';
 
 export async function DocumentsListPage() {
     const section = createElement('section', { className: 'documents-list-page' });
@@ -16,13 +17,16 @@ export async function DocumentsListPage() {
         return section;
     }
 
-    const isMaster = user.role === 'master';
+    const adminMode = isAdminMode(user);
+    const isMaster = adminMode;
+    const toggle = ViewModeToggle(user);
 
     try {
         const all = await getAllDocuments();
-        const accessible = isMaster
+        const viewer = { ...user, role: adminMode ? 'master' : 'player' };
+        const accessible = adminMode
             ? all
-            : getAccessibleVersions(all, user, store.get('character') || null);
+            : getAccessibleVersions(all, viewer, store.get('character') || null);
 
         const groups = groupByNumber(accessible);
         const numbers = [...groups.keys()].sort();
@@ -30,18 +34,19 @@ export async function DocumentsListPage() {
         const container = createElement('div', { className: 'documents-list-page__container' });
         const header = createElement('div', { className: 'documents-list-page__header' });
 
-        header.appendChild(createElement('h1', { className: 'documents-list-page__title', text: 'Документы' }));
+        header.appendChild(createElement('h1', { className: 'documents-list-page__title', text: 'Файлы' }));
 
         const actions = createElement('div', { className: 'documents-list-page__actions' });
         if (isMaster) actions.appendChild(Button({ text: 'Создать', icon: 'add', href: '#/documents/create' }));
-        actions.appendChild(Button({ text: 'Добавить документ', variant: 'secondary', href: '#/documents/add' }));
+        actions.appendChild(Button({ text: 'Добавить файл', variant: 'secondary', href: '#/documents/add' }));
+        if (toggle) actions.appendChild(toggle);
         header.appendChild(actions);
         container.appendChild(header);
 
         if (numbers.length === 0) {
             container.appendChild(StatusMessage({
                 type: 'ok',
-                text: isMaster ? 'Нет документов' : 'У вас нет документов.'
+                text: isMaster ? 'Нет файлов' : 'У вас нет файлов.'
             }));
             section.appendChild(container);
             return section;
@@ -55,7 +60,7 @@ export async function DocumentsListPage() {
                 text: 'Печать выбранных',
                 variant: 'secondary',
                 onClick: () => {
-                    if (selectedIds.length === 0) { alert('Выберите документы'); return; }
+                    if (selectedIds.length === 0) { alert('Выберите файлы'); return; }
                     window.location.hash = '#/documents/print?ids=' + selectedIds.join(',');
                 }
             }));
@@ -88,7 +93,7 @@ function createGroupCard(number, versions, isMaster, selectedIds) {
     if (isMaster) {
         const checkbox = createElement('input', {
             className: 'documents-list__checkbox',
-            attributes: { type: 'checkbox', 'aria-label': 'Выбрать документ № ' + number }
+            attributes: { type: 'checkbox', 'aria-label': 'Выбрать файл № ' + number }
         });
         const ids = versions.map(v => v.id);
         checkbox.addEventListener('change', (e) => {

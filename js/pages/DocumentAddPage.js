@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=6';
-import { updateUserProfile } from '../firebase/authService.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { BackButton } from '../components/BackButton.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=6';
-import { FACTION_LABELS } from '../utils/profile.js?v=6';
-import { LEVEL_LABELS } from '../domain/documents.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=8';
+import { updateUserProfile } from '../firebase/authService.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { BackButton } from '../components/BackButton.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=8';
+import { FACTION_LABELS } from '../utils/profile.js?v=8';
+import { LEVEL_LABELS } from '../domain/documents.js?v=8';
 
 export function DocumentAddPage() {
     const section = createElement('section', { className: 'document-add-page' });
@@ -20,7 +20,7 @@ export function DocumentAddPage() {
 
     const container = createElement('div', { className: 'document-add-page__container' });
     container.appendChild(BackButton({ fallback: '#/documents' }));
-    container.appendChild(createElement('h1', { className: 'document-add-page__title', text: 'Добавить документ' }));
+    container.appendChild(createElement('h1', { className: 'document-add-page__title', text: 'Добавить файл' }));
 
     const form = createElement('form', {
         className: 'document-add-page__form',
@@ -29,7 +29,7 @@ export function DocumentAddPage() {
 
     const numInput = createElement('input', {
         className: 'document-add-page__input',
-        attributes: { type: 'text', id: 'doc-number', placeholder: 'Номер документа (4 цифры)', maxlength: 4, autocomplete: 'off', inputmode: 'numeric' }
+        attributes: { type: 'text', id: 'doc-number', placeholder: 'Номер файла (4 цифры)', maxlength: 4, autocomplete: 'off', inputmode: 'numeric' }
     });
     const numGroup = createElement('div', { className: 'document-add-page__field' });
     numGroup.appendChild(numInput);
@@ -56,11 +56,11 @@ export function DocumentAddPage() {
 
         try {
             const found = await addDocumentByCode(number, key);
-            if (!found) throw new Error('Документ с такими данными не найден');
+            if (!found) throw new Error('Файл с такими данными не найден');
 
             const userDocs = user.documents || [];
             if (userDocs.includes(found.id)) {
-                showMessage(msg, 'Этот документ уже есть у вас', 'ok');
+                showMessage(msg, 'Этот файл уже есть у вас', 'ok');
                 return;
             }
 
@@ -69,7 +69,7 @@ export function DocumentAddPage() {
             await updateUserProfile(user.uid, { documents: newDocs });
             store.set('user', { ...user, documents: newDocs });
 
-            showMessageHTML(msg, `Документ № ${found.number} · ${FACTION_LABELS[found.faction] || found.faction} · ${LEVEL_LABELS[found.level] || found.level} добавлен. <a href="#/documents/view?id=${found.id}">Открыть</a>`, 'ok');
+            showMessageHTML(msg, `Файл № ${found.number} · ${FACTION_LABELS[found.faction] || found.faction} · ${LEVEL_LABELS[found.level] || found.level} добавлен. <a href="#/documents/view?id=${found.id}">Открыть</a>`, 'ok');
         } catch (err) {
             showMessage(msg, translateError(err), 'err');
         } finally {

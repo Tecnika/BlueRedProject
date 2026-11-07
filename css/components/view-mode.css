@@ -1,0 +1,33 @@
+/* Переключатель «Игрок / Админ» (только мастер) */
+
+.view-mode {
+    display: inline-flex;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.view-mode__btn {
+    padding: 4px 12px;
+    background: transparent;
+    border: 0;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.view-mode__btn:hover {
+    color: var(--color-primary);
+}
+
+.view-mode__btn--active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+.view-mode__btn--active:hover {
+    color: #fff;
+}

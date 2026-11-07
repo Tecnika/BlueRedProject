@@ -10,8 +10,8 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, where } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=6';
-import { syncPublicPlayer } from './authService.js?v=6';
+import { getFirebase } from './firebase.js?v=8';
+import { syncPublicPlayer } from './authService.js?v=8';
 
 export async function getCharactersByGame(gameId) {
     const { db } = getFirebase();

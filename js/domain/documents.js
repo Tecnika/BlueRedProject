@@ -1,7 +1,7 @@
 /**
- * domain/documents — правила документов: уровни, доступ, отображение.
+ * domain/documents — правила файлов: уровни, доступ, отображение.
  *
- * Каждая версия документа — отдельная запись с общим `number`:
+ * Каждая версия файла — отдельная запись с общим `number`:
  *   { number, faction, level: 'truth'|'official'|'propaganda', content, accessKey }
  *
  * Уровни самостоятельные:
@@ -10,7 +10,7 @@
  *   - truth открывает и official той же фракции (и только его).
  */
 
-import { renderCipher, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=6';
+import { renderCipher, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=8';
 
 /** Доступные уровни текста */
 export const LEVELS = ['truth', 'official', 'propaganda'];
@@ -22,7 +22,7 @@ export const LEVEL_LABELS = {
     propaganda: 'Пропаганда'
 };
 
-/** Фракции документов (включая «Общий») */
+/** Фракции файлов (включая «Общий») */
 export const DOC_FACTIONS = ['red', 'blue', 'purple', 'common'];
 
 /** Теги персонажа, дающие доступ к «Правде» фракции */
@@ -45,6 +45,7 @@ export function hasTruthTag(character, faction) {
 /** Есть ли прямой доступ к версии (выдача, QR или гриф «Правда») */
 export function isVersionAccessible(version, user, character) {
     if (!user || !version) return false;
+    if (version.faction === 'common') return true;
     if (user.role === 'master') return true;
     if ((user.documents || []).includes(version.id)) return true;
     if (version.level === 'truth' && hasTruthTag(character, version.faction)) return true;
@@ -56,7 +57,7 @@ export function getAccessibleVersions(versions, user, character) {
     if (!user) return [];
     if (user.role === 'master') return [...versions].sort(sortVersions);
 
-    // Для каждого номера документа: у каких фракций зритель видит «Правду»
+    // Для каждого номера файла: у каких фракций зритель видит «Правду»
     const truthByNumber = new Map();
     for (const version of versions) {
         if (version.level !== 'truth') continue;
@@ -115,7 +116,7 @@ export function sortVersions(a, b) {
     return LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level);
 }
 
-/** Сгруппировать версии по номеру документа */
+/** Сгруппировать версии по номеру файла */
 export function groupByNumber(versions) {
     const map = new Map();
     for (const version of versions) {

@@ -1,11 +1,12 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
-import { getActiveFaction } from '../utils/profile.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
+import { getActiveFaction } from '../utils/profile.js?v=8';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=8';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {
@@ -35,14 +36,15 @@ export async function PageViewPage(slug) {
             return section;
         }
 
-        const viewer = { role: user.role, character: store.get('character') || {} };
+        const adminMode = isAdminMode(user);
+        const viewer = { role: adminMode ? 'master' : 'player', character: store.get('character') || {} };
         const visible = filterVisiblePages([page], viewer);
-        if (visible.length === 0 && user.role !== 'master') {
+        if (visible.length === 0 && !adminMode) {
             section.appendChild(StatusMessage({ type: 'err', text: 'Недостаточно прав доступа' }));
             return section;
         }
 
-        const isAdmin = user.role === 'master';
+        const isAdmin = adminMode;
         const container = createElement('div', { className: 'page-view-page__container' });
 
         if (page.type === 'general') {
@@ -51,7 +53,11 @@ export async function PageViewPage(slug) {
             section.classList.add('page-view-page--faction-' + getActiveFaction());
         }
 
-        container.appendChild(Button({ text: 'Назад к архиву', icon: 'arrow_back', variant: 'secondary', size: 'sm', href: '#/pages' }));
+        const topRow = createElement('div', { className: 'page-view-page__top' });
+        topRow.appendChild(Button({ text: 'Назад к эфиру', icon: 'arrow_back', variant: 'secondary', size: 'sm', href: '#/pages' }));
+        const modeToggle = ViewModeToggle(user);
+        if (modeToggle) topRow.appendChild(modeToggle);
+        container.appendChild(topRow);
 
         const breadcrumbs = createElement('div', { className: 'page-view-page__breadcrumbs' });
         const allPages = await getAllPages();
@@ -74,7 +80,7 @@ export async function PageViewPage(slug) {
         if (page.type === 'general') {
             renderGeneralView(container, page);
         } else {
-            renderFactionView(container, page, user);
+            renderFactionView(container, page, viewer, isAdmin);
         }
 
         if (isAdmin) {
@@ -111,11 +117,9 @@ function renderGeneralView(container, page) {
     }
 }
 
-function renderFactionView(container, page, user) {
-    const viewer = { role: user.role, character: store.get('character') || {} };
+function renderFactionView(container, page, viewer, isAdmin) {
     const filtered = filterVisibleCells(page.matrix, viewer, page.tags || []);
     let anyContent = false;
-    const isAdmin = user.role === 'master';
 
     for (const f of FACTION_COLUMNS) {
         if (!filtered[f]) continue;

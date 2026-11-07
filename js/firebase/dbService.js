@@ -18,13 +18,13 @@ import {
     where
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=6';
+import { getFirebase } from './firebase.js?v=8';
 
 function getDb() {
     return getFirebase().db;
 }
 
-/** Получить один документ по id */
+/** Получить один файл по id */
 export async function getDocument(collectionName, docId) {
     const docRef = doc(getDb(), collectionName, docId);
     const snapshot = await getDoc(docRef);
@@ -32,7 +32,7 @@ export async function getDocument(collectionName, docId) {
 }
 
 /**
- * Получить все документы коллекции (с опциональной фильтрацией).
+ * Получить все файлы коллекции (с опциональной фильтрацией).
  * @param {Object[]} conditions — [{ field, op, value }]
  */
 export async function getCollection(collectionName, conditions = []) {
@@ -50,18 +50,18 @@ export async function getCollection(collectionName, conditions = []) {
     return result;
 }
 
-/** Добавить документ в коллекцию (авто-id) */
+/** Добавить файл в коллекцию (авто-id) */
 export async function addDocument(collectionName, data) {
     const docRef = await addDoc(collection(getDb(), collectionName), data);
     return docRef.id;
 }
 
-/** Обновить документ по id */
+/** Обновить файл по id */
 export async function updateDocument(collectionName, docId, data) {
     await updateDoc(doc(getDb(), collectionName, docId), data);
 }
 
-/** Удалить документ по id */
+/** Удалить файл по id */
 export async function deleteDocument(collectionName, docId) {
     await deleteDoc(doc(getDb(), collectionName, docId));
 }

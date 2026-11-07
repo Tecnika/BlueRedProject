@@ -84,7 +84,7 @@ function hashString(str) {
  * Выбор открытых букв детерминирован (стабилен при перезагрузке).
  * @param {string} plain — исходный текст
  * @param {'red'|'blue'|'purple'} faction
- * @param {string} docId — идентификатор документа (для стабильного выбора)
+ * @param {string} docId — идентификатор файла (для стабильного выбора)
  * @param {number} fraction — доля открытых букв (0..1)
  */
 export function revealPartial(plain, faction, docId, fraction) {
@@ -103,7 +103,7 @@ export function revealPartial(plain, faction, docId, fraction) {
 /**
  * Текст для показа с учётом прогресса изучения языка.
  * @param {string} plain — исходный текст
- * @param {'red'|'blue'|'purple'} faction — язык документа
+ * @param {'red'|'blue'|'purple'} faction — язык файла
  * @param {string} docId
  * @param {number} count — количество расшифровок языка
  */

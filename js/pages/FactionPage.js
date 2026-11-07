@@ -1,132 +1,135 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { createAvatar } from '../core/Avatar.js?v=6';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=6';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=6';
-import { Chip } from '../components/Chip.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=6';
-import { ROLE_LABELS } from '../utils/constants.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { createAvatar } from '../core/Avatar.js?v=8';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=8';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=8';
+import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { Icon } from '../components/Icon.js?v=8';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=8';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=8';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=8';
+import { ROLE_LABELS } from '../utils/constants.js?v=8';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
 
 export async function FactionPage() {
     const section = createElement('section', { className: 'faction-page' });
-    const currentUser = store.get('user');
+    const user = store.get('user');
 
-    if (!currentUser) {
+    if (!user) {
         section.appendChild(StatusMessage({ type: 'err', text: 'Требуется идентификация' }));
         return section;
     }
 
-    const isAdmin = currentUser.role === 'master';
+    const adminMode = isAdminMode(user);
+    const fullView = user.role === 'igrotech' || adminMode;
     const game = getActiveGame();
 
+    const container = createElement('div', { className: 'faction-page__container' });
+
+    const header = createElement('div', { className: 'faction-page__header' });
+    const myFaction = getActiveFaction();
+    header.appendChild(createElement('h1', {
+        className: 'faction-page__title',
+        text: fullView ? 'Фракции' : (myFaction ? `Фракция: ${FACTION_LABELS[myFaction] || myFaction}` : 'Фракции')
+    }));
+    const toggle = ViewModeToggle(user);
+    if (toggle) header.appendChild(toggle);
+    container.appendChild(header);
+    section.appendChild(container);
+
     if (!game) {
-        section.appendChild(StatusMessage({ type: 'ok', text: 'Игра ещё не начата' }));
+        container.appendChild(StatusMessage({ type: 'ok', text: 'Игра ещё не начата' }));
         return section;
     }
 
-    if (!isAdmin && !getActiveFaction()) {
-        section.appendChild(StatusMessage({ type: 'err', text: 'Вам ещё не выдана роль' }));
+    if (!fullView && !myFaction) {
+        container.appendChild(StatusMessage({ type: 'err', text: 'Вам ещё не выдана роль' }));
         return section;
     }
 
     try {
-        const characters = await getCharactersByGame(game.id);
-        const players = await getAllPublicPlayers();
+        const [characters, players, commentsMap] = await Promise.all([
+            getCharactersByGame(game.id),
+            getAllPublicPlayers(),
+            getAllComments()
+        ]);
+
         const playerMap = {};
         for (const p of players) playerMap[p.uid] = p;
 
-        const members = characters.map(c => ({
-            character: c,
-            player: playerMap[c.playerId] || null
-        }));
+        const visible = fullView
+            ? characters
+            : characters.filter(c => c.faction === myFaction);
 
-        if (isAdmin) {
-            renderAdminView(section, groupByFaction(members), currentUser.uid);
+        if (fullView) {
+            for (const faction of FACTION_ORDER) {
+                const members = visible.filter(c => {
+                    const key = c.faction && FACTION_LABELS[c.faction] ? c.faction : '__unassigned';
+                    return key === faction;
+                });
+                if (members.length === 0) continue;
+                container.appendChild(renderGroup(faction, members, playerMap, commentsMap, user, fullView));
+            }
         } else {
-            const myFaction = getActiveFaction();
-            renderFactionView(section, members.filter(m => m.character.faction === myFaction), myFaction, currentUser.uid);
+            container.appendChild(renderGroup(myFaction, visible, playerMap, commentsMap, user, fullView));
         }
     } catch (err) {
-        section.appendChild(StatusMessage({ type: 'err', text: 'Ошибка загрузки: ' + translateError(err) }));
+        container.appendChild(StatusMessage({ type: 'err', text: 'Ошибка загрузки: ' + translateError(err) }));
     }
 
     return section;
 }
 
-function groupByFaction(members) {
-    const groups = {};
-    for (const key of FACTION_ORDER) groups[key] = [];
-    for (const member of members) {
-        const faction = member.character.faction;
-        const key = faction && FACTION_LABELS[faction] ? faction : '__unassigned';
-        groups[key].push(member);
-    }
-    for (const key of FACTION_ORDER) {
-        groups[key].sort((a, b) => (a.character.name || '').localeCompare(b.character.name || '', 'ru'));
-    }
-    return groups;
-}
+function renderGroup(faction, members, playerMap, commentsMap, user, fullView) {
+    const group = createElement('div', { className: 'faction-group' });
 
-function renderAdminView(section, grouped, currentUid) {
-    const header = createElement('div', { className: 'faction-page__header' });
-    header.appendChild(createElement('h1', { className: 'faction-page__title', text: 'Личный состав' }));
-    section.appendChild(header);
-
-    for (const faction of FACTION_ORDER) {
-        const members = grouped[faction];
-        if (members.length === 0) continue;
-
-        const group = createElement('div', { className: 'faction-group' });
-        const title = createElement('h2', { className: 'faction-group__title', text: GROUP_LABELS[faction] });
-        title.appendChild(createElement('span', { className: 'faction-group__count', text: `${members.length}` }));
-        group.appendChild(title);
-
-        const list = createElement('div', { className: 'faction-page__list' });
-        for (const member of members) {
-            list.appendChild(createMemberCard(member, currentUid));
-        }
-        group.appendChild(list);
-        section.appendChild(group);
-    }
-}
-
-function renderFactionView(section, members, myFaction, currentUid) {
-    const header = createElement('div', { className: 'faction-page__header' });
-    header.appendChild(createElement('h1', { className: 'faction-page__title', text: `Фракция: ${FACTION_LABELS[myFaction] || myFaction}` }));
-    section.appendChild(header);
+    const title = createElement('h2', { className: 'faction-group__title', text: GROUP_LABELS[faction] || faction });
+    title.appendChild(createElement('span', { className: 'faction-group__count', text: String(members.length) }));
+    group.appendChild(title);
 
     const list = createElement('div', { className: 'faction-page__list' });
-    if (members.length === 0) {
-        list.appendChild(createElement('p', { className: 'faction-page__empty', text: 'В секции пока никого нет' }));
-    } else {
-        for (const member of members) list.appendChild(createMemberCard(member, currentUid));
+    for (const character of members) {
+        list.appendChild(createMemberCard(character, playerMap[character.playerId] || null, commentsMap, user, fullView));
     }
-    section.appendChild(list);
+    group.appendChild(list);
+
+    return group;
 }
 
-function createMemberCard(member, currentUid) {
-    const { character, player } = member;
-    const isCurrent = player && player.uid === currentUid;
+function createMemberCard(character, player, commentsMap, user, fullView) {
+    const isSelf = player && player.uid === user.uid;
+    const targetId = character.playerId || character.id;
+    const comments = commentsMap[targetId] || [];
 
-    const card = createElement('a', {
-        className: `faction-card${isCurrent ? ' faction-card--current' : ''}`,
-        attributes: { href: player ? `#/profile?uid=${player.uid}` : '#' }
+    const card = createElement('div', {
+        className: 'faction-card' + (isSelf ? ' faction-card--current' : '')
     });
 
-    const avatar = createAvatar(player?.username || 'agent', character.faction, 'faction-card__avatar', null);
+    card.appendChild(createAvatar(player?.username || 'agent', character.faction, 'faction-card__avatar', null));
+
     const info = createElement('div', { className: 'faction-card__info' });
 
     const nameRow = createElement('div', { className: 'faction-card__name-row' });
-    nameRow.appendChild(createElement('span', {
-        className: 'faction-card__name',
-        text: (character.name || 'Без имени') + (isCurrent ? ' (вы)' : '')
-    }));
+    const canOpenProfile = isSelf || fullView;
+    const nameText = character.name || 'Без имени';
+
+    if (canOpenProfile && player) {
+        nameRow.appendChild(createElement('a', {
+            className: 'faction-card__name faction-card__name--link',
+            text: nameText + (isSelf ? ' (вы)' : ''),
+            attributes: { href: `#/profile?uid=${player.uid}` }
+        }));
+    } else {
+        nameRow.appendChild(createElement('span', {
+            className: 'faction-card__name',
+            text: nameText + (isSelf ? ' (вы)' : '')
+        }));
+    }
+
     if (player) {
         nameRow.appendChild(createElement('span', {
             className: 'faction-card__role',
@@ -135,36 +138,115 @@ function createMemberCard(member, currentUid) {
     }
     info.appendChild(nameRow);
 
-    // Игрок (публичное имя) + профессия
-    const meta = [player ? (player.displayName || player.username) : '', character.profession || '']
-        .filter(Boolean).join(' · ');
-    if (meta) {
-        info.appendChild(createElement('p', { className: 'faction-card__detail', text: meta }));
+    // Настоящее имя игрока — только игротеху и мастеру-админу
+    if (fullView && player) {
+        info.appendChild(createElement('div', {
+            className: 'faction-card__real-name',
+            text: `Игрок: ${player.displayName || player.username}`
+        }));
     }
 
+    if (character.profession) {
+        info.appendChild(createElement('div', {
+            className: 'faction-card__detail',
+            text: `Должность: ${character.profession}`
+        }));
+    }
     if (character.worldview) {
-        info.appendChild(createElement('p', { className: 'faction-card__detail', text: `Мировоззрение: ${character.worldview}` }));
+        info.appendChild(createElement('div', {
+            className: 'faction-card__detail',
+            text: `Мировоззрение: ${character.worldview}`
+        }));
     }
 
-    const accessTags = character.accessTags || [];
-    if (accessTags.length) {
-        const tagList = createElement('div', { className: 'faction-card__tags' });
-        for (const tag of accessTags.slice(0, 3)) {
-            tagList.appendChild(Chip({ text: tag, variant: 'access' }));
+    card.appendChild(info);
+
+    // Комментарии о человеке
+    const commentsWrap = createElement('div', { className: 'faction-card__comments-wrap' });
+    const toggleBtn = createElement('button', {
+        className: 'faction-card__comments-toggle',
+        attributes: { type: 'button' }
+    });
+    toggleBtn.appendChild(Icon({ name: 'comment', size: 'sm' }));
+    const toggleLabel = createElement('span', { text: `Комментарии (${comments.length})` });
+    toggleBtn.appendChild(toggleLabel);
+    commentsWrap.appendChild(toggleBtn);
+
+    const commentsBox = createElement('div', { className: 'faction-card__comments', attributes: { hidden: '' } });
+    const listEl = createElement('div', { className: 'faction-card__comments-list' });
+    const msg = StatusMessage({ type: 'ok', text: '', hidden: true });
+
+    function renderList(items) {
+        listEl.innerHTML = '';
+        if (items.length === 0) {
+            listEl.appendChild(createElement('div', {
+                className: 'faction-card__comments-empty',
+                text: 'Пока нет комментариев'
+            }));
+            return;
         }
-        if (accessTags.length > 3) {
-            tagList.appendChild(Chip({ text: `+${accessTags.length - 3}`, variant: 'default' }));
+        for (const item of items) {
+            const row = createElement('div', { className: 'faction-card__comment' });
+            row.appendChild(createElement('span', {
+                className: 'faction-card__comment-author',
+                text: item.authorName || 'Агент'
+            }));
+            row.appendChild(createElement('span', {
+                className: 'faction-card__comment-text',
+                text: item.text
+            }));
+            listEl.appendChild(row);
         }
-        info.appendChild(tagList);
     }
+    renderList(comments);
+
+    const textarea = createElement('textarea', {
+        className: 'faction-card__comment-input',
+        attributes: { rows: 2, placeholder: 'Комментарий о человеке...', 'aria-label': 'Комментарий о человеке' }
+    });
+    const sendBtn = createElement('button', {
+        className: 'btn btn--secondary btn--sm',
+        attributes: { type: 'button' },
+        events: {
+            click: async () => {
+                const text = textarea.value.trim();
+                if (!text) { showMessage(msg, 'Введите комментарий', 'err'); return; }
+                sendBtn.disabled = true;
+                try {
+                    const entry = await addComment(targetId, text);
+                    commentsMap[targetId] = [...(commentsMap[targetId] || []), entry];
+                    renderList(commentsMap[targetId]);
+                    toggleLabel.textContent = `Комментарии (${commentsMap[targetId].length})`;
+                    textarea.value = '';
+                    showMessage(msg, 'Комментарий добавлен', 'ok');
+                } catch (err) {
+                    showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
+                } finally {
+                    sendBtn.disabled = false;
+                }
+            }
+        }
+    });
+    sendBtn.appendChild(Icon({ name: 'send', size: 'sm' }));
+    sendBtn.appendChild(createElement('span', { text: 'Отправить' }));
+
+    commentsBox.appendChild(listEl);
+    commentsBox.appendChild(textarea);
+    commentsBox.appendChild(sendBtn);
+    commentsBox.appendChild(msg);
+    commentsWrap.appendChild(commentsBox);
+
+    toggleBtn.addEventListener('click', () => {
+        commentsBox.hidden = !commentsBox.hidden;
+    });
+
+    card.appendChild(commentsWrap);
 
     if (character.faction) {
-        const badgeRow = createElement('div', { className: 'faction-card__tags' });
+        const badgeRow = createElement('div', { className: 'faction-card__badge' });
         badgeRow.appendChild(FactionBadge({ faction: character.faction, size: 'sm' }));
-        info.appendChild(badgeRow);
+        card.appendChild(badgeRow);
     }
 
-    card.appendChild(avatar);
-    card.appendChild(info);
     return card;
 }

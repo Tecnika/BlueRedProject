@@ -23,7 +23,7 @@ import {
     updateDoc
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=6';
+import { getFirebase } from './firebase.js?v=8';
 
 /** Домен-заглушка для email (Firebase Auth требует email) */
 const FAKE_DOMAIN = '@bluered.project';

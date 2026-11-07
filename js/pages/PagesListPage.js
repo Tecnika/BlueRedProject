@@ -1,10 +1,11 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=8';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });
@@ -15,20 +16,25 @@ export async function PagesListPage() {
         return section;
     }
 
+    const adminMode = isAdminMode(user);
+
     try {
         const allPages = await getAllPages();
-        const viewer = { role: user.role, character: store.get('character') || {} };
+        const viewer = { role: adminMode ? 'master' : 'player', character: store.get('character') || {} };
         const visible = filterVisiblePages(allPages, viewer);
         const tree = buildPageTree(visible);
 
         const container = createElement('div', { className: 'pages-list-page__container' });
 
         const header = createElement('div', { className: 'pages-list-page__header' });
-        header.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Архив' }));
+        header.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Эфир' }));
+        header.appendChild(Button({ text: 'Правила', icon: 'gavel', variant: 'secondary', size: 'sm', href: '#/rules' }));
 
-        if (user.role === 'master') {
+        if (adminMode) {
             header.appendChild(Button({ text: 'Новое досье', icon: 'add', href: '#/page/create' }));
         }
+        const toggle = ViewModeToggle(user);
+        if (toggle) header.appendChild(toggle);
 
         container.appendChild(header);
 

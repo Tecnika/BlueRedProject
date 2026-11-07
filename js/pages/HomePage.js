@@ -1,19 +1,19 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { Icon } from '../components/Icon.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { Icon } from '../components/Icon.js?v=8';
 
 const LORE_ITEMS = [
     { icon: 'diversity_3', title: 'Три расы', text: 'Красные, Синие и Фиолетовые ведут бесконечную информационную войну в секторе BlueRed. Каждая фракция имеет свою идеологию, язык и цели.' },
     { icon: 'rocket_launch', title: 'Дрейфующий шаттл', text: 'Станция «BlueRed» — последний оплот цивилизации на границе известного сектора. Здесь пересекаются пути разведчиков, дипломатов и шпионов.' },
-    { icon: 'bolt', title: 'Война данных', text: 'Документы, шифры, оперативные досье — информация — главное оружие. Доступ к данным определяет исход противостояния.' }
+    { icon: 'bolt', title: 'Война данных', text: 'Файлы, шифры, оперативные досье — информация — главное оружие. Доступ к данным определяет исход противостояния.' }
 ];
 
 const MODULES = [
     { icon: 'gavel', title: 'Правила', desc: 'Свод законов сектора', href: '#/rules' },
-    { icon: 'menu_book', title: 'Архив', desc: 'Досье и сводки', href: '#/pages' },
-    { icon: 'description', title: 'Документы', desc: 'Секретные документы', href: '#/documents' },
-    { icon: 'groups', title: 'Фракция', desc: 'Личный состав', href: '#/faction' },
+    { icon: 'menu_book', title: 'Эфир', desc: 'Досье и сводки', href: '#/pages' },
+    { icon: 'description', title: 'Файлы', desc: 'Секретные файлы', href: '#/documents' },
+    { icon: 'groups', title: 'Фракции', desc: 'Личный состав', href: '#/faction' },
     { icon: 'assignment', title: 'Досье', desc: 'Личное дело', href: '#/profile' }
 ];
 
@@ -40,13 +40,13 @@ function renderHero(user) {
 
     const roleText = user
         ? 'Ваш профиль активирован. Доступ к ресурсам сектора открыт.'
-        : 'Авторизуйтесь для получения доступа к архивам сектора BlueRed.';
+        : 'Авторизуйтесь для получения доступа к эфирам сектора BlueRed.';
     section.appendChild(createElement('p', { className: 'hero__text', text: roleText }));
 
     const cta = createElement('div', { className: 'hero__cta' });
     if (user) {
         cta.appendChild(Button({ text: 'Моё досье', variant: 'primary', href: '#/profile' }));
-        cta.appendChild(Button({ text: 'Документы', variant: 'secondary', href: '#/documents' }));
+        cta.appendChild(Button({ text: 'Файлы', variant: 'secondary', href: '#/documents' }));
     } else {
         cta.appendChild(Button({ text: 'Войти в систему', variant: 'primary', href: '#/auth' }));
         cta.appendChild(Button({ text: 'Изучить правила', variant: 'secondary', href: '#/rules' }));

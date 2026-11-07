@@ -140,3 +140,110 @@
     border: 1px solid var(--color-border);
 }
 
+
+.faction-page__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.faction-card {
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.faction-card__name--link {
+    text-decoration: none;
+    color: var(--color-primary);
+}
+
+.faction-card__name--link:hover {
+    text-decoration: underline;
+}
+
+.faction-card__real-name {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.faction-card__badge {
+    margin-left: auto;
+}
+
+.faction-card__comments-wrap {
+    flex-basis: 100%;
+    margin-top: var(--space-sm);
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--space-sm);
+}
+
+.faction-card__comments-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.faction-card__comments-toggle:hover {
+    color: var(--color-primary);
+}
+
+.faction-card__comments {
+    margin-top: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.faction-card__comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.faction-card__comment {
+    display: flex;
+    gap: var(--space-xs);
+    font-size: 0.85rem;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs) var(--space-sm);
+}
+
+.faction-card__comment-author {
+    font-weight: 600;
+    color: var(--color-primary);
+    white-space: nowrap;
+}
+
+.faction-card__comment-text {
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.faction-card__comments-empty {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.faction-card__comment-input {
+    width: 100%;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.85rem;
+    resize: vertical;
+}
+

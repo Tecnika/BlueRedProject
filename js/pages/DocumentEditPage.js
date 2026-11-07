@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
 import {
     getDocument,
     getVersionsByNumber,
@@ -6,13 +6,13 @@ import {
     addVersion,
     updateDocument,
     deleteDocument
-} from '../firebase/documentsService.js?v=6';
-import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=6';
-import { FACTION_LABELS } from '../utils/profile.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=6';
-import { requireAuth } from '../components/PageLayout.js?v=6';
+} from '../firebase/documentsService.js?v=8';
+import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=8';
+import { FACTION_LABELS } from '../utils/profile.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=8';
+import { requireAuth } from '../components/PageLayout.js?v=8';
 
 /** Одна строка версии: фракция + уровень + текст */
 function createVersionRow(initial = {}) {
@@ -91,7 +91,7 @@ export async function DocumentEditPage(docId) {
         } else {
             const version = await getDocument(docId);
             if (!version) {
-                section.appendChild(StatusMessage({ type: 'err', text: 'Документ не найден' }));
+                section.appendChild(StatusMessage({ type: 'err', text: 'Файл не найден' }));
                 return section;
             }
             section.appendChild(await renderEditForm(version));
@@ -105,10 +105,10 @@ export async function DocumentEditPage(docId) {
     // ---------- создание группы версий ----------
     function renderCreateForm() {
         const container = createElement('div', { className: 'document-edit-page__container' });
-        container.appendChild(createElement('h1', { className: 'document-edit-page__title', text: 'Создать документ' }));
+        container.appendChild(createElement('h1', { className: 'document-edit-page__title', text: 'Создать файл' }));
         container.appendChild(createElement('p', {
             className: 'document-edit-page__hint',
-            text: 'У документа один номер и от 1 до 12 версий: фракция и уровень. У каждой версии свой код доступа и QR.'
+            text: 'У файла один номер и от 1 до 12 версий: фракция и уровень. У каждой версии свой код доступа и QR.'
         }));
 
         const rowsHost = createElement('div', { className: 'document-edit-page__versions' });
@@ -189,7 +189,7 @@ export async function DocumentEditPage(docId) {
                 const links = versions.map(v =>
                     `№ ${number} · ${FACTION_LABELS[v.faction]} · ${LEVEL_LABELS[v.level]} — код <strong>${v.accessKey}</strong> · <a href="#/documents/view?id=${v.id}">открыть</a>`
                 ).join('<br>');
-                showMessageHTML(msg, `Документ № ${number} создан.<br>${links}`, 'ok');
+                showMessageHTML(msg, `Файл № ${number} создан.<br>${links}`, 'ok');
                 form.querySelectorAll('button').forEach(b => { b.disabled = true; });
             } catch (err) {
                 showMessage(msg, 'Ошибка: ' + translateError(err), 'err');
@@ -205,7 +205,7 @@ export async function DocumentEditPage(docId) {
     // ---------- редактирование версии ----------
     async function renderEditForm(version) {
         const container = createElement('div', { className: 'document-edit-page__container' });
-        container.appendChild(createElement('h1', { className: 'document-edit-page__title', text: `Документ № ${version.number}` }));
+        container.appendChild(createElement('h1', { className: 'document-edit-page__title', text: `Файл № ${version.number}` }));
         container.appendChild(createElement('p', {
             className: 'document-edit-page__hint',
             text: 'Редактируется одна версия. Остальные версии этого номера — ниже.'
@@ -252,7 +252,7 @@ export async function DocumentEditPage(docId) {
 
         // Другие версии номера
         const versions = await getVersionsByNumber(version.number);
-        container.appendChild(createElement('h2', { className: 'document-edit-page__subtitle', text: `Версии документа № ${version.number}` }));
+        container.appendChild(createElement('h2', { className: 'document-edit-page__subtitle', text: `Версии файла № ${version.number}` }));
 
         const list = createElement('div', { className: 'document-edit-page__version-list' });
         for (const v of versions.sort(sortVersions)) {
@@ -275,7 +275,7 @@ export async function DocumentEditPage(docId) {
                 variant: 'danger',
                 size: 'sm',
                 onClick: async () => {
-                    if (!confirm('Удалить эту версию документа?')) return;
+                    if (!confirm('Удалить эту версию файла?')) return;
                     try {
                         await deleteDocument(v.id);
                         if (v.id === version.id) window.location.hash = '#/documents';

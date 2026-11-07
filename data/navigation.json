@@ -1,8 +1,6 @@
 [
     { "label": "Главная", "path": "#/" },
-    { "label": "Архив", "path": "#/pages" },
-    { "label": "Документы", "path": "#/documents" },
-    { "label": "Правила", "path": "#/rules" },
-    { "label": "Фракция", "path": "#/faction" },
-    { "label": "Досье", "path": "#/profile" }
+    { "label": "Эфир", "path": "#/pages" },
+    { "label": "Файлы", "path": "#/documents" },
+    { "label": "Фракции", "path": "#/faction" }
 ]

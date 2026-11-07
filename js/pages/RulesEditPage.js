@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { FormField } from '../components/FormField.js?v=6';
-import { StatusMessage } from '../components/StatusMessage.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { FormField } from '../components/FormField.js?v=8';
+import { StatusMessage } from '../components/StatusMessage.js?v=8';
 
 export async function RulesEditPage() {
     const section = createElement('section', { className: 'rules-edit-page' });

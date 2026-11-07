@@ -1,19 +1,20 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
-import { createAvatar } from '../core/Avatar.js?v=6';
-import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=6';
-import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=6';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=6';
-import { getNote, saveNote } from '../firebase/notesService.js?v=6';
-import { getAllDocuments } from '../firebase/documentsService.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { Chip } from '../components/Chip.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=6';
-import { FormField } from '../components/FormField.js?v=6';
-import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=6';
-import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
+import { createAvatar } from '../core/Avatar.js?v=8';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=8';
+import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=8';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=8';
+import { getNote, saveNote } from '../firebase/notesService.js?v=8';
+import { getAllDocuments } from '../firebase/documentsService.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { Chip } from '../components/Chip.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=8';
+import { FormField } from '../components/FormField.js?v=8';
+import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=8';
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=8';
+import { isAdminMode } from '../components/ViewModeToggle.js?v=8';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });
@@ -27,12 +28,13 @@ export async function ProfilePage(targetUid) {
 
         const uid = targetUid || currentUser.uid;
         const isOwner = uid === currentUser.uid;
-        const isAdmin = currentUser.role === 'master' || currentUser.role === 'igrotech';
+        const canSeePii = isOwner || (currentUser.role === 'master' && isAdminMode(currentUser));
+        const isAdmin = canSeePii || currentUser.role === 'igrotech';
 
         let profile = null;
         let publicPlayer = null;
 
-        if (isOwner || isAdmin) {
+        if (canSeePii) {
             profile = await getUserProfile(uid);
         } else {
             publicPlayer = await getPublicPlayer(uid);
@@ -51,7 +53,9 @@ export async function ProfilePage(targetUid) {
             catch (_) { character = null; }
         }
 
-        const displayName = profile ? getPlayerDisplayName(profile) : (publicPlayer.displayName || publicPlayer.username);
+        const displayName = canSeePii
+            ? (profile ? getPlayerDisplayName(profile) : (publicPlayer.displayName || publicPlayer.username))
+            : (character?.name || publicPlayer.username);
         const username = profile ? profile.username : publicPlayer.username;
         const role = profile ? profile.role : publicPlayer.role;
 
@@ -61,7 +65,7 @@ export async function ProfilePage(targetUid) {
 
         const content = createElement('div', { className: 'profile-content' });
 
-        if (profile && (isOwner || isAdmin)) {
+        if (profile && canSeePii) {
             content.appendChild(createPlayerDataBlock(profile, isOwner));
         }
 
@@ -69,7 +73,7 @@ export async function ProfilePage(targetUid) {
             content.appendChild(createCharacterBlock(character));
         }
 
-        if (profile && (isOwner || isAdmin)) {
+        if (profile && canSeePii) {
             content.appendChild(await createDocumentsSection(profile, isOwner));
         }
 
@@ -256,13 +260,13 @@ function createCharacterBlock(character) {
 
 async function createDocumentsSection(profile, isOwner) {
     const section = createElement('div', { className: 'profile-documents' });
-    section.appendChild(createElement('h3', { className: 'profile-documents__title', text: 'Документы' }));
+    section.appendChild(createElement('h3', { className: 'profile-documents__title', text: 'Файлы' }));
 
     const docIds = profile.documents || [];
     if (docIds.length === 0) {
-        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Нет документов.' }));
+        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Нет файлов.' }));
         if (isOwner) {
-            section.appendChild(Button({ text: 'Добавить документ', variant: 'secondary', href: '#/documents/add' }));
+            section.appendChild(Button({ text: 'Добавить файл', variant: 'secondary', href: '#/documents/add' }));
         }
         return section;
     }
@@ -282,10 +286,10 @@ async function createDocumentsSection(profile, isOwner) {
         }
         section.appendChild(list);
         if (isOwner) {
-            section.appendChild(Button({ text: 'Добавить документ', icon: 'add', variant: 'secondary', size: 'sm', href: '#/documents/add' }));
+            section.appendChild(Button({ text: 'Добавить файл', icon: 'add', variant: 'secondary', size: 'sm', href: '#/documents/add' }));
         }
     } catch (_) {
-        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Ошибка загрузки документов.' }));
+        section.appendChild(createElement('p', { className: 'profile-documents__empty', text: 'Ошибка загрузки файлов.' }));
     }
 
     return section;

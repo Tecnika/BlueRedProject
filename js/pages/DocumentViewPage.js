@@ -1,24 +1,25 @@
-import { createElement } from '../utils/dom.js?v=6';
-import { store } from '../core/Store.js?v=6';
+import { createElement } from '../utils/dom.js?v=8';
+import { store } from '../core/Store.js?v=8';
 import {
     getDocument,
     getVersionsByNumber,
     deleteVersionGroup
-} from '../firebase/documentsService.js?v=6';
-import { updateUserProfile } from '../firebase/authService.js?v=6';
+} from '../firebase/documentsService.js?v=8';
+import { updateUserProfile } from '../firebase/authService.js?v=8';
 import {
     getAccessibleVersions,
     getVersionView,
     LEVEL_LABELS
-} from '../domain/documents.js?v=6';
-import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=6';
-import { translateError } from '../utils/translateError.js?v=6';
-import { BackButton } from '../components/BackButton.js?v=6';
-import { FactionBadge } from '../components/FactionBadge.js?v=6';
-import { Button } from '../components/Button.js?v=6';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=6';
-import { QRCode } from '../components/QRCode.js?v=6';
-import { getActiveFaction } from '../utils/profile.js?v=6';
+} from '../domain/documents.js?v=8';
+import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=8';
+import { translateError } from '../utils/translateError.js?v=8';
+import { BackButton } from '../components/BackButton.js?v=8';
+import { FactionBadge } from '../components/FactionBadge.js?v=8';
+import { Button } from '../components/Button.js?v=8';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=8';
+import { QRCode } from '../components/QRCode.js?v=8';
+import { getActiveFaction } from '../utils/profile.js?v=8';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=8';
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });
@@ -36,7 +37,7 @@ export async function DocumentViewPage(docId) {
     try {
         const seed = await getDocument(docId);
         if (!seed) {
-            section.appendChild(StatusMessage({ type: 'err', text: 'Документ не найден' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Файл не найден' }));
             return section;
         }
         number = seed.number;
@@ -47,7 +48,7 @@ export async function DocumentViewPage(docId) {
         return section;
     }
 
-    const isMaster = user.role === 'master';
+    const isMaster = isAdminMode(user);
     const character = store.get('character') || null;
 
     render();
@@ -62,10 +63,11 @@ export async function DocumentViewPage(docId) {
     function render() {
         section.innerHTML = '';
         const viewer = currentUser();
-        const accessible = getAccessibleVersions(group, viewer, store.get('character') || null);
+        const effective = { ...viewer, role: isMaster ? 'master' : 'player' };
+        const accessible = getAccessibleVersions(group, effective, store.get('character') || null);
 
         if (accessible.length === 0) {
-            section.appendChild(StatusMessage({ type: 'err', text: 'Нет доступа к этому документу' }));
+            section.appendChild(StatusMessage({ type: 'err', text: 'Нет доступа к этому файлу' }));
             return;
         }
 
@@ -73,11 +75,13 @@ export async function DocumentViewPage(docId) {
         container.appendChild(BackButton({ fallback: '#/documents' }));
 
         const titleRow = createElement('div', { className: 'document-view-page__title-row' });
-        titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Документ № ${number}` }));
+        titleRow.appendChild(createElement('h1', { className: 'document-view-page__title', text: `Файл № ${number}` }));
         titleRow.appendChild(createElement('span', {
             className: 'document-view-page__versions-count',
             text: `Версий: ${accessible.length}`
         }));
+        const toggle = ViewModeToggle(viewer);
+        if (toggle) titleRow.appendChild(toggle);
         container.appendChild(titleRow);
 
         if (notice) {
@@ -110,11 +114,11 @@ export async function DocumentViewPage(docId) {
                 onClick: () => window.print()
             }));
             actions.appendChild(Button({
-                text: 'Удалить документ',
+                text: 'Удалить файл',
                 variant: 'danger',
                 size: 'sm',
                 onClick: async () => {
-                    if (!confirm(`Удалить документ № ${number} и все его версии?`)) return;
+                    if (!confirm(`Удалить файл № ${number} и все его версии?`)) return;
                     try {
                         await deleteVersionGroup(number);
                         window.location.hash = '#/documents';
@@ -143,7 +147,7 @@ export async function DocumentViewPage(docId) {
         card.appendChild(head);
 
         const decryptions = viewer.decryptions || {};
-        const view = getVersionView(version, getActiveFaction(), decryptions, viewer.role === 'master', store.get('character'));
+        const view = getVersionView(version, getActiveFaction(), decryptions, isMaster, store.get('character'));
 
         const contentEl = createElement('p', { text: view.text });
         const contentBlock = createElement('div', { className: 'document-view-page__content' });
@@ -158,7 +162,7 @@ export async function DocumentViewPage(docId) {
         card.appendChild(contentBlock);
 
         // Мастер: переключатель шифра и доступы версии
-        if (viewer.role === 'master') {
+        if (isMaster) {
             const tools = createElement('div', { className: 'document-view-page__version-tools' });
 
             if (version.faction !== 'common') {
@@ -217,7 +221,7 @@ export async function DocumentViewPage(docId) {
 
         const textarea = createElement('textarea', {
             className: 'document-view-page__decrypt-input',
-            attributes: { rows: 3, placeholder: 'Расшифрованный текст...', 'aria-label': 'Расшифрованный текст документа' }
+            attributes: { rows: 3, placeholder: 'Расшифрованный текст...', 'aria-label': 'Расшифрованный текст файла' }
         });
         block.appendChild(textarea);
 
@@ -242,7 +246,7 @@ export async function DocumentViewPage(docId) {
                     let nextCount = (current.decryptions || {})[lang] || 0;
 
                     if (already) {
-                        showMessage(msg, 'Этот документ уже учтён. Расшифруйте другие документы этого языка.', 'ok');
+                        showMessage(msg, 'Этот файл уже учтён. Расшифруйте другие файлы этого языка.', 'ok');
                         return;
                     }
 

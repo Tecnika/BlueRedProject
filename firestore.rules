@@ -76,6 +76,13 @@ service cloud.firestore {
       allow delete: if isMaster();
     }
 
+    // ========== factionComments — комментарии о людях во фракции ==========
+    match /factionComments/{targetId} {
+      allow read: if isSignedIn();
+      allow create, update: if isSignedIn();
+      allow delete: if isMaster();
+    }
+
     // ========== games ==========
     match /games/{gameId} {
       allow read: if isSignedIn();
@@ -84,6 +91,12 @@ service cloud.firestore {
 
     // ========== characters ==========
     match /characters/{charId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isMaster();
+    }
+
+    // ========== professions — каталог профессий ==========
+    match /professions/{profId} {
       allow read: if isSignedIn();
       allow create, update, delete: if isMaster();
     }
