@@ -89,6 +89,11 @@
     color: var(--color-text-secondary);
 }
 
+.radio-page__trace--alarm {
+    color: #f97316;
+    font-weight: 700;
+}
+
 .radio-page__subtitle {
     font-size: 1.1rem;
     margin: 0;

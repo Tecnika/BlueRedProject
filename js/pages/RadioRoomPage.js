@@ -1,5 +1,4 @@
 import { createElement } from '../utils/dom.js?v=10';
-import { store } from '../core/Store.js?v=10';
 import { translateError } from '../utils/translateError.js?v=10';
 import { requireAuth } from '../components/PageLayout.js?v=10';
 import { Button } from '../components/Button.js?v=10';
@@ -11,6 +10,7 @@ import {
     subscribeSession,
     getRecipientCode,
     isCodeValid,
+    effectiveTrace,
     findTargetFaction,
     ensureCrossChat,
     setChannel
@@ -119,10 +119,33 @@ export function RadioRoomPage() {
     function updateStatus() {
         renderStatus(engineerEl, session.engineer, 'Инженер', 'engineer');
         renderStatus(signalmanEl, session.signalman, 'Связист', 'signalman');
-        traceEl.textContent = `След: ${session.trace || 0}/100`;
+        const trace = effectiveTrace(session);
+        const discovered = Boolean(session.discovered) || trace >= 100;
+        traceEl.textContent = discovered
+            ? 'Радиорубка обнаружена! След: 100/100'
+            : `След: ${trace}/100`;
+        traceEl.classList.toggle('radio-page__trace--alarm', discovered);
         const both = accessActive(session.engineer) && accessActive(session.signalman);
         codeBox.hidden = !both;
-        if (!both) codeMsg.hidden = true;
+        if (!both) {
+            codeMsg.hidden = true;
+            if (channelId) closeChannel();
+        }
+    }
+
+    function closeChannel() {
+        channelId = null;
+        channelBox.hidden = true;
+        channelBox.innerHTML = '';
+        if (messagesUnsub) {
+            messagesUnsub();
+            messagesUnsub = null;
+        }
+    }
+
+    function channelTitle(id) {
+        const parts = String(id || '').replace(/^cross_/, '').split('_').filter(Boolean);
+        return 'Связь: ' + parts.map(f => FACTION_LABELS[f] || f).join(' ↔ ');
     }
 
     async function openChannel(id) {
@@ -151,9 +174,10 @@ export function RadioRoomPage() {
             try {
                 await sendMessage(id, text, {
                     uid: user.uid,
-                    name: store.get('character')?.name || user.username,
+                    // Радиорубка — терминал фракции, а не персонаж оператора
+                    name: `Радиорубка · ${FACTION_LABELS[radioFaction] || radioFaction}`,
                     faction: radioFaction
-                }, { type: 'cross', title: `Связь: ${FACTION_LABELS[radioFaction] || radioFaction}` });
+                }, { type: 'cross', title: channelTitle(id) });
             } catch (err) {
                 console.warn('Не удалось отправить:', translateError(err));
             }
@@ -214,7 +238,9 @@ export function RadioRoomPage() {
     const unsub = subscribeSession(roomUid, (data) => {
         session = data || {};
         updateStatus();
-        if (session.channelId) openChannel(session.channelId);
+        if (session.channelId && accessActive(session.engineer) && accessActive(session.signalman)) {
+            openChannel(session.channelId);
+        }
     });
 
     const timer = setInterval(() => {

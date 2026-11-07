@@ -120,12 +120,13 @@ export async function RadioScanPage() {
                         { uid: user.uid, name: user.username },
                         getActiveFaction()
                     );
-                    show(`Ваш код: ${result.code} (до ${new Date(result.expiresAt).toLocaleTimeString('ru-RU')})`);
+                    const trace = await addTrace(roomUid, 10, { uid: user.uid, name: user.username });
+                    show(`Ваш код: ${result.code} (до ${new Date(result.expiresAt).toLocaleTimeString('ru-RU')}). След: ${trace}/100`);
                     await logEvent({
                         chatTitle: 'Взлом',
                         authorId: user.uid,
                         authorName: user.username,
-                        text: 'сгенерировал свой код получателя'
+                        text: 'сгенерировал свой код получателя (+10 следа)'
                     });
                 } catch (err) { show('Ошибка: ' + translateError(err), 'err'); }
             }
@@ -141,7 +142,18 @@ export async function RadioScanPage() {
                     const codes = (await listRecipientCodes()).filter(c => isCodeValid(c) && c.ownerId !== user.uid);
                     if (codes.length === 0) { show('Нет доступных кодов', 'err'); return; }
                     const target = codes[Math.floor(Math.random() * codes.length)];
-                    const success = Math.random() < 0.7;
+
+                    // У дипломата код защищён лучше: шанс кражи 40 % вместо 70 %
+                    let chance = 0.7;
+                    try {
+                        const game = getActiveGame();
+                        if (game) {
+                            const char = await getCharacterForPlayer(game.id, target.ownerId);
+                            if ((char?.profession || '').toLowerCase().includes('дипломат')) chance = 0.4;
+                        }
+                    } catch (e) { /* не смогли определить профессию — обычный шанс */ }
+
+                    const success = Math.random() < chance;
                     if (success) {
                         show(`Украден код: ${target.code} (${target.ownerName})`);
                         await logEvent({
@@ -151,13 +163,13 @@ export async function RadioScanPage() {
                             text: `украл код ${target.code} у ${target.ownerName}`
                         });
                     } else {
-                        const trace = await addTrace(roomUid, 40);
+                        const trace = await addTrace(roomUid, 40, { uid: user.uid, name: user.username });
                         show(`Провал. Тревога! След: ${trace}/100`, 'err');
                         await logEvent({
                             chatTitle: 'Взлом',
                             authorId: user.uid,
                             authorName: user.username,
-                            text: 'провалил кражу кода (тревога)'
+                            text: 'провалил кражу кода (тревога, +40 следа)'
                         });
                     }
                 } catch (err) { show('Ошибка: ' + translateError(err), 'err'); }
@@ -180,19 +192,21 @@ export async function RadioScanPage() {
                         onSuccess: async () => {
                             try {
                                 await grantAccess(roomUid, key, { uid: user.uid, name: user.username }, { minutes: 10, hacked: true });
-                                const trace = await addTrace(roomUid, 25);
+                                const trace = await addTrace(roomUid, 25, { uid: user.uid, name: user.username });
                                 show(`Подмена «${label}» на 10 минут. След: ${trace}/100`);
                                 await logEvent({
                                     chatTitle: 'Взлом',
                                     authorId: user.uid,
                                     authorName: user.username,
-                                    text: `подменил специалиста «${label}»`
+                                    text: `подменил специалиста «${label}» (+25 следа)`
                                 });
                             } catch (err) { show('Ошибка: ' + translateError(err), 'err'); }
                         },
                         onFail: async () => {
-                            const trace = await addTrace(roomUid, 25);
-                            show(`Подмена провалена. След: ${trace}/100`, 'err');
+                            try {
+                                const trace = await addTrace(roomUid, 25, { uid: user.uid, name: user.username });
+                                show(`Подмена провалена. След: ${trace}/100`, 'err');
+                            } catch (err) { show('Ошибка: ' + translateError(err), 'err'); }
                         }
                     }));
                 }

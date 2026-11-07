@@ -30,8 +30,14 @@ export async function getSession(roomUid) {
 /**
  * Выдать доступ специалисту.
  * role: 'engineer' | 'signalman'
+ * Если в рубке стоит подмена другого игрока, настоящий специалист раскрывает её (+40 следа).
  */
 export async function grantAccess(roomUid, role, user, { minutes = 20, hacked = false } = {}) {
+    const roleLabel = role === 'engineer' ? 'Инженер' : role === 'signalman' ? 'Связист' : role;
+    const session = await getSession(roomUid);
+    const current = session[role];
+    const exposesHack = Boolean(current && current.hacked && current.uid !== user.uid);
+
     const expiresAt = new Date(Date.now() + minutes * 60 * 1000).toISOString();
     await setDoc(sessionRef(roomUid), {
         [role]: {
@@ -47,8 +53,18 @@ export async function grantAccess(roomUid, role, user, { minutes = 20, hacked = 
         chatTitle: 'Радиорубка',
         authorId: user.uid,
         authorName: user.name,
-        text: `${hacked ? 'ВЗЛОМ: ' : ''}доступ «${role}» выдан до ${expiresAt}`
+        text: `${hacked ? 'ВЗЛОМ: ' : ''}доступ «${roleLabel}» выдан до ${expiresAt}`
     });
+
+    if (exposesHack) {
+        const trace = await addTrace(roomUid, 40, { uid: user.uid, name: user.name });
+        await logEvent({
+            chatTitle: 'Радиорубка',
+            authorId: user.uid,
+            authorName: user.name,
+            text: `тревога: раскрыта подмена «${roleLabel}» (+40 следа, всего ${trace}/100)`
+        });
+    }
 }
 
 export async function setChannel(roomUid, channelId, recipientCode) {
@@ -59,11 +75,40 @@ export async function setChannel(roomUid, channelId, recipientCode) {
     }, { merge: true });
 }
 
-export async function addTrace(roomUid, amount) {
+export async function addTrace(roomUid, amount, actor = null) {
     const session = await getSession(roomUid);
-    const trace = Math.min(100, (session.trace || 0) + amount);
-    await setDoc(sessionRef(roomUid), { trace, updatedAt: new Date().toISOString() }, { merge: true });
+    const base = effectiveTrace(session);
+    const trace = Math.min(100, base + amount);
+    const now = new Date().toISOString();
+    await setDoc(sessionRef(roomUid), {
+        trace,
+        traceUpdatedAt: now,
+        discovered: trace >= 100,
+        updatedAt: now
+    }, { merge: true });
+
+    // На 100 мастер должен узнать об обнаружении рубки (один раз при переходе порога)
+    if (trace >= 100 && base < 100 && actor) {
+        try {
+            await logEvent({
+                chatTitle: 'Радиорубка',
+                authorId: actor.uid,
+                authorName: actor.name,
+                text: `Радиорубка обнаружена: след 100/100 (комната ${roomUid})`
+            });
+        } catch (e) { /* журнал не должен ломать механику */ }
+    }
     return trace;
+}
+
+/** След с учётом восстановления: −10 за каждый полный час без взломов */
+export function effectiveTrace(session) {
+    const base = Number(session?.trace || 0);
+    if (!session?.traceUpdatedAt) return base;
+    const age = Date.now() - new Date(session.traceUpdatedAt).getTime();
+    if (!Number.isFinite(age) || age <= 0) return base;
+    const hours = Math.floor(age / (60 * 60 * 1000));
+    return Math.max(0, base - hours * 10);
 }
 
 export async function clearSession(roomUid) {

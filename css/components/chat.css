@@ -174,7 +174,7 @@
 }
 
 .chat-list__item--unread {
-    background: var(--color-primary-light, rgba(124, 58, 237, 0.08));
+    background: rgba(124, 58, 237, 0.14);
     color: var(--color-text);
 }
 

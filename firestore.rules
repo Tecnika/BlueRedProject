@@ -167,7 +167,8 @@ service cloud.firestore {
 
     // ========== radioSessions — сессии радиорубки ==========
     match /radioSessions/{roomUid} {
-      allow read: if isSignedIn() && (request.auth.uid == roomUid || isMaster());
+      // Читать может любой авторизованный: хакеру нужен след и доступы целевой рубки
+      allow read: if isSignedIn();
       allow create, update: if isSignedIn();
       allow delete: if isMaster();
     }
