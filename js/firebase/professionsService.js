@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=9';
+import { getFirebase } from './firebase.js?v=10';
 
 /** Каталог профессий: professions/{id} → { name } */
 

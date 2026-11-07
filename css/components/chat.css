@@ -1,5 +1,6 @@
 /* ========================================
    Плавающий чат (правый нижний угол)
+   Двухпанельный: диалоги слева, переписка справа
    ======================================== */
 
 .chat-widget {
@@ -51,11 +52,12 @@
     position: absolute;
     right: 0;
     bottom: 72px;
-    width: 360px;
+    width: 720px;
     max-width: calc(100vw - var(--space-lg) * 2);
-    height: 540px;
-    max-height: calc(100vh - 140px);
+    height: 560px;
+    max-height: calc(100vh - 120px);
     background: var(--color-bg);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
@@ -76,6 +78,7 @@
     padding: var(--space-sm) var(--space-md);
     border-bottom: 1px solid var(--color-border);
     background: var(--color-bg-secondary);
+    color: var(--color-text);
 }
 
 .chat-panel__title {
@@ -112,16 +115,19 @@
     flex: 1;
     min-height: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 }
 
-/* --- Список диалогов --- */
+/* --- Список диалогов (слева) --- */
 
 .chat-list {
-    flex: 1;
+    width: 300px;
+    flex-shrink: 0;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-bg);
 }
 
 .chat-list__head {
@@ -136,7 +142,7 @@
 }
 
 .chat-list__title {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-secondary);
@@ -155,12 +161,12 @@
     gap: var(--space-sm);
     padding: var(--space-sm) var(--space-md);
     border: none;
+    border-bottom: 1px solid var(--color-border);
     background: transparent;
     color: var(--color-text);
     text-align: left;
     cursor: pointer;
     width: 100%;
-    border-bottom: 1px solid var(--color-border);
 }
 
 .chat-list__item:hover {
@@ -169,6 +175,7 @@
 
 .chat-list__item--unread {
     background: var(--color-primary-light, rgba(124, 58, 237, 0.08));
+    color: var(--color-text);
 }
 
 .chat-list__avatar {
@@ -176,11 +183,31 @@
     height: 38px;
     border-radius: 50%;
     background: var(--color-bg-secondary);
-    color: var(--color-primary);
+    color: var(--color-text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.chat-list__avatar--red {
+    background: rgba(220, 38, 38, 0.16);
+    color: var(--faction-red, #dc2626);
+}
+
+.chat-list__avatar--blue {
+    background: rgba(37, 99, 235, 0.16);
+    color: var(--faction-blue, #2563eb);
+}
+
+.chat-list__avatar--purple {
+    background: rgba(124, 58, 237, 0.16);
+    color: var(--faction-purple, #7c3aed);
+}
+
+.chat-list__avatar--master {
+    background: rgba(245, 158, 11, 0.18);
+    color: #f59e0b;
 }
 
 .chat-list__info {
@@ -197,6 +224,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--color-text);
 }
 
 .chat-list__preview {
@@ -227,22 +255,37 @@
     background: #f97316;
 }
 
-/* --- Переписка --- */
+/* --- Переписка (справа) --- */
 
 .chat-thread {
     flex: 1;
+    min-width: 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    background: var(--color-bg);
 }
 
-.chat-thread[hidden] {
-    display: none;
+.chat-thread__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 44px;
+}
+
+.chat-thread__title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .chat-thread__back {
-    align-self: flex-start;
-    margin: var(--space-xs) var(--space-md) 0;
+    display: none;
     border: none;
     background: transparent;
     color: var(--color-text-secondary);
@@ -254,6 +297,17 @@
     color: var(--color-primary);
 }
 
+.chat-thread__placeholder {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    padding: var(--space-xl);
+    text-align: center;
+}
+
 .chat-thread__messages {
     flex: 1;
     overflow-y: auto;
@@ -261,6 +315,11 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
+}
+
+.chat-thread__messages[hidden],
+.chat-thread__form[hidden] {
+    display: none;
 }
 
 .chat-thread__empty {
@@ -292,6 +351,7 @@
     padding: var(--space-xs) var(--space-sm);
     border-radius: var(--radius-md);
     background: var(--color-bg-secondary);
+    color: var(--color-text);
     font-size: 0.88rem;
     overflow-wrap: anywhere;
 }
@@ -354,8 +414,10 @@
 
 .chat-picker__box {
     width: 100%;
+    max-width: 360px;
     max-height: 80%;
     background: var(--color-bg);
+    color: var(--color-text);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     display: flex;
@@ -421,7 +483,9 @@
     font: inherit;
 }
 
-@media (max-width: 480px) {
+/* --- Мобильная версия: одна панель --- */
+
+@media (max-width: 768px) {
     .chat-widget {
         right: var(--space-md);
         bottom: var(--space-md);
@@ -435,6 +499,32 @@
         max-width: none;
         max-height: none;
         border-radius: 0;
+    }
+
+    .chat-panel__body {
+        flex-direction: column;
+    }
+
+    .chat-list {
+        width: 100%;
+        border-right: none;
+    }
+
+    .chat-thread {
+        display: none;
+    }
+
+    .chat-panel--thread .chat-list {
+        display: none;
+    }
+
+    .chat-panel--thread .chat-thread {
+        display: flex;
+        flex: 1;
+    }
+
+    .chat-thread__back {
+        display: inline-flex;
     }
 
     .chat-bubble {

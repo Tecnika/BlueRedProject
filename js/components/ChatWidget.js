@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=9';
-import { store } from '../core/Store.js?v=9';
-import { Icon } from './Icon.js?v=9';
-import { translateError } from '../utils/translateError.js?v=9';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=9';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=9';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=9';
+import { createElement } from '../utils/dom.js?v=10';
+import { store } from '../core/Store.js?v=10';
+import { Icon } from './Icon.js?v=10';
+import { translateError } from '../utils/translateError.js?v=10';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=10';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=10';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=10';
 import {
     ensureFactionChat,
     ensureMasterChat,
@@ -16,7 +16,7 @@ import {
     sendMessage,
     markRead,
     dmChatId
-} from '../firebase/chatService.js?v=9';
+} from '../firebase/chatService.js?v=10';
 
 const TIME_FORMAT = { hour: '2-digit', minute: '2-digit' };
 
@@ -37,7 +37,7 @@ export function ChatWidget() {
         root.innerHTML = '';
         builtFor = user ? user.uid : null;
         builtFaction = getActiveFaction();
-        if (!user) return;
+        if (!user || user.radioFaction) return;
         session = new ChatSession(root, user);
         session.build();
     }
@@ -139,7 +139,64 @@ class ChatSession {
         panel.appendChild(this.body);
 
         this.listView = createElement('div', { className: 'chat-list' });
-        this.threadView = createElement('div', { className: 'chat-thread', attributes: { hidden: '' } });
+        this.threadView = createElement('div', { className: 'chat-thread' });
+
+        // Заголовок открытого диалога (как в VK)
+        const threadHead = createElement('div', { className: 'chat-thread__header' });
+        this.threadBack = createElement('button', {
+            className: 'chat-thread__back',
+            attributes: { type: 'button', 'aria-label': 'К списку диалогов' }
+        });
+        this.threadBack.appendChild(Icon({ name: 'arrow_back', size: 'sm' }));
+        this.threadBack.addEventListener('click', () => this.closeChat());
+        threadHead.appendChild(this.threadBack);
+
+        this.threadTitle = createElement('div', { className: 'chat-thread__title', text: 'Выберите диалог' });
+        threadHead.appendChild(this.threadTitle);
+        this.threadView.appendChild(threadHead);
+
+        this.threadPlaceholder = createElement('div', {
+            className: 'chat-thread__placeholder',
+            text: 'Выберите диалог слева'
+        });
+        this.threadView.appendChild(this.threadPlaceholder);
+
+        this.messagesEl = createElement('div', { className: 'chat-thread__messages', attributes: { hidden: '' } });
+        this.threadView.appendChild(this.messagesEl);
+
+        const form = createElement('form', { className: 'chat-thread__form', attributes: { hidden: '' } });
+        this.input = createElement('input', {
+            className: 'chat-thread__input',
+            attributes: { type: 'text', placeholder: 'Сообщение...', 'aria-label': 'Сообщение', autocomplete: 'off' }
+        });
+        const sendBtn = createElement('button', {
+            className: 'chat-thread__send',
+            attributes: { type: 'submit', 'aria-label': 'Отправить' }
+        });
+        sendBtn.appendChild(Icon({ name: 'send', size: 'sm' }));
+        form.appendChild(this.input);
+        form.appendChild(sendBtn);
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = this.input.value.trim();
+            if (!text || !this.activeId) return;
+            this.input.value = '';
+            try {
+                await sendMessage(this.activeId, text, {
+                    uid: this.user.uid,
+                    name: this.authorName,
+                    faction: this.faction
+                }, (() => {
+                    const chat = this.chats.get(this.activeId);
+                    return chat ? { type: chat.type, title: this.chatTitle(chat) } : {};
+                })());
+            } catch (err) {
+                console.warn('Не удалось отправить:', translateError(err));
+            }
+        });
+        this.threadForm = form;
+        this.threadView.appendChild(form);
+
         this.body.appendChild(this.listView);
         this.body.appendChild(this.threadView);
 
@@ -363,7 +420,18 @@ class ChatSession {
                 attributes: { type: 'button' }
             });
 
-            const avatar = createElement('div', { className: 'chat-list__avatar' });
+            const avatarClasses = ['chat-list__avatar'];
+            if (chat.type === 'faction') {
+                avatarClasses.push('chat-list__avatar--faction', 'chat-list__avatar--' + chat.faction);
+            } else if (chat.type === 'master') {
+                avatarClasses.push('chat-list__avatar--master');
+            } else if (chat.type === 'dm') {
+                const other = (chat.members || []).find(m => m !== this.user.uid);
+                const pf = this.players[other]?.faction;
+                avatarClasses.push('chat-list__avatar--dm');
+                if (pf) avatarClasses.push('chat-list__avatar--' + pf);
+            }
+            const avatar = createElement('div', { className: avatarClasses.join(' ') });
             const iconName = chat.type === 'faction' ? 'groups'
                 : chat.type === 'master' ? 'admin_panel_settings' : 'person';
             avatar.appendChild(Icon({ name: iconName, size: 'sm' }));
@@ -463,53 +531,13 @@ class ChatSession {
 
     async openChat(chat) {
         this.activeId = chat.id;
-        this.listView.hidden = true;
-        this.threadView.hidden = false;
-        this.headerTitle.textContent = this.chatTitle(chat);
-
-        this.threadView.innerHTML = '';
-
-        const back = createElement('button', {
-            className: 'chat-thread__back',
-            attributes: { type: 'button', 'aria-label': 'К списку диалогов' }
-        });
-        back.appendChild(Icon({ name: 'arrow_back', size: 'sm' }));
-        back.addEventListener('click', () => this.closeChat());
-        this.threadView.appendChild(back);
-
-        this.messagesEl = createElement('div', { className: 'chat-thread__messages' });
-        this.threadView.appendChild(this.messagesEl);
-
-        const form = createElement('form', { className: 'chat-thread__form' });
-        const input = createElement('input', {
-            className: 'chat-thread__input',
-            attributes: { type: 'text', placeholder: 'Сообщение...', 'aria-label': 'Сообщение', autocomplete: 'off' }
-        });
-        const sendBtn = createElement('button', {
-            className: 'chat-thread__send',
-            attributes: { type: 'submit', 'aria-label': 'Отправить' }
-        });
-        sendBtn.appendChild(Icon({ name: 'send', size: 'sm' }));
-        form.appendChild(input);
-        form.appendChild(sendBtn);
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = '';
-            try {
-                await sendMessage(chat.id, text, {
-                    uid: this.user.uid,
-                    name: this.authorName,
-                    faction: this.faction
-                });
-            } catch (err) {
-                console.warn('Не удалось отправить:', translateError(err));
-            }
-        });
-
-        this.threadView.appendChild(form);
+        this.panel.classList.add('chat-panel--thread');
+        this.threadTitle.textContent = this.chatTitle(chat);
+        this.threadPlaceholder.hidden = true;
+        this.messagesEl.hidden = false;
+        this.threadForm.hidden = false;
+        this.messagesEl.innerHTML = '';
+        this.input.value = '';
 
         this.stopMessages();
         this.messagesUnsub = subscribeMessages(chat.id, (messages) => {
@@ -518,15 +546,19 @@ class ChatSession {
             this.markChatRead(chat.id, messages);
         }, this.onSubError);
 
-        setTimeout(() => input.focus(), 50);
+        setTimeout(() => this.input.focus(), 50);
     }
 
     closeChat() {
         this.activeId = null;
         this.stopMessages();
-        this.threadView.hidden = true;
-        this.listView.hidden = false;
-        this.headerTitle.textContent = 'Связь';
+        this.panel.classList.remove('chat-panel--thread');
+        this.threadTitle.textContent = 'Выберите диалог';
+        this.threadPlaceholder.hidden = false;
+        this.messagesEl.hidden = true;
+        this.threadForm.hidden = true;
+        this.messagesEl.innerHTML = '';
+        this.input.value = '';
         this.renderList();
         this.updateBadge();
     }

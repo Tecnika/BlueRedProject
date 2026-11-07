@@ -23,7 +23,7 @@ import {
     updateDoc
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=9';
+import { getFirebase } from './firebase.js?v=10';
 
 /** Домен-заглушка для email (Firebase Auth требует email) */
 const FAKE_DOMAIN = '@bluered.project';
@@ -119,6 +119,10 @@ export async function signUpWithUsername({ username, password, player }) {
  * @param {string} uid
  * @param {'player'|'igrotech'} role
  */
+export async function setRadioRoom(uid, faction) {
+    await updateUserProfile(uid, { radioFaction: faction || null });
+}
+
 export async function setUserRole(uid, role) {
     if (!['player', 'igrotech'].includes(role)) {
         throw new Error('Недопустимая роль');

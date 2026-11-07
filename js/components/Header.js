@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=9';
-import { Navigation } from './Navigation.js?v=9';
-import { store } from '../core/Store.js?v=9';
-import { signOutUser } from '../firebase/authService.js?v=9';
-import { ROLE_LABELS } from '../utils/constants.js?v=9';
-import { Icon } from './Icon.js?v=9';
-import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=9';
+import { createElement } from '../utils/dom.js?v=10';
+import { Navigation } from './Navigation.js?v=10';
+import { store } from '../core/Store.js?v=10';
+import { signOutUser } from '../firebase/authService.js?v=10';
+import { ROLE_LABELS } from '../utils/constants.js?v=10';
+import { Icon } from './Icon.js?v=10';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=10';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -72,9 +72,11 @@ export function Header(navItems, themeManager) {
             rightGroup.replaceChild(createAuthBlock(), oldBlock);
         }
         toggleAdminLink(navList);
+        applyRadioNav(navList);
     });
 
     toggleAdminLink(navList);
+    applyRadioNav(navList);
 
     // Установка приложения
     const updateInstall = () => {
@@ -94,6 +96,35 @@ export function Header(navItems, themeManager) {
     window.addEventListener('offline', () => { offlineBadge.hidden = false; });
 
     return header;
+}
+
+function applyRadioNav(navList) {
+    if (!navList) return;
+    const user = store.get('user');
+    const isRadio = Boolean(user && user.radioFaction);
+
+    navList.querySelectorAll('.nav__item').forEach(li => {
+        if (li.hasAttribute('data-radio-link') || li.hasAttribute('data-admin-link')) return;
+        const label = li.textContent.trim();
+        const keep = label === 'Эфир' || label === 'Фракции';
+        li.style.display = isRadio && !keep ? 'none' : '';
+    });
+
+    let radioLi = navList.querySelector('[data-radio-link]');
+    if (isRadio) {
+        if (!radioLi) {
+            radioLi = createElement('li', { className: 'nav__item', attributes: { 'data-radio-link': '' } });
+            radioLi.appendChild(createElement('a', {
+                className: 'nav__link',
+                text: 'Радиорубка',
+                attributes: { href: '#/radio' }
+            }));
+            navList.appendChild(radioLi);
+        }
+        radioLi.style.display = '';
+    } else if (radioLi) {
+        radioLi.remove();
+    }
 }
 
 function toggleAdminLink(navList) {

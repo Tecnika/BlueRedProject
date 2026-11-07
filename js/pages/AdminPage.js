@@ -1,15 +1,16 @@
-import { store } from '../core/Store.js?v=9';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=9';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=9';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=9';
-import { setDesign } from '../firebase/settingsService.js?v=9';
-import { createElement } from '../utils/dom.js?v=9';
-import { translateError } from '../utils/translateError.js?v=9';
-import { Button } from '../components/Button.js?v=9';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=9';
-import { Icon } from '../components/Icon.js?v=9';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=9';
-import { FACTION_LABELS } from '../utils/profile.js?v=9';
+import { store } from '../core/Store.js?v=10';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=10';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=10';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=10';
+import { getRecentLogs } from '../firebase/chatService.js?v=10';
+import { setDesign } from '../firebase/settingsService.js?v=10';
+import { createElement } from '../utils/dom.js?v=10';
+import { translateError } from '../utils/translateError.js?v=10';
+import { Button } from '../components/Button.js?v=10';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=10';
+import { Icon } from '../components/Icon.js?v=10';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=10';
+import { FACTION_LABELS } from '../utils/profile.js?v=10';
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });
@@ -26,6 +27,7 @@ export function AdminPage() {
     container.appendChild(renderGameSection());
     container.appendChild(renderTestsSection());
     container.appendChild(renderCatalogsSection());
+    container.appendChild(renderLogsSection());
     container.appendChild(renderDesignSection());
 
     section.appendChild(container);
@@ -270,6 +272,67 @@ function buildCatalog({ load, add, remove, placeholder, empty }) {
 /* ============================================================
    Оформление
    ============================================================ */
+
+function renderLogsSection() {
+    const section = adminSection('Логи', 'Кто, кому, что и когда: журнал сообщений.');
+
+    const refreshBtn = Button({
+        text: 'Обновить',
+        icon: 'refresh',
+        variant: 'secondary',
+        size: 'sm'
+    });
+
+    const listEl = createElement('div', { className: 'admin-logs', text: 'Загрузка...' });
+    section.appendChild(refreshBtn);
+    section.appendChild(listEl);
+
+    async function refresh() {
+        try {
+            const logs = await getRecentLogs(200);
+            listEl.innerHTML = '';
+            if (logs.length === 0) {
+                listEl.textContent = 'Пока пусто';
+                return;
+            }
+            for (const log of logs) {
+                const row = createElement('div', { className: 'admin-logs__item' });
+                row.appendChild(createElement('span', {
+                    className: 'admin-logs__time',
+                    text: formatLogTime(log.createdAt)
+                }));
+                row.appendChild(createElement('span', {
+                    className: 'admin-logs__author',
+                    text: log.authorName || '—'
+                }));
+                row.appendChild(createElement('span', {
+                    className: 'admin-logs__chat',
+                    text: log.chatTitle || log.chatType || '—'
+                }));
+                row.appendChild(createElement('span', {
+                    className: 'admin-logs__text',
+                    text: log.text || ''
+                }));
+                listEl.appendChild(row);
+            }
+        } catch (err) {
+            listEl.textContent = 'Ошибка загрузки: ' + translateError(err);
+        }
+    }
+
+    refreshBtn.addEventListener('click', refresh);
+    refresh();
+    return section;
+}
+
+function formatLogTime(iso) {
+    if (!iso) return '';
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return iso;
+    return date.toLocaleString('ru-RU', {
+        day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+    });
+}
 
 function renderDesignSection() {
     const section = adminSection('Оформление', 'Тема для всех агентов.');

@@ -1,12 +1,12 @@
-import { createElement } from '../utils/dom.js?v=9';
-import { store } from '../core/Store.js?v=9';
-import { translateError } from '../utils/translateError.js?v=9';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=9';
-import { Button } from '../components/Button.js?v=9';
-import { FactionBadge } from '../components/FactionBadge.js?v=9';
-import { StatusMessage } from '../components/StatusMessage.js?v=9';
-import { getActiveFaction } from '../utils/profile.js?v=9';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=9';
+import { createElement } from '../utils/dom.js?v=10';
+import { store } from '../core/Store.js?v=10';
+import { translateError } from '../utils/translateError.js?v=10';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=10';
+import { Button } from '../components/Button.js?v=10';
+import { FactionBadge } from '../components/FactionBadge.js?v=10';
+import { StatusMessage } from '../components/StatusMessage.js?v=10';
+import { getActiveFaction } from '../utils/profile.js?v=10';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=10';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {

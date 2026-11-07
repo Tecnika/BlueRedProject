@@ -6,17 +6,18 @@
  * Управление ролями игротехника.
  */
 
-import { createElement } from '../utils/dom.js?v=9';
-import { store } from '../core/Store.js?v=9';
-import { createAvatar } from '../core/Avatar.js?v=9';
-import { getCollection } from '../firebase/dbService.js?v=9';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=9';
-import { setUserRole, getPlayerDisplayName } from '../firebase/authService.js?v=9';
-import { translateError } from '../utils/translateError.js?v=9';
-import { Button } from '../components/Button.js?v=9';
-import { StatusMessage } from '../components/StatusMessage.js?v=9';
-import { FactionBadge } from '../components/FactionBadge.js?v=9';
-import { ROLE_LABELS } from '../utils/constants.js?v=9';
+import { createElement } from '../utils/dom.js?v=10';
+import { store } from '../core/Store.js?v=10';
+import { createAvatar } from '../core/Avatar.js?v=10';
+import { getCollection } from '../firebase/dbService.js?v=10';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=10';
+import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=10';
+import { createRecipientCode } from '../firebase/radioService.js?v=10';
+import { translateError } from '../utils/translateError.js?v=10';
+import { Button } from '../components/Button.js?v=10';
+import { StatusMessage } from '../components/StatusMessage.js?v=10';
+import { FactionBadge } from '../components/FactionBadge.js?v=10';
+import { ROLE_LABELS } from '../utils/constants.js?v=10';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });
@@ -123,6 +124,52 @@ export function UsersAdminPage() {
         card.appendChild(data);
 
         const actions = createElement('div', { className: 'users-admin-page__actions' });
+
+        // Радиорубка: аккаунт-терминал для фракции
+        if (user.role !== 'master') {
+            const radioWrap = createElement('div', { className: 'users-admin-page__radio' });
+            radioWrap.appendChild(createElement('span', { className: 'users-admin-page__radio-label', text: 'Радиорубка' }));
+            const radioSelect = createElement('select', {
+                className: 'users-admin-page__radio-select',
+                attributes: { 'aria-label': 'Фракция радиорубки' }
+            });
+            for (const [value, label] of [['', '—'], ['red', 'Красные'], ['blue', 'Синие'], ['purple', 'Фиолетовые']]) {
+                const option = createElement('option', { text: label, attributes: { value } });
+                if ((user.radioFaction || '') === value) option.selected = true;
+                radioSelect.appendChild(option);
+            }
+            radioSelect.addEventListener('change', async () => {
+                try {
+                    await setRadioRoom(user.id, radioSelect.value || null);
+                    await load();
+                } catch (err) {
+                    alert('Ошибка: ' + translateError(err));
+                }
+            });
+            radioWrap.appendChild(radioSelect);
+
+            const codeBtn = Button({
+                text: 'Код получателя',
+                icon: 'vpn_key',
+                variant: 'secondary',
+                size: 'sm',
+                onClick: async () => {
+                    try {
+                        const faction = publicMap[user.id]?.faction || user.radioFaction || null;
+                        const result = await createRecipientCode(
+                            { uid: user.id, name: getPlayerDisplayName(user) || user.username },
+                            faction
+                        );
+                        alert(`Код получателя: ${result.code}\nДействует до ${new Date(result.expiresAt).toLocaleString('ru-RU')}`);
+                    } catch (err) {
+                        alert('Ошибка: ' + translateError(err));
+                    }
+                }
+            });
+            radioWrap.appendChild(codeBtn);
+            actions.appendChild(radioWrap);
+        }
+
         if (user.role === 'master') {
             // Права мастера через эту страницу не выдаются и не снимаются
             actions.appendChild(Button({ text: 'Мастер', variant: 'primary', size: 'sm', disabled: true }));

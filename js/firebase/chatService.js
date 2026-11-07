@@ -1,6 +1,7 @@
 import {
     collection,
     doc,
+    getDocs,
     setDoc,
     updateDoc,
     onSnapshot,
@@ -9,8 +10,8 @@ import {
     orderBy,
     limit
 } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=9';
-import { FACTION_LABELS } from '../utils/profile.js?v=9';
+import { getFirebase } from './firebase.js?v=10';
+import { FACTION_LABELS } from '../utils/profile.js?v=10';
 
 /**
  * Чаты: chats/{id}
@@ -110,7 +111,7 @@ export function subscribeMessages(chatId, callback, onError) {
     }, onError);
 }
 
-export async function sendMessage(chatId, text, author) {
+export async function sendMessage(chatId, text, author, meta = {}) {
     const { db } = getFirebase();
     const ref = doc(collection(db, 'chats', chatId, 'messages'));
     const payload = {
@@ -125,6 +126,40 @@ export async function sendMessage(chatId, text, author) {
         lastMessage: { text: payload.text, authorId: author.uid, authorName: author.name },
         lastMessageAt: payload.createdAt
     });
+
+    // Журнал для мастеров: кто, кому, что и когда
+    try {
+        await logEvent({
+            chatId,
+            chatType: meta.type || '',
+            chatTitle: meta.title || chatId,
+            authorId: author.uid,
+            authorName: author.name,
+            faction: author.faction || null,
+            text: payload.text,
+            createdAt: payload.createdAt
+        });
+    } catch (e) { /* журнал не должен ломать отправку */ }
+}
+
+/** Запись в журнал мастеров */
+export async function logEvent(entry) {
+    const { db } = getFirebase();
+    const id = 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    await setDoc(doc(db, 'logs', id), {
+        ...entry,
+        createdAt: entry.createdAt || new Date().toISOString()
+    });
+}
+
+/** Последние записи журнала (только мастер) */
+export async function getRecentLogs(max = 200) {
+    const { db } = getFirebase();
+    const q = query(collection(db, 'logs'), orderBy('createdAt', 'desc'), limit(max));
+    const snap = await getDocs(q);
+    const list = [];
+    snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+    return list;
 }
 
 export async function markRead(uid, chatId, timestamp) {

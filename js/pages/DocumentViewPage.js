@@ -1,25 +1,25 @@
-import { createElement } from '../utils/dom.js?v=9';
-import { store } from '../core/Store.js?v=9';
+import { createElement } from '../utils/dom.js?v=10';
+import { store } from '../core/Store.js?v=10';
 import {
     getDocument,
     getVersionsByNumber,
     deleteVersionGroup
-} from '../firebase/documentsService.js?v=9';
-import { updateUserProfile } from '../firebase/authService.js?v=9';
+} from '../firebase/documentsService.js?v=10';
+import { updateUserProfile } from '../firebase/authService.js?v=10';
 import {
     getAccessibleVersions,
     getVersionView,
     LEVEL_LABELS
-} from '../domain/documents.js?v=9';
-import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=9';
-import { translateError } from '../utils/translateError.js?v=9';
-import { BackButton } from '../components/BackButton.js?v=9';
-import { FactionBadge } from '../components/FactionBadge.js?v=9';
-import { Button } from '../components/Button.js?v=9';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=9';
-import { QRCode } from '../components/QRCode.js?v=9';
-import { getActiveFaction } from '../utils/profile.js?v=9';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=9';
+} from '../domain/documents.js?v=10';
+import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=10';
+import { translateError } from '../utils/translateError.js?v=10';
+import { BackButton } from '../components/BackButton.js?v=10';
+import { FactionBadge } from '../components/FactionBadge.js?v=10';
+import { Button } from '../components/Button.js?v=10';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=10';
+import { QRCode } from '../components/QRCode.js?v=10';
+import { getActiveFaction } from '../utils/profile.js?v=10';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=10';
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });
