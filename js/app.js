@@ -10,43 +10,43 @@
  *   6. Подписываемся на onAuthChange — обновляем store и тему
  */
 
-import { Header } from './components/Header.js?v=10';
-import { Footer } from './components/Footer.js?v=10';
-import { ChatWidget } from './components/ChatWidget.js?v=10';
-import { HomePage } from './pages/HomePage.js?v=10';
-import { AuthPage } from './pages/AuthPage.js?v=10';
-import { ProfilePage } from './pages/ProfilePage.js?v=10';
-import { FactionPage } from './pages/FactionPage.js?v=10';
-import { AdminPage } from './pages/AdminPage.js?v=10';
-import { PagesListPage } from './pages/PagesListPage.js?v=10';
-import { PageViewPage } from './pages/PageViewPage.js?v=10';
-import { PageEditPage } from './pages/PageEditPage.js?v=10';
-import { RulesPage } from './pages/RulesPage.js?v=10';
-import { RulesEditPage } from './pages/RulesEditPage.js?v=10';
-import { DocumentsListPage } from './pages/DocumentsListPage.js?v=10';
-import { DocumentViewPage } from './pages/DocumentViewPage.js?v=10';
-import { DocumentEditPage } from './pages/DocumentEditPage.js?v=10';
-import { DocumentAddPage } from './pages/DocumentAddPage.js?v=10';
-import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=10';
-import { UsersAdminPage } from './pages/UsersAdminPage.js?v=10';
-import { RadioRoomPage } from './pages/RadioRoomPage.js?v=10';
-import { RadioScanPage } from './pages/RadioScanPage.js?v=10';
-import { GamesAdminPage } from './pages/GamesAdminPage.js?v=10';
-import { GameEditPage } from './pages/GameEditPage.js?v=10';
-import { render, createElement } from './utils/dom.js?v=10';
-import { ThemeManager } from './core/ThemeManager.js?v=10';
-import { initPWA } from './core/pwa.js?v=10';
-import { initViewMode } from './components/ViewModeToggle.js?v=10';
-import { Router } from './core/Router.js?v=10';
-import { store } from './core/Store.js?v=10';
-import { initFirebase } from './firebase/firebase.js?v=10';
-import { onAuthChange, getUserProfile } from './firebase/authService.js?v=10';
-import { getActiveGame } from './firebase/gamesService.js?v=10';
-import { getCharacterForPlayer } from './firebase/charactersService.js?v=10';
-import { seedInitialTags } from './firebase/tagsService.js?v=10';
-import { seedInitialPages } from './firebase/pagesService.js?v=10';
-import { seedInitialRules } from './firebase/rulesService.js?v=10';
-import { subscribeDesign } from './firebase/settingsService.js?v=10';
+import { Header } from './components/Header.js?v=12';
+import { Footer } from './components/Footer.js?v=12';
+import { ChatWidget } from './components/ChatWidget.js?v=12';
+import { HomePage } from './pages/HomePage.js?v=12';
+import { AuthPage } from './pages/AuthPage.js?v=12';
+import { ProfilePage } from './pages/ProfilePage.js?v=12';
+import { FactionPage } from './pages/FactionPage.js?v=12';
+import { AdminPage } from './pages/AdminPage.js?v=12';
+import { PagesListPage } from './pages/PagesListPage.js?v=12';
+import { PageViewPage } from './pages/PageViewPage.js?v=12';
+import { PageEditPage } from './pages/PageEditPage.js?v=12';
+import { RulesPage } from './pages/RulesPage.js?v=12';
+import { RulesEditPage } from './pages/RulesEditPage.js?v=12';
+import { DocumentsListPage } from './pages/DocumentsListPage.js?v=12';
+import { DocumentViewPage } from './pages/DocumentViewPage.js?v=12';
+import { DocumentEditPage } from './pages/DocumentEditPage.js?v=12';
+import { DocumentAddPage } from './pages/DocumentAddPage.js?v=12';
+import { DocumentPrintPage } from './pages/DocumentPrintPage.js?v=12';
+import { UsersAdminPage } from './pages/UsersAdminPage.js?v=12';
+import { RadioRoomPage } from './pages/RadioRoomPage.js?v=12';
+import { RadioScanPage } from './pages/RadioScanPage.js?v=12';
+import { GamesAdminPage } from './pages/GamesAdminPage.js?v=12';
+import { GameEditPage } from './pages/GameEditPage.js?v=12';
+import { render, createElement } from './utils/dom.js?v=12';
+import { ThemeManager } from './core/ThemeManager.js?v=12';
+import { initPWA } from './core/pwa.js?v=12';
+import { initViewMode } from './components/ViewModeToggle.js?v=12';
+import { Router } from './core/Router.js?v=12';
+import { store } from './core/Store.js?v=12';
+import { initFirebase } from './firebase/firebase.js?v=12';
+import { onAuthChange, getUserProfile } from './firebase/authService.js?v=12';
+import { getActiveGame } from './firebase/gamesService.js?v=12';
+import { getCharacterForPlayer } from './firebase/charactersService.js?v=12';
+import { seedInitialTags } from './firebase/tagsService.js?v=12';
+import { seedInitialPages } from './firebase/pagesService.js?v=12';
+import { seedInitialRules } from './firebase/rulesService.js?v=12';
+import { subscribeDesign } from './firebase/settingsService.js?v=12';
 
 const themeManager = new ThemeManager();
 let headerEl = null;
@@ -191,8 +191,8 @@ async function init() {
                     store.set('activeGame', game);
                     store.set('character', character);
 
-                    // Тема автоматически подстраивается под фракцию персонажа
-                    themeManager.setThemeByFaction(character?.faction || null);
+                    // Тема автоматически подстраивается под фракцию персонажа или радиорубки
+                    themeManager.setThemeByFaction(profile.radioFaction || character?.faction || null);
 
                     // Сидируем стартовую страницу, если пусто (только для мастеров)
                     if (profile.role === 'master') {

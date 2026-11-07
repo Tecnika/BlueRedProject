@@ -6,23 +6,23 @@
  * Отображение: данные игрока / ФИ персонажа с переключателем фракции.
  */
 
-import { createElement } from '../utils/dom.js?v=10';
-import { store } from '../core/Store.js?v=10';
-import { translateError } from '../utils/translateError.js?v=10';
-import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
+import { store } from '../core/Store.js?v=12';
+import { translateError } from '../utils/translateError.js?v=12';
+import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=12';
 import {
     getCharactersByGame,
     createCharacter,
     updateCharacter,
     deleteCharacter,
     assignFaction
-} from '../firebase/charactersService.js?v=10';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=10';
-import { Button } from '../components/Button.js?v=10';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=10';
-import { FormField } from '../components/FormField.js?v=10';
-import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=10';
-import { GAME_STATUS_LABELS } from '../utils/constants.js?v=10';
+} from '../firebase/charactersService.js?v=12';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=12';
+import { Button } from '../components/Button.js?v=12';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=12';
+import { FormField } from '../components/FormField.js?v=12';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=12';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=12';
 
 
 export async function GameEditPage(gameId) {

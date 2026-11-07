@@ -180,6 +180,12 @@ service cloud.firestore {
       allow update, delete: if isMaster();
     }
 
+    // ========== techAccounts — технические учётки радиорубок ==========
+    // Пароли хранятся в открытом виде и доступны только мастерам
+    match /techAccounts/{id} {
+      allow read, write: if isMaster();
+    }
+
     // ========== logs — журнал для мастеров ==========
     match /logs/{logId} {
       allow read: if isMaster();

@@ -266,7 +266,7 @@
     margin-top: var(--space-sm);
 }
 
-/* --- Расшифровка текстов --- */
+/* --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ --- */
 .admin-cipher__controls {
     display: flex;
     gap: var(--space-sm);
@@ -330,7 +330,7 @@
     font-size: 1.05rem;
 }
 
-/* --- Сворачиваемые секции --- */
+/* --- пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ --- */
 .admin-collapse {
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -380,7 +380,7 @@
 }
 
 
-/* --- Логи --- */
+/* --- пїЅпїЅпїЅпїЅ --- */
 .admin-logs {
     display: flex;
     flex-direction: column;
@@ -410,4 +410,76 @@
         grid-template-columns: 1fr;
         gap: 2px;
     }
+}
+
+/* --- РўРµС…РЅРёС‡РµСЃРєРёРµ СѓС‡С‘С‚РєРё --- */
+.admin-tech {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+}
+
+.admin-tech__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+}
+
+.admin-tech__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.admin-tech__label {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.admin-tech__creds {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.admin-tech__cred {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-sm);
+    justify-content: space-between;
+}
+
+.admin-tech__key {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+
+.admin-tech__value {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 2px 8px;
+    overflow-wrap: anywhere;
+}
+
+.admin-tech__value--password {
+    color: #f97316;
+    font-weight: 600;
+}
+
+.admin-tech__card .btn {
+    align-self: flex-start;
 }

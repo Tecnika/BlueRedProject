@@ -1,16 +1,16 @@
-import { createElement } from '../utils/dom.js?v=10';
-import { translateError } from '../utils/translateError.js?v=10';
-import { store } from '../core/Store.js?v=10';
-import { createAvatar } from '../core/Avatar.js?v=10';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=10';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=10';
-import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=10';
-import { FactionBadge } from '../components/FactionBadge.js?v=10';
-import { Icon } from '../components/Icon.js?v=10';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=10';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=10';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=10';
-import { ROLE_LABELS } from '../utils/constants.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
+import { translateError } from '../utils/translateError.js?v=12';
+import { store } from '../core/Store.js?v=12';
+import { createAvatar } from '../core/Avatar.js?v=12';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=12';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=12';
+import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=12';
+import { FactionBadge } from '../components/FactionBadge.js?v=12';
+import { Icon } from '../components/Icon.js?v=12';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=12';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=12';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=12';
+import { ROLE_LABELS } from '../utils/constants.js?v=12';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
@@ -31,7 +31,8 @@ export async function FactionPage() {
     const container = createElement('div', { className: 'faction-page__container' });
 
     const header = createElement('div', { className: 'faction-page__header' });
-    const myFaction = getActiveFaction();
+    // Аккаунт радиорубки смотрит состав своей фракции, даже без персонажа
+    const myFaction = getActiveFaction() || user.radioFaction || null;
     header.appendChild(createElement('h1', {
         className: 'faction-page__title',
         text: fullView ? 'Фракции' : (myFaction ? `Фракция: ${FACTION_LABELS[myFaction] || myFaction}` : 'Фракции')
@@ -61,9 +62,12 @@ export async function FactionPage() {
         const playerMap = {};
         for (const p of players) playerMap[p.uid] = p;
 
+        // Аккаунты радиорубок не показываем в личном составе фракции
+        const roster = characters.filter(c => !playerMap[c.playerId]?.radioFaction);
+
         const visible = fullView
-            ? characters
-            : characters.filter(c => c.faction === myFaction);
+            ? roster
+            : roster.filter(c => c.faction === myFaction);
 
         if (fullView) {
             for (const faction of FACTION_ORDER) {

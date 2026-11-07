@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
 
 /** Мини-игра «повтори последовательность» (инженер / хакер) */
 export function SequenceGame({ length = 4, timeLimit = 60, onSuccess, onFail }) {
@@ -108,18 +108,22 @@ export function TunerGame({ rounds = 3, duration = 60, onSuccess, onFail }) {
     let speed = 0.012;
     let caught = 0;
     let finished = false;
-    let raf = null;
+    let timer = null;
     let startedAt = Date.now();
 
     function loop() {
         if (finished) return;
+        if (!root.isConnected) { clearInterval(timer); return; }
         pos += dir * speed;
         if (pos >= 1) { pos = 1; dir = -1; }
         if (pos <= 0) { pos = 0; dir = 1; }
         marker.style.left = (pos * 100) + '%';
         const left = Math.max(0, Math.ceil(duration - (Date.now() - startedAt) / 1000));
-        if (left <= 0) return stop(false);
-        raf = requestAnimationFrame(loop);
+        if (left <= 0) {
+            stop(true);
+            status.textContent = 'Время вышло';
+            return;
+        }
     }
 
     function stop(forceFail) {
@@ -130,7 +134,7 @@ export function TunerGame({ rounds = 3, duration = 60, onSuccess, onFail }) {
             status.textContent = `Поймано: ${caught} из ${rounds}`;
             if (caught >= rounds) {
                 finished = true;
-                cancelAnimationFrame(raf);
+                clearInterval(timer);
                 onSuccess && onSuccess();
                 return;
             }
@@ -140,13 +144,13 @@ export function TunerGame({ rounds = 3, duration = 60, onSuccess, onFail }) {
         }
         if (!ok && forceFail) {
             finished = true;
-            cancelAnimationFrame(raf);
+            clearInterval(timer);
             onFail && onFail();
         }
     }
 
     stopBtn.addEventListener('click', () => stop(false));
-    raf = requestAnimationFrame(loop);
+    timer = setInterval(loop, 16);
 
     return root;
 }

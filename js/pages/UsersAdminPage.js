@@ -6,18 +6,18 @@
  * Управление ролями игротехника.
  */
 
-import { createElement } from '../utils/dom.js?v=10';
-import { store } from '../core/Store.js?v=10';
-import { createAvatar } from '../core/Avatar.js?v=10';
-import { getCollection } from '../firebase/dbService.js?v=10';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=10';
-import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=10';
-import { createRecipientCode } from '../firebase/radioService.js?v=10';
-import { translateError } from '../utils/translateError.js?v=10';
-import { Button } from '../components/Button.js?v=10';
-import { StatusMessage } from '../components/StatusMessage.js?v=10';
-import { FactionBadge } from '../components/FactionBadge.js?v=10';
-import { ROLE_LABELS } from '../utils/constants.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
+import { store } from '../core/Store.js?v=12';
+import { createAvatar } from '../core/Avatar.js?v=12';
+import { getCollection } from '../firebase/dbService.js?v=12';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=12';
+import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=12';
+import { createRecipientCode } from '../firebase/radioService.js?v=12';
+import { translateError } from '../utils/translateError.js?v=12';
+import { Button } from '../components/Button.js?v=12';
+import { StatusMessage } from '../components/StatusMessage.js?v=12';
+import { FactionBadge } from '../components/FactionBadge.js?v=12';
+import { ROLE_LABELS } from '../utils/constants.js?v=12';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });

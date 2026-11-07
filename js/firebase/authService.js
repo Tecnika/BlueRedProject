@@ -23,7 +23,7 @@ import {
     updateDoc
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=10';
+import { getFirebase } from './firebase.js?v=12';
 
 /** Домен-заглушка для email (Firebase Auth требует email) */
 const FAKE_DOMAIN = '@bluered.project';
@@ -120,7 +120,10 @@ export async function signUpWithUsername({ username, password, player }) {
  * @param {'player'|'igrotech'} role
  */
 export async function setRadioRoom(uid, faction) {
-    await updateUserProfile(uid, { radioFaction: faction || null });
+    const value = faction || null;
+    await updateUserProfile(uid, { radioFaction: value });
+    // Публичная проекция: по ней список фракции исключает терминалы радиорубок
+    await syncPublicPlayer(uid, { radioFaction: value });
 }
 
 export async function setUserRole(uid, role) {

@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
 
 export function QRCode({ data, size = 200 }) {
     const url = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}`;

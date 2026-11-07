@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, setDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=10';
-import { store } from '../core/Store.js?v=10';
+import { getFirebase } from './firebase.js?v=12';
+import { store } from '../core/Store.js?v=12';
 
 /**
  * Комментарии о людях, видимые в списке фракции.

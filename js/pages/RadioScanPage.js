@@ -1,19 +1,19 @@
-import { createElement } from '../utils/dom.js?v=10';
-import { translateError } from '../utils/translateError.js?v=10';
-import { requireAuth } from '../components/PageLayout.js?v=10';
-import { Button } from '../components/Button.js?v=10';
-import { StatusMessage } from '../components/StatusMessage.js?v=10';
-import { SequenceGame, TunerGame } from '../components/MiniGame.js?v=10';
-import { getActiveGame, getActiveFaction } from '../utils/profile.js?v=10';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
+import { translateError } from '../utils/translateError.js?v=12';
+import { requireAuth } from '../components/PageLayout.js?v=12';
+import { Button } from '../components/Button.js?v=12';
+import { StatusMessage } from '../components/StatusMessage.js?v=12';
+import { SequenceGame, TunerGame } from '../components/MiniGame.js?v=12';
+import { getActiveGame, getActiveFaction } from '../utils/profile.js?v=12';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=12';
 import {
     grantAccess,
     addTrace,
     createRecipientCode,
     listRecipientCodes,
     isCodeValid
-} from '../firebase/radioService.js?v=10';
-import { logEvent } from '../firebase/chatService.js?v=10';
+} from '../firebase/radioService.js?v=12';
+import { logEvent } from '../firebase/chatService.js?v=12';
 
 const ROLE_LABELS = { engineer: 'Инженер', signalman: 'Связист' };
 
@@ -25,6 +25,12 @@ export async function RadioScanPage() {
     const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
     const roomUid = params.get('room');
     const role = params.get('role');
+    const faction = params.get('faction');
+
+    // Оформление мини-игры в цвете фракции радиорубки
+    if (['red', 'blue', 'purple'].includes(faction)) {
+        section.classList.add('radio-page--' + faction);
+    }
 
     if (!roomUid || !['engineer', 'signalman'].includes(role)) {
         section.appendChild(StatusMessage({ type: 'err', text: 'Неверный QR радиорубки' }));

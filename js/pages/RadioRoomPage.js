@@ -1,11 +1,12 @@
-import { createElement } from '../utils/dom.js?v=10';
-import { translateError } from '../utils/translateError.js?v=10';
-import { requireAuth } from '../components/PageLayout.js?v=10';
-import { Button } from '../components/Button.js?v=10';
-import { StatusMessage } from '../components/StatusMessage.js?v=10';
-import { QRCode } from '../components/QRCode.js?v=10';
-import { Icon } from '../components/Icon.js?v=10';
-import { FACTION_LABELS } from '../utils/profile.js?v=10';
+import { createElement } from '../utils/dom.js?v=12';
+import { store } from '../core/Store.js?v=12';
+import { translateError } from '../utils/translateError.js?v=12';
+import { requireAuth } from '../components/PageLayout.js?v=12';
+import { Button } from '../components/Button.js?v=12';
+import { StatusMessage } from '../components/StatusMessage.js?v=12';
+import { QRCode } from '../components/QRCode.js?v=12';
+import { Icon } from '../components/Icon.js?v=12';
+import { FACTION_LABELS } from '../utils/profile.js?v=12';
 import {
     subscribeSession,
     getRecipientCode,
@@ -14,8 +15,8 @@ import {
     findTargetFaction,
     ensureCrossChat,
     setChannel
-} from '../firebase/radioService.js?v=10';
-import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=10';
+} from '../firebase/radioService.js?v=12';
+import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=12';
 
 export function RadioRoomPage() {
     const section = createElement('section', { className: 'radio-page' });
@@ -32,6 +33,11 @@ export function RadioRoomPage() {
     if (!radioFaction) {
         section.appendChild(StatusMessage({ type: 'err', text: 'У аккаунта не указана фракция радиорубки.' }));
         return section;
+    }
+
+    // Уникальное оформление терминала под фракцию
+    if (['red', 'blue', 'purple'].includes(radioFaction)) {
+        section.classList.add('radio-page--' + radioFaction);
     }
 
     const container = createElement('div', { className: 'radio-page__container' });
@@ -54,7 +60,7 @@ export function RadioRoomPage() {
         const box = createElement('div', { className: 'radio-page__qr' });
         box.appendChild(createElement('div', { className: 'radio-page__qr-label', text: role.label }));
         box.appendChild(QRCode({
-            data: `${baseUrl}#/radio/scan?room=${roomUid}&role=${role.key}`,
+            data: `${baseUrl}#/radio/scan?room=${roomUid}&role=${role.key}&faction=${encodeURIComponent(radioFaction)}`,
             size: 150
         }));
         qrRow.appendChild(box);
@@ -243,11 +249,20 @@ export function RadioRoomPage() {
         }
     });
 
+    // При выходе сразу снимаем подписки, не дожидаясь таймера
+    const userUnsub = store.subscribe('user', (nextUser) => {
+        if (!nextUser) {
+            if (unsub) unsub();
+            if (messagesUnsub) messagesUnsub();
+        }
+    });
+
     const timer = setInterval(() => {
         if (!document.body.contains(section)) {
             clearInterval(timer);
             if (unsub) unsub();
             if (messagesUnsub) messagesUnsub();
+            if (userUnsub) userUnsub();
             return;
         }
         updateStatus();
