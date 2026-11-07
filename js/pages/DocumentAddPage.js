@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=12';
-import { store } from '../core/Store.js?v=12';
-import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=12';
-import { updateUserProfile } from '../firebase/authService.js?v=12';
-import { translateError } from '../utils/translateError.js?v=12';
-import { BackButton } from '../components/BackButton.js?v=12';
-import { Button } from '../components/Button.js?v=12';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=12';
-import { FACTION_LABELS } from '../utils/profile.js?v=12';
-import { LEVEL_LABELS } from '../domain/documents.js?v=12';
+import { createElement } from '../utils/dom.js?v=13';
+import { store } from '../core/Store.js?v=13';
+import { addDocumentByCode, grantDocumentAccess } from '../firebase/documentsService.js?v=13';
+import { updateUserProfile } from '../firebase/authService.js?v=13';
+import { translateError } from '../utils/translateError.js?v=13';
+import { BackButton } from '../components/BackButton.js?v=13';
+import { Button } from '../components/Button.js?v=13';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=13';
+import { FACTION_LABELS } from '../utils/profile.js?v=13';
+import { LEVEL_LABELS } from '../domain/documents.js?v=13';
 
 export function DocumentAddPage() {
     const section = createElement('section', { className: 'document-add-page' });

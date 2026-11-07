@@ -1,5 +1,5 @@
 import { collection, getDocs } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=12';
+import { getFirebase } from './firebase.js?v=13';
 
 /**
  * Технические учётки радиорубок.

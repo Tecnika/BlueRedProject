@@ -6,7 +6,7 @@
  *   2. Если не загрузился за 3 сек — показываем ui-avatars (инициалы)
  */
 
-import { createElement } from '../utils/dom.js?v=12';
+import { createElement } from '../utils/dom.js?v=13';
 
 const COLORS = {
     purple: '7c3aed',

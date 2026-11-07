@@ -1,18 +1,18 @@
-import { store } from '../core/Store.js?v=12';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=12';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=12';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=12';
-import { getRecentLogs } from '../firebase/chatService.js?v=12';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=12';
-import { setDesign } from '../firebase/settingsService.js?v=12';
-import { createElement } from '../utils/dom.js?v=12';
-import { translateError } from '../utils/translateError.js?v=12';
-import { Button } from '../components/Button.js?v=12';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=12';
-import { Icon } from '../components/Icon.js?v=12';
-import { FactionBadge } from '../components/FactionBadge.js?v=12';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=12';
-import { FACTION_LABELS } from '../utils/profile.js?v=12';
+import { store } from '../core/Store.js?v=13';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=13';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=13';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=13';
+import { getRecentLogs } from '../firebase/chatService.js?v=13';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=13';
+import { setDesign } from '../firebase/settingsService.js?v=13';
+import { createElement } from '../utils/dom.js?v=13';
+import { translateError } from '../utils/translateError.js?v=13';
+import { Button } from '../components/Button.js?v=13';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=13';
+import { Icon } from '../components/Icon.js?v=13';
+import { FactionBadge } from '../components/FactionBadge.js?v=13';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=13';
+import { FACTION_LABELS } from '../utils/profile.js?v=13';
 
 export function AdminPage() {
     const section = createElement('section', { className: 'admin-page' });

@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=12';
-import { store } from '../core/Store.js?v=12';
-import { translateError } from '../utils/translateError.js?v=12';
-import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=12';
-import { Button } from '../components/Button.js?v=12';
-import { Icon } from '../components/Icon.js?v=12';
-import { StatusMessage } from '../components/StatusMessage.js?v=12';
+import { createElement } from '../utils/dom.js?v=13';
+import { store } from '../core/Store.js?v=13';
+import { translateError } from '../utils/translateError.js?v=13';
+import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=13';
+import { Button } from '../components/Button.js?v=13';
+import { Icon } from '../components/Icon.js?v=13';
+import { StatusMessage } from '../components/StatusMessage.js?v=13';
 
 const TYPE_LABELS = { general: 'Основные', site: 'Правила сайта', hidden: 'Скрытые механики' };
 const TYPE_ORDER = ['general', 'site', 'hidden'];

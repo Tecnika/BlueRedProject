@@ -1,25 +1,25 @@
-import { createElement } from '../utils/dom.js?v=12';
-import { store } from '../core/Store.js?v=12';
+import { createElement } from '../utils/dom.js?v=13';
+import { store } from '../core/Store.js?v=13';
 import {
     getDocument,
     getVersionsByNumber,
     deleteVersionGroup
-} from '../firebase/documentsService.js?v=12';
-import { updateUserProfile } from '../firebase/authService.js?v=12';
+} from '../firebase/documentsService.js?v=13';
+import { updateUserProfile } from '../firebase/authService.js?v=13';
 import {
     getAccessibleVersions,
     getVersionView,
     LEVEL_LABELS
-} from '../domain/documents.js?v=12';
-import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=12';
-import { translateError } from '../utils/translateError.js?v=12';
-import { BackButton } from '../components/BackButton.js?v=12';
-import { FactionBadge } from '../components/FactionBadge.js?v=12';
-import { Button } from '../components/Button.js?v=12';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=12';
-import { QRCode } from '../components/QRCode.js?v=12';
-import { getActiveFaction } from '../utils/profile.js?v=12';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=12';
+} from '../domain/documents.js?v=13';
+import { encryptToFaction, normalizeForCompare, LANGUAGE_LABELS, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=13';
+import { translateError } from '../utils/translateError.js?v=13';
+import { BackButton } from '../components/BackButton.js?v=13';
+import { FactionBadge } from '../components/FactionBadge.js?v=13';
+import { Button } from '../components/Button.js?v=13';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=13';
+import { QRCode } from '../components/QRCode.js?v=13';
+import { getActiveFaction } from '../utils/profile.js?v=13';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=13';
 
 export async function DocumentViewPage(docId) {
     const section = createElement('section', { className: 'document-view-page' });
