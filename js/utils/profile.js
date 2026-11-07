@@ -34,6 +34,9 @@ export function getActiveCharacter() {
 
 /** Фракция активного персонажа */
 export function getActiveFaction() {
+    const user = store.get('user');
+    // Аккаунт радиорубки действует как терминал своей фракции
+    if (user?.radioFaction) return user.radioFaction;
     const character = getActiveCharacter();
     return character?.faction || null;
 }
