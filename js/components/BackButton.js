@@ -1,4 +1,4 @@
-import { Button } from './Button.js?v=27';
+import { Button } from './Button.js?v=28';
 
 export function BackButton({ fallback = '#/' }) {
     return Button({

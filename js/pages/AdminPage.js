@@ -1,20 +1,20 @@
-import { store } from '../core/Store.js?v=27';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=27';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=27';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=27';
-import { getRecentLogs } from '../firebase/chatService.js?v=27';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=27';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
-import { setDesign } from '../firebase/settingsService.js?v=27';
-import { createElement } from '../utils/dom.js?v=27';
-import { translateError } from '../utils/translateError.js?v=27';
-import { Button } from '../components/Button.js?v=27';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=27';
-import { Icon } from '../components/Icon.js?v=27';
-import { FactionBadge } from '../components/FactionBadge.js?v=27';
-import { createAvatar } from '../core/Avatar.js?v=27';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=27';
-import { FACTION_LABELS } from '../utils/profile.js?v=27';
+import { store } from '../core/Store.js?v=28';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=28';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=28';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=28';
+import { getRecentLogs } from '../firebase/chatService.js?v=28';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=28';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=28';
+import { setDesign } from '../firebase/settingsService.js?v=28';
+import { createElement } from '../utils/dom.js?v=28';
+import { translateError } from '../utils/translateError.js?v=28';
+import { Button } from '../components/Button.js?v=28';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=28';
+import { Icon } from '../components/Icon.js?v=28';
+import { FactionBadge } from '../components/FactionBadge.js?v=28';
+import { createAvatar } from '../core/Avatar.js?v=28';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=28';
+import { FACTION_LABELS } from '../utils/profile.js?v=28';
 
 const ADMIN_SECTIONS = [
     { id: 'game', label: 'Игра', icon: 'sports_esports' },

@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
 
 const SIZE_CLASS = {
     sm: 'icon--sm',

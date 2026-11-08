@@ -1,19 +1,19 @@
-import { createElement } from '../utils/dom.js?v=27';
-import { store } from '../core/Store.js?v=27';
-import { createAvatar } from '../core/Avatar.js?v=27';
-import { Icon } from './Icon.js?v=27';
-import { Button } from './Button.js?v=27';
-import { StatusMessage, showMessage } from './StatusMessage.js?v=27';
-import { translateError } from '../utils/translateError.js?v=27';
-import { FactionBadge } from './FactionBadge.js?v=27';
-import { ROLE_LABELS } from '../utils/constants.js?v=27';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
+import { store } from '../core/Store.js?v=28';
+import { createAvatar } from '../core/Avatar.js?v=28';
+import { Icon } from './Icon.js?v=28';
+import { Button } from './Button.js?v=28';
+import { StatusMessage, showMessage } from './StatusMessage.js?v=28';
+import { translateError } from '../utils/translateError.js?v=28';
+import { FactionBadge } from './FactionBadge.js?v=28';
+import { ROLE_LABELS } from '../utils/constants.js?v=28';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=28';
 import {
     getWikiComments,
     addWikiComment,
     setWikiCommentVisible,
     deleteWikiComment
-} from '../firebase/wikiCommentsService.js?v=27';
+} from '../firebase/wikiCommentsService.js?v=28';
 
 function formatTime(iso) {
     if (!iso) return '';

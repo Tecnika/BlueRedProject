@@ -9,7 +9,7 @@
  */
 
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=27';
+import { getFirebase } from './firebase.js?v=28';
 
 /** Составной id: автор + цель */
 function noteId(authorId, targetId) {

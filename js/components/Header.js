@@ -1,12 +1,12 @@
-import { createElement } from '../utils/dom.js?v=27';
-import { Navigation } from './Navigation.js?v=27';
-import { store } from '../core/Store.js?v=27';
-import { createAvatar } from '../core/Avatar.js?v=27';
-import { getActiveFaction } from '../utils/profile.js?v=27';
-import { signOutUser } from '../firebase/authService.js?v=27';
-import { ROLE_LABELS } from '../utils/constants.js?v=27';
-import { Icon } from './Icon.js?v=27';
-import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
+import { Navigation } from './Navigation.js?v=28';
+import { store } from '../core/Store.js?v=28';
+import { createAvatar } from '../core/Avatar.js?v=28';
+import { getActiveFaction } from '../utils/profile.js?v=28';
+import { signOutUser } from '../firebase/authService.js?v=28';
+import { ROLE_LABELS } from '../utils/constants.js?v=28';
+import { Icon } from './Icon.js?v=28';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=28';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });

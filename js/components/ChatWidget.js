@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=27';
-import { store } from '../core/Store.js?v=27';
-import { createAvatar } from '../core/Avatar.js?v=27';
-import { Icon } from './Icon.js?v=27';
-import { translateError } from '../utils/translateError.js?v=27';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=27';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
+import { store } from '../core/Store.js?v=28';
+import { createAvatar } from '../core/Avatar.js?v=28';
+import { Icon } from './Icon.js?v=28';
+import { translateError } from '../utils/translateError.js?v=28';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=28';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=28';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=28';
 import {
     ensureFactionChat,
     ensureMasterChat,
@@ -17,7 +17,7 @@ import {
     sendMessage,
     markRead,
     dmChatId
-} from '../firebase/chatService.js?v=27';
+} from '../firebase/chatService.js?v=28';
 
 const TIME_FORMAT = { hour: '2-digit', minute: '2-digit' };
 
@@ -74,6 +74,7 @@ class ChatSession {
         this.factionMembers = [];
         this.masterMode = user.role === 'master';
         this.faction = getActiveFaction();
+        this.searchQuery = '';
         this.onSubError = (e) => console.warn('chat:', e?.code || e?.message || e);
     }
 
@@ -405,14 +406,44 @@ class ChatSession {
         }
         this.listView.appendChild(header);
 
-        const list = [...this.chats.values()].sort((a, b) => {
-            return (b.lastMessageAt || b.createdAt || '').localeCompare(a.lastMessageAt || a.createdAt || '');
+        const search = createElement('input', {
+            className: 'chat-list__search',
+            attributes: {
+                type: 'search',
+                placeholder: 'Поиск по диалогам...',
+                'aria-label': 'Поиск по диалогам',
+                autocomplete: 'off'
+            }
         });
+        search.value = this.searchQuery;
+        search.addEventListener('input', () => {
+            this.searchQuery = search.value;
+            this.renderList();
+            const next = this.listView.querySelector('.chat-list__search');
+            if (next) {
+                next.focus();
+                next.setSelectionRange(next.value.length, next.value.length);
+            }
+        });
+        this.listView.appendChild(search);
+
+        const query = this.searchQuery.trim().toLowerCase();
+        const list = [...this.chats.values()]
+            .filter(chat => {
+                if (!query) return true;
+                const title = this.chatTitle(chat).toLowerCase();
+                const preview = (chat.lastMessage?.text || '').toLowerCase();
+                const author = (chat.lastMessage?.authorName || '').toLowerCase();
+                return title.includes(query) || preview.includes(query) || author.includes(query);
+            })
+            .sort((a, b) => {
+                return (b.lastMessageAt || b.createdAt || '').localeCompare(a.lastMessageAt || a.createdAt || '');
+            });
 
         if (list.length === 0) {
             this.listView.appendChild(createElement('div', {
                 className: 'chat-list__empty',
-                text: 'Пока нет диалогов'
+                text: query ? 'Ничего не найдено' : 'Пока нет диалогов'
             }));
             return;
         }

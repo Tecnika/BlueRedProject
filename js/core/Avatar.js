@@ -6,7 +6,7 @@
  *   2. Если не загрузился за 3 сек — показываем ui-avatars (инициалы)
  */
 
-import { createElement } from '../utils/dom.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
 
 const COLORS = {
     purple: '7c3aed',
@@ -44,8 +44,9 @@ export function createAvatar(username, faction, className, gender, photo = null)
         attributes: { alt: username || 'avatar', loading: 'lazy', decoding: 'async' }
     });
 
-    // Если у пользователя загружено фото — показываем его
+    // Если у пользователя загружено фото — показываем его сразу
     if (photo) {
+        img.loading = 'eager';
         img.src = photo;
         return img;
     }

@@ -1,4 +1,4 @@
-import { updateUserProfile, syncPublicPlayer } from './authService.js?v=27';
+import { updateUserProfile, syncPublicPlayer } from './authService.js?v=28';
 
 /** Сохранить фото в профиль и публичную проекцию (бесплатно, data URL в Firestore) */
 export async function saveUserPhoto(uid, photo) {

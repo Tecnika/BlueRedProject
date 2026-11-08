@@ -5,7 +5,7 @@
  * Данные загружаются из data/navigation.json.
  */
 
-import { createElement } from '../utils/dom.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
 
 export function Navigation(items) {
     const nav = createElement('nav', { className: 'nav' });

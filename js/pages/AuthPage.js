@@ -1,10 +1,10 @@
-import { createElement } from '../utils/dom.js?v=27';
-import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=27';
-import { translateError } from '../utils/translateError.js?v=27';
-import { store } from '../core/Store.js?v=27';
-import { Button } from '../components/Button.js?v=27';
-import { FormField } from '../components/FormField.js?v=27';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
+import { signInWithUsername, signUpWithUsername } from '../firebase/authService.js?v=28';
+import { translateError } from '../utils/translateError.js?v=28';
+import { store } from '../core/Store.js?v=28';
+import { Button } from '../components/Button.js?v=28';
+import { FormField } from '../components/FormField.js?v=28';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=28';
 
 export function AuthPage() {
     const section = createElement('section', { className: 'auth-page' });

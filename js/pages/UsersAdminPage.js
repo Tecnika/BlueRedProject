@@ -6,20 +6,20 @@
  * Управление ролями игротехника.
  */
 
-import { createElement } from '../utils/dom.js?v=27';
-import { store } from '../core/Store.js?v=27';
-import { createAvatar } from '../core/Avatar.js?v=27';
-import { getCollection } from '../firebase/dbService.js?v=27';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
-import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=27';
-import { createRecipientCode } from '../firebase/radioService.js?v=27';
-import { saveUserPhoto, removeUserPhoto } from '../firebase/avatarService.js?v=27';
-import { processAvatarFile } from '../utils/avatarPhoto.js?v=27';
-import { translateError } from '../utils/translateError.js?v=27';
-import { Button } from '../components/Button.js?v=27';
-import { StatusMessage } from '../components/StatusMessage.js?v=27';
-import { FactionBadge } from '../components/FactionBadge.js?v=27';
-import { ROLE_LABELS } from '../utils/constants.js?v=27';
+import { createElement } from '../utils/dom.js?v=28';
+import { store } from '../core/Store.js?v=28';
+import { createAvatar } from '../core/Avatar.js?v=28';
+import { getCollection } from '../firebase/dbService.js?v=28';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=28';
+import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=28';
+import { createRecipientCode } from '../firebase/radioService.js?v=28';
+import { saveUserPhoto, removeUserPhoto } from '../firebase/avatarService.js?v=28';
+import { processAvatarFile } from '../utils/avatarPhoto.js?v=28';
+import { translateError } from '../utils/translateError.js?v=28';
+import { Button } from '../components/Button.js?v=28';
+import { StatusMessage } from '../components/StatusMessage.js?v=28';
+import { FactionBadge } from '../components/FactionBadge.js?v=28';
+import { ROLE_LABELS } from '../utils/constants.js?v=28';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });
