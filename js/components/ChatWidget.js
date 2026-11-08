@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { createAvatar } from '../core/Avatar.js?v=21';
-import { Icon } from './Icon.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=21';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=21';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { createAvatar } from '../core/Avatar.js?v=24';
+import { Icon } from './Icon.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=24';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=24';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=24';
 import {
     ensureFactionChat,
     ensureMasterChat,
@@ -17,7 +17,7 @@ import {
     sendMessage,
     markRead,
     dmChatId
-} from '../firebase/chatService.js?v=21';
+} from '../firebase/chatService.js?v=24';
 
 const TIME_FORMAT = { hour: '2-digit', minute: '2-digit' };
 

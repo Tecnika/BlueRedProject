@@ -1,12 +1,13 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { FactionBadge } from '../components/FactionBadge.js?v=21';
-import { StatusMessage } from '../components/StatusMessage.js?v=21';
-import { getActiveFaction } from '../utils/profile.js?v=21';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { FactionBadge } from '../components/FactionBadge.js?v=24';
+import { StatusMessage } from '../components/StatusMessage.js?v=24';
+import { WikiComments } from '../components/WikiComments.js?v=24';
+import { getActiveFaction } from '../utils/profile.js?v=24';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=24';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {
@@ -45,7 +46,8 @@ export async function PageViewPage(slug) {
         }
 
         const isAdmin = adminMode;
-        const container = createElement('div', { className: 'page-view-page__container' });
+        const isMaster = user.role === 'master';
+        const container = createElement('div', { className: 'page-view-page__container wiki-article' });
 
         if (page.type === 'general') {
             section.classList.add('page-view-page--general');
@@ -69,7 +71,32 @@ export async function PageViewPage(slug) {
         });
         container.appendChild(breadcrumbs);
 
+        const tabs = createElement('div', { className: 'wiki-article__tabs' });
+        tabs.appendChild(createElement('span', {
+            className: 'wiki-article__tab wiki-article__tab--active',
+            text: 'Статья'
+        }));
+        const talkTab = createElement('button', {
+            className: 'wiki-article__tab',
+            text: 'Обсуждение',
+            attributes: { type: 'button' }
+        });
+        talkTab.addEventListener('click', () => {
+            document.getElementById('wiki-comments')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        tabs.appendChild(talkTab);
+        container.appendChild(tabs);
+
         container.appendChild(createElement('h1', { className: 'page-view-page__title', text: page.title }));
+
+        const updated = page.updatedAt || page.createdAt;
+        const updatedText = updated && !Number.isNaN(new Date(updated).getTime())
+            ? new Date(updated).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+            : '—';
+        container.appendChild(createElement('div', {
+            className: 'wiki-article__meta-line',
+            text: `Материал из BlueRed · последняя правка: ${updatedText}`
+        }));
 
         if (page.tags && page.tags.length) {
             const meta = createElement('div', { className: 'page-view-page__meta' });
@@ -83,8 +110,16 @@ export async function PageViewPage(slug) {
             renderFactionView(container, page, viewer, isAdmin);
         }
 
-        if (isAdmin) {
-            container.appendChild(Button({ text: 'Редактировать досье', variant: 'secondary', size: 'sm', href: `#/page/edit?slug=${page.slug}` }));
+        if (isMaster) {
+            const actions = createElement('div', { className: 'wiki-article__actions' });
+            actions.appendChild(Button({
+                text: 'Редактировать страницу',
+                icon: 'edit',
+                variant: 'secondary',
+                size: 'sm',
+                href: `#/page/edit?slug=${page.slug}`
+            }));
+            container.appendChild(actions);
         }
 
         const children = allPages.filter(p => p.parentId === page.id);
@@ -100,6 +135,12 @@ export async function PageViewPage(slug) {
             childBlock.appendChild(childList);
             container.appendChild(childBlock);
         }
+
+        container.appendChild(await WikiComments({
+            targetType: 'page',
+            targetId: page.id,
+            rulesWiki: false
+        }));
 
         section.appendChild(container);
     } catch (err) {

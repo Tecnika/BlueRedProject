@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { FactionBadge } from '../components/FactionBadge.js?v=21';
-import { StatusMessage } from '../components/StatusMessage.js?v=21';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { FactionBadge } from '../components/FactionBadge.js?v=24';
+import { StatusMessage } from '../components/StatusMessage.js?v=24';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=24';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });
@@ -22,12 +22,17 @@ export async function PagesListPage() {
         const allPages = await getAllPages();
         const viewer = { role: adminMode ? 'master' : 'player', character: store.get('character') || {} };
         const visible = filterVisiblePages(allPages, viewer);
-        const tree = buildPageTree(visible);
 
         const container = createElement('div', { className: 'pages-list-page__container' });
 
         const header = createElement('div', { className: 'pages-list-page__header' });
-        header.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Эфир' }));
+        const headerText = createElement('div', { className: 'pages-list-page__header-text' });
+        headerText.appendChild(createElement('h1', { className: 'pages-list-page__title', text: 'Эфир' }));
+        headerText.appendChild(createElement('p', {
+            className: 'pages-list-page__subtitle',
+            text: 'Вики сектора BlueRed. Статьи дополняют мастера, обсуждать может каждый.'
+        }));
+        header.appendChild(headerText);
         header.appendChild(Button({ text: 'Правила', icon: 'gavel', variant: 'secondary', size: 'sm', href: '#/rules' }));
 
         if (adminMode) {
@@ -38,12 +43,39 @@ export async function PagesListPage() {
 
         container.appendChild(header);
 
-        if (tree.length === 0) {
-            container.appendChild(StatusMessage({ type: 'ok', text: 'Нет доступных досье' }));
-        } else {
-            const list = renderTree(tree);
-            container.appendChild(list);
+        const search = createElement('input', {
+            className: 'pages-list-page__search',
+            attributes: { type: 'search', placeholder: 'Поиск по статьям...', 'aria-label': 'Поиск по статьям' }
+        });
+        const countEl = createElement('span', { className: 'pages-list-page__count', text: '' });
+        container.appendChild(search);
+        container.appendChild(countEl);
+
+        const listContainer = createElement('div', { className: 'pages-list-page__list' });
+        container.appendChild(listContainer);
+
+        function renderFiltered() {
+            const q = search.value.trim().toLowerCase();
+            const filtered = q
+                ? visible.filter(p => (p.title || '').toLowerCase().includes(q))
+                : visible;
+            listContainer.innerHTML = '';
+            countEl.textContent = q
+                ? `Найдено: ${filtered.length} из ${visible.length}`
+                : `Всего статей: ${visible.length}`;
+
+            if (filtered.length === 0) {
+                listContainer.appendChild(StatusMessage({
+                    type: 'ok',
+                    text: q ? 'Ничего не найдено' : 'Нет доступных досье'
+                }));
+                return;
+            }
+            listContainer.appendChild(renderTree(buildPageTree(filtered)));
         }
+
+        search.addEventListener('input', renderFiltered);
+        renderFiltered();
 
         section.appendChild(container);
     } catch (err) {

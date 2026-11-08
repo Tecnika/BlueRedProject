@@ -186,6 +186,32 @@ service cloud.firestore {
       allow read, write: if isMaster();
     }
 
+    // ========== wikiComments — комментарии к Эфиру и Правилам ==========
+    match /wikiComments/{commentId} {
+      // Читают: мастера/игротехи — всё; игроки — свою фракцию и «для всех»
+      allow read: if isSignedIn() && (
+        isMaster()
+        || isIgrotech()
+        || resource.data.visibleToAll == true
+        || resource.data.faction == myPublicFaction()
+        || resource.data.faction == myRadioFaction()
+      );
+
+      // Создавать может любой авторизованный от своего имени
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.visibleToAll == false
+        && (
+          isMaster()
+          || isIgrotech()
+          || request.resource.data.faction == myPublicFaction()
+          || request.resource.data.faction == myRadioFaction()
+        );
+
+      // Помечать «для всех» и удалять может только мастер
+      allow update, delete: if isMaster();
+    }
+
     // ========== logs — журнал для мастеров ==========
     match /logs/{logId} {
       allow read: if isMaster();

@@ -1,10 +1,11 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { Icon } from '../components/Icon.js?v=21';
-import { StatusMessage } from '../components/StatusMessage.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getAllRules, deleteRule } from '../firebase/rulesService.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { Icon } from '../components/Icon.js?v=24';
+import { StatusMessage } from '../components/StatusMessage.js?v=24';
+import { WikiComments } from '../components/WikiComments.js?v=24';
 
 const TYPE_LABELS = { general: 'Основные', site: 'Правила сайта', hidden: 'Скрытые механики' };
 const TYPE_ORDER = ['general', 'site', 'hidden'];
@@ -42,7 +43,7 @@ export async function RulesPage() {
             window.location.hash = '#/rules/article?id=' + id;
         }));
 
-        container.appendChild(createContent(activeRule, user, section));
+        container.appendChild(await createContent(activeRule, user, section));
 
         section.appendChild(container);
     } catch (err) {
@@ -144,13 +145,29 @@ function buildNav(rules, activeId, user, onNavigate) {
     return nav;
 }
 
-function createContent(rule, user, section) {
-    const content = createElement('article', { className: 'rules-content' });
+async function createContent(rule, user, section) {
+    const content = createElement('article', { className: 'rules-content wiki-article' });
+
+    const tabs = createElement('div', { className: 'wiki-article__tabs' });
+    tabs.appendChild(createElement('span', {
+        className: 'wiki-article__tab wiki-article__tab--active',
+        text: 'Статья'
+    }));
+    const talkTab = createElement('button', {
+        className: 'wiki-article__tab',
+        text: 'Обсуждение',
+        attributes: { type: 'button' }
+    });
+    talkTab.addEventListener('click', () => {
+        document.getElementById('wiki-comments')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    tabs.appendChild(talkTab);
+    content.appendChild(tabs);
 
     const header = createElement('div', { className: 'rules-content__header' });
     header.appendChild(createElement('h1', { className: 'rules-content__title', text: rule.title }));
 
-    if (user.role === 'master' || user.role === 'igrotech') {
+    if (user.role === 'master') {
         const actions = createElement('div', { className: 'rules-content__actions' });
 
         actions.appendChild(Button({ text: 'Редактировать', variant: 'secondary', size: 'sm', onClick: () => {
@@ -172,6 +189,15 @@ function createContent(rule, user, section) {
 
     content.appendChild(header);
 
+    const updated = rule.updatedAt || rule.createdAt;
+    const updatedText = updated && !Number.isNaN(new Date(updated).getTime())
+        ? new Date(updated).toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '—';
+    content.appendChild(createElement('div', {
+        className: 'wiki-article__meta-line',
+        text: `Материал из BlueRed · последняя правка: ${updatedText}`
+    }));
+
     const body = createElement('div', { className: 'rules-content__body' });
     const lines = rule.content.split('\n');
     for (const line of lines) {
@@ -182,6 +208,12 @@ function createContent(rule, user, section) {
         }
     }
     content.appendChild(body);
+
+    content.appendChild(await WikiComments({
+        targetType: 'rule',
+        targetId: rule.id,
+        rulesWiki: true
+    }));
 
     return content;
 }

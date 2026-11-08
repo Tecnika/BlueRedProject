@@ -9,7 +9,7 @@
  * Активная фракция определяется персонажем в активной игре.
  */
 
-import { store } from '../core/Store.js?v=21';
+import { store } from '../core/Store.js?v=24';
 
 /** Фракции */
 export const FACTIONS = ['red', 'blue', 'purple'];

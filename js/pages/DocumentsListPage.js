@@ -1,12 +1,12 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { getAllDocuments } from '../firebase/documentsService.js?v=21';
-import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { FactionBadge } from '../components/FactionBadge.js?v=21';
-import { StatusMessage } from '../components/StatusMessage.js?v=21';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { getAllDocuments } from '../firebase/documentsService.js?v=24';
+import { getAccessibleVersions, groupByNumber, LEVEL_LABELS } from '../domain/documents.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { FactionBadge } from '../components/FactionBadge.js?v=24';
+import { StatusMessage } from '../components/StatusMessage.js?v=24';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=24';
 
 export async function DocumentsListPage() {
     const section = createElement('section', { className: 'documents-list-page' });

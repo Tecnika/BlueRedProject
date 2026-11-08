@@ -7,7 +7,7 @@
 /** Роли пользователей */
 export const ROLE_LABELS = {
     player: 'Игрок',
-    igrotech: 'Игротех',
+    igrotech: 'Игротехник',
     master: 'Мастер'
 };
 

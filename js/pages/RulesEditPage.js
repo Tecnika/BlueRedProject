@@ -1,27 +1,25 @@
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { FormField } from '../components/FormField.js?v=21';
-import { StatusMessage } from '../components/StatusMessage.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getRule, createRule, updateRule } from '../firebase/rulesService.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { FormField } from '../components/FormField.js?v=24';
+import { StatusMessage } from '../components/StatusMessage.js?v=24';
 
 export async function RulesEditPage() {
     const section = createElement('section', { className: 'rules-edit-page' });
     const user = store.get('user');
 
-    if (!user || (user.role !== 'master' && user.role !== 'igrotech')) {
-        section.appendChild(StatusMessage({ type: 'err', text: 'Только для мастера и игротехников' }));
+    if (!user || user.role !== 'master') {
+        section.appendChild(StatusMessage({ type: 'err', text: 'Редактировать правила может только мастер' }));
         return section;
     }
 
     const TYPE_OPTIONS = [
         { value: 'general', text: 'Основные' },
-        { value: 'site', text: 'Правила сайта' }
+        { value: 'site', text: 'Правила сайта' },
+        { value: 'hidden', text: 'Скрытые механики' }
     ];
-    if (user.role === 'master') {
-        TYPE_OPTIONS.push({ value: 'hidden', text: 'Скрытые механики' });
-    }
 
     const params = new URLSearchParams(window.location.hash.split('?')[1] || '');
     const editId = params.get('id');
@@ -32,10 +30,6 @@ export async function RulesEditPage() {
             const existing = await getRule(editId);
             if (!existing) {
                 section.appendChild(StatusMessage({ type: 'err', text: 'Правило не найдено' }));
-                return section;
-            }
-            if (user.role === 'igrotech' && existing.type === 'hidden') {
-                section.appendChild(StatusMessage({ type: 'err', text: 'Игротехники не могут редактировать скрытые механики' }));
                 return section;
             }
             ruleData = existing;
@@ -73,10 +67,6 @@ export async function RulesEditPage() {
         };
         if (!payload.title.trim()) { alert('Заголовок не может быть пустым'); return; }
         if (!payload.content.trim()) { alert('Содержание не может быть пустым'); return; }
-        if (user.role === 'igrotech' && payload.type === 'hidden') {
-            alert('Игротехники не могут создавать скрытые механики');
-            return;
-        }
 
         try {
             if (editId) {
@@ -104,10 +94,7 @@ export async function RulesEditPage() {
 
         addBtnsContainer.appendChild(Button({ text: 'Основные', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=general' }));
         addBtnsContainer.appendChild(Button({ text: 'Правила сайта', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=site' }));
-
-        if (user.role === 'master') {
-            addBtnsContainer.appendChild(Button({ text: 'Скрытые механики', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=hidden' }));
-        }
+        addBtnsContainer.appendChild(Button({ text: 'Скрытые механики', icon: 'add', variant: 'secondary', size: 'sm', href: '#/rules/create?type=hidden' }));
 
         shortcuts.appendChild(addBtnsContainer);
         container.appendChild(shortcuts);

@@ -5,14 +5,14 @@
  * Создание игры, активация/завершение/удаление, переход к персонажам.
  */
 
-import { createElement } from '../utils/dom.js?v=21';
-import { store } from '../core/Store.js?v=21';
-import { translateError } from '../utils/translateError.js?v=21';
-import { getAllGames, createGame, deleteGame, activateGame, finishGame } from '../firebase/gamesService.js?v=21';
-import { Button } from '../components/Button.js?v=21';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=21';
-import { FormField } from '../components/FormField.js?v=21';
-import { GAME_STATUS_LABELS } from '../utils/constants.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
+import { store } from '../core/Store.js?v=24';
+import { translateError } from '../utils/translateError.js?v=24';
+import { getAllGames, createGame, deleteGame, activateGame, finishGame } from '../firebase/gamesService.js?v=24';
+import { Button } from '../components/Button.js?v=24';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=24';
+import { FormField } from '../components/FormField.js?v=24';
+import { GAME_STATUS_LABELS } from '../utils/constants.js?v=24';
 
 
 export function GamesAdminPage() {

@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=21';
+import { createElement } from '../utils/dom.js?v=24';
 
 export function StatusMessage({ type = 'err', text = '', hidden = false }) {
     const msg = createElement('p', {

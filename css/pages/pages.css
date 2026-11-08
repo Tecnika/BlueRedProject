@@ -23,6 +23,42 @@
     gap: var(--space-md);
 }
 
+.pages-list-page__header-text {
+    min-width: 0;
+}
+
+.pages-list-page__subtitle {
+    margin: 4px 0 0;
+    max-width: 560px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.pages-list-page__search {
+    width: 100%;
+    padding: 9px 12px;
+    margin-bottom: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.88rem;
+    outline: none;
+}
+
+.pages-list-page__search:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+.pages-list-page__count {
+    display: block;
+    margin-bottom: var(--space-sm);
+    font-size: 0.72rem;
+    color: var(--color-text-secondary);
+}
+
 .pages-list-page__title {
     font-size: 1.75rem;
     font-weight: 700;

@@ -10,7 +10,7 @@
  *   - truth открывает и official той же фракции (и только его).
  */
 
-import { renderCipher, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=21';
+import { renderCipher, LANGUAGE_THRESHOLDS } from '../utils/cipher.js?v=24';
 
 /** Доступные уровни текста */
 export const LEVELS = ['truth', 'official', 'propaganda'];
