@@ -1,18 +1,18 @@
-import { createElement } from '../utils/dom.js?v=25';
-import { store } from '../core/Store.js?v=25';
-import { createAvatar } from '../core/Avatar.js?v=25';
-import { Icon } from './Icon.js?v=25';
-import { Button } from './Button.js?v=25';
-import { StatusMessage, showMessage } from './StatusMessage.js?v=25';
-import { translateError } from '../utils/translateError.js?v=25';
-import { FactionBadge } from './FactionBadge.js?v=25';
-import { ROLE_LABELS } from '../utils/constants.js?v=25';
+import { createElement } from '../utils/dom.js?v=26';
+import { store } from '../core/Store.js?v=26';
+import { createAvatar } from '../core/Avatar.js?v=26';
+import { Icon } from './Icon.js?v=26';
+import { Button } from './Button.js?v=26';
+import { StatusMessage, showMessage } from './StatusMessage.js?v=26';
+import { translateError } from '../utils/translateError.js?v=26';
+import { FactionBadge } from './FactionBadge.js?v=26';
+import { ROLE_LABELS } from '../utils/constants.js?v=26';
 import {
     getWikiComments,
     addWikiComment,
     setWikiCommentVisible,
     deleteWikiComment
-} from '../firebase/wikiCommentsService.js?v=25';
+} from '../firebase/wikiCommentsService.js?v=26';
 
 function formatTime(iso) {
     if (!iso) return '';

@@ -9,7 +9,7 @@
  */
 
 import { collection, doc, getDocs, setDoc, deleteDoc, query, limit } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=25';
+import { getFirebase } from './firebase.js?v=26';
 
 /** Стартовый пул грифов (темы и допуски страниц Эфира) */
 const INITIAL_TAGS = [

@@ -1,5 +1,5 @@
-import { createElement } from '../utils/dom.js?v=25';
-import { FACTION_LABELS } from '../utils/profile.js?v=25';
+import { createElement } from '../utils/dom.js?v=26';
+import { FACTION_LABELS } from '../utils/profile.js?v=26';
 
 export function FactionBadge({ faction, size = 'md' }) {
     const label = FACTION_LABELS[faction] || faction || '—';

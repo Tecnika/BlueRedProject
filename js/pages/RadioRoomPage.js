@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=25';
-import { store } from '../core/Store.js?v=25';
-import { createAvatar } from '../core/Avatar.js?v=25';
-import { translateError } from '../utils/translateError.js?v=25';
-import { requireAuth } from '../components/PageLayout.js?v=25';
-import { Button } from '../components/Button.js?v=25';
-import { StatusMessage } from '../components/StatusMessage.js?v=25';
-import { QRCode } from '../components/QRCode.js?v=25';
-import { Icon } from '../components/Icon.js?v=25';
-import { FACTION_LABELS } from '../utils/profile.js?v=25';
+import { createElement } from '../utils/dom.js?v=26';
+import { store } from '../core/Store.js?v=26';
+import { createAvatar } from '../core/Avatar.js?v=26';
+import { translateError } from '../utils/translateError.js?v=26';
+import { requireAuth } from '../components/PageLayout.js?v=26';
+import { Button } from '../components/Button.js?v=26';
+import { StatusMessage } from '../components/StatusMessage.js?v=26';
+import { QRCode } from '../components/QRCode.js?v=26';
+import { Icon } from '../components/Icon.js?v=26';
+import { FACTION_LABELS } from '../utils/profile.js?v=26';
 import {
     subscribeSession,
     getRecipientCode,
@@ -16,8 +16,8 @@ import {
     findTargetFaction,
     ensureCrossChat,
     setChannel
-} from '../firebase/radioService.js?v=25';
-import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=25';
+} from '../firebase/radioService.js?v=26';
+import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=26';
 
 export function RadioRoomPage() {
     const section = createElement('section', { className: 'radio-page' });

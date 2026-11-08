@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, limit } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=25';
+import { getFirebase } from './firebase.js?v=26';
 
 /** Базовый каталог профессий: используется в персонажах и радиорубке */
 const INITIAL_PROFESSIONS = [
