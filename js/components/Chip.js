@@ -1,5 +1,5 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { Icon } from './Icon.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { Icon } from './Icon.js?v=27';
 
 const VARIANT_PREFIX = {
     lang: 'chip--lang-',

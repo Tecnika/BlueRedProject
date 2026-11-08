@@ -10,7 +10,7 @@
  */
 
 import { collection, doc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=26';
+import { getFirebase } from './firebase.js?v=27';
 
 /** Получить все субтеги */
 export async function getAllSubTags() {

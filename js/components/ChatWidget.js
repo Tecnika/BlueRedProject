@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { Icon } from './Icon.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=26';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=26';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { Icon } from './Icon.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=27';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=27';
 import {
     ensureFactionChat,
     ensureMasterChat,
@@ -17,7 +17,7 @@ import {
     sendMessage,
     markRead,
     dmChatId
-} from '../firebase/chatService.js?v=26';
+} from '../firebase/chatService.js?v=27';
 
 const TIME_FORMAT = { hour: '2-digit', minute: '2-digit' };
 
@@ -321,7 +321,8 @@ class ChatSession {
                     uid: c.playerId,
                     name: c.name || map[c.playerId]?.username || 'Агент',
                     username: map[c.playerId]?.username || '',
-                    faction: c.faction
+                    faction: c.faction,
+                    photo: map[c.playerId]?.photo || null
                 }));
         } catch (e) {
             this.factionMembers = [];
@@ -438,7 +439,8 @@ class ChatSession {
                     person.username || chat.title || 'user',
                     person.faction || this.faction,
                     'chat-list__avatar chat-list__avatar--photo',
-                    person.gender
+                    person.gender,
+                    person.photo || null
                 );
             }
 
@@ -495,7 +497,8 @@ class ChatSession {
                 member.username || member.name || 'user',
                 member.faction || this.faction,
                 'chat-picker__avatar',
-                member.gender
+                member.gender,
+                member.photo || null
             ));
             const rowInfo = createElement('span', { className: 'chat-picker__info' });
             rowInfo.appendChild(createElement('span', { className: 'chat-picker__name', text: member.name }));
@@ -616,7 +619,8 @@ class ChatSession {
                     person.username || message.authorName || 'user',
                     person.faction || message.faction || this.faction,
                     'chat-msg__avatar',
-                    person.gender
+                    person.gender,
+                    person.photo || null
                 ));
             }
 

@@ -6,7 +6,7 @@
  *   2. Если не загрузился за 3 сек — показываем ui-avatars (инициалы)
  */
 
-import { createElement } from '../utils/dom.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
 
 const COLORS = {
     purple: '7c3aed',
@@ -38,11 +38,17 @@ function fallbackUrl(username, faction) {
  * Сразу ставим ui-avatars, параллельно пробуем DiceBear.
  * Если DiceBear загрузился — заменяем src.
  */
-export function createAvatar(username, faction, className, gender) {
+export function createAvatar(username, faction, className, gender, photo = null) {
     const img = createElement('img', {
-        className,
+        className: photo ? [className, 'avatar--photo'].filter(Boolean).join(' ') : className,
         attributes: { alt: username || 'avatar', loading: 'lazy', decoding: 'async' }
     });
+
+    // Если у пользователя загружено фото — показываем его
+    if (photo) {
+        img.src = photo;
+        return img;
+    }
 
     // Сразу показываем запасной вариант (инициалы)
     img.src = fallbackUrl(username, faction);

@@ -70,7 +70,7 @@ service cloud.firestore {
       allow update: if isMaster() || (
         isOwner(userId)
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['player', 'decryptions', 'decryptedDocs', 'documents', 'lastRead'])
+             .hasOnly(['player', 'decryptions', 'decryptedDocs', 'documents', 'lastRead', 'photo', 'photoUpdatedAt'])
       );
 
       allow delete: if false;
@@ -99,7 +99,7 @@ service cloud.firestore {
       allow update: if isMaster() || (
         isOwner(uid)
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['displayName', 'gameId', 'characterName', 'faction', 'updatedAt'])
+             .hasOnly(['displayName', 'gameId', 'characterName', 'faction', 'updatedAt', 'photo', 'photoUpdatedAt'])
       );
 
       allow delete: if isMaster();

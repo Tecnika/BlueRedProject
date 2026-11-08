@@ -1,6 +1,6 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { StatusMessage } from './StatusMessage.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { StatusMessage } from './StatusMessage.js?v=27';
 
 export function PageLayout({ className, title, actions, children }) {
     const section = createElement('section', { className });

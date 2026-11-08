@@ -1,20 +1,22 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=26';
-import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=26';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=26';
-import { getNote, saveNote } from '../firebase/notesService.js?v=26';
-import { getAllDocuments } from '../firebase/documentsService.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { Button } from '../components/Button.js?v=26';
-import { Chip } from '../components/Chip.js?v=26';
-import { FactionBadge } from '../components/FactionBadge.js?v=26';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=26';
-import { FormField } from '../components/FormField.js?v=26';
-import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=26';
-import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=26';
-import { isAdminMode } from '../components/ViewModeToggle.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=27';
+import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=27';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=27';
+import { getNote, saveNote } from '../firebase/notesService.js?v=27';
+import { saveUserPhoto, removeUserPhoto } from '../firebase/avatarService.js?v=27';
+import { processAvatarFile } from '../utils/avatarPhoto.js?v=27';
+import { getAllDocuments } from '../firebase/documentsService.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { Button } from '../components/Button.js?v=27';
+import { Chip } from '../components/Chip.js?v=27';
+import { FactionBadge } from '../components/FactionBadge.js?v=27';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=27';
+import { FormField } from '../components/FormField.js?v=27';
+import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=27';
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=27';
+import { isAdminMode } from '../components/ViewModeToggle.js?v=27';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });
@@ -61,7 +63,8 @@ export async function ProfilePage(targetUid) {
 
         const layout = createElement('div', { className: 'profile-layout' });
 
-        layout.appendChild(createSidebar({ displayName, username, role, character, isOwner, isAdmin }));
+        const photo = profile?.photo || publicPlayer?.photo || null;
+        layout.appendChild(createSidebar({ displayName, username, role, character, isOwner, isAdmin, photo }));
 
         const content = createElement('div', { className: 'profile-content' });
 
@@ -92,14 +95,78 @@ export async function ProfilePage(targetUid) {
     return section;
 }
 
-function createSidebar({ displayName, username, role, character, isOwner, isAdmin }) {
+function createSidebar({ displayName, username, role, character, isOwner, isAdmin, photo }) {
     const sidebar = createElement('aside', { className: 'profile-sidebar' });
     // Мастера и игротехи — фиолетовые, даже если у персонажа старая фракция
     const faction = (role === 'master' || role === 'igrotech')
         ? 'purple'
         : (character?.faction || null);
 
-    sidebar.appendChild(createAvatar(username, faction, 'profile-sidebar__avatar', null));
+    const avatar = createAvatar(username, faction, 'profile-sidebar__avatar', null, photo);
+    sidebar.appendChild(avatar);
+
+    if (isOwner) {
+        const tools = createElement('div', { className: 'profile-avatar-tools' });
+        const fileInput = createElement('input', {
+            attributes: { type: 'file', accept: 'image/*', hidden: '' }
+        });
+        const msg = createElement('span', { className: 'profile-avatar-msg' });
+        const uploadBtn = Button({
+            text: 'Фото',
+            icon: 'photo_camera',
+            variant: 'secondary',
+            size: 'sm',
+            onClick: () => fileInput.click()
+        });
+        const removeBtn = Button({
+            text: 'Убрать',
+            variant: 'secondary',
+            size: 'sm',
+            disabled: !photo,
+            onClick: async () => {
+                try {
+                    await removeUserPhoto(store.get('user').uid);
+                    const user = store.get('user');
+                    store.set('user', { ...user, photo: null });
+                    const fallback = createAvatar(username, faction, 'profile-sidebar__avatar', null, null);
+                    avatar.src = fallback.src;
+                    avatar.classList.remove('avatar--photo');
+                    removeBtn.disabled = true;
+                    msg.textContent = 'Фото удалено';
+                } catch (err) {
+                    msg.textContent = 'Ошибка: ' + translateError(err);
+                }
+            }
+        });
+
+        fileInput.addEventListener('change', async () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (!file) return;
+            uploadBtn.disabled = true;
+            msg.textContent = 'Обработка...';
+            try {
+                const dataUrl = await processAvatarFile(file);
+                await saveUserPhoto(store.get('user').uid, dataUrl);
+                const user = store.get('user');
+                store.set('user', { ...user, photo: dataUrl });
+                avatar.src = dataUrl;
+                avatar.classList.add('avatar--photo');
+                removeBtn.disabled = false;
+                msg.textContent = 'Фото обновлено';
+            } catch (err) {
+                msg.textContent = 'Ошибка: ' + translateError(err);
+            } finally {
+                uploadBtn.disabled = false;
+                fileInput.value = '';
+            }
+        });
+
+        tools.appendChild(fileInput);
+        tools.appendChild(uploadBtn);
+        tools.appendChild(removeBtn);
+        tools.appendChild(msg);
+        sidebar.appendChild(tools);
+    }
 
     sidebar.appendChild(createElement('h1', {
         className: 'profile-sidebar__username',

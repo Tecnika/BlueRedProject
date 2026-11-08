@@ -1,19 +1,20 @@
-import { store } from '../core/Store.js?v=26';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=26';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=26';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=26';
-import { getRecentLogs } from '../firebase/chatService.js?v=26';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=26';
-import { setDesign } from '../firebase/settingsService.js?v=26';
-import { createElement } from '../utils/dom.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { Button } from '../components/Button.js?v=26';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=26';
-import { Icon } from '../components/Icon.js?v=26';
-import { FactionBadge } from '../components/FactionBadge.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=26';
-import { FACTION_LABELS } from '../utils/profile.js?v=26';
+import { store } from '../core/Store.js?v=27';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=27';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=27';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=27';
+import { getRecentLogs } from '../firebase/chatService.js?v=27';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=27';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
+import { setDesign } from '../firebase/settingsService.js?v=27';
+import { createElement } from '../utils/dom.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { Button } from '../components/Button.js?v=27';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=27';
+import { Icon } from '../components/Icon.js?v=27';
+import { FactionBadge } from '../components/FactionBadge.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=27';
+import { FACTION_LABELS } from '../utils/profile.js?v=27';
 
 const ADMIN_SECTIONS = [
     { id: 'game', label: 'Игра', icon: 'sports_esports' },
@@ -291,6 +292,9 @@ function renderTechAccountsSection() {
     async function refresh() {
         try {
             const accounts = await getTechAccounts();
+            const players = await getAllPublicPlayers();
+            const photoMap = {};
+            for (const player of players) photoMap[player.uid] = player.photo || null;
             accountsCache = accounts;
             countEl.textContent = accounts.length ? `${accounts.length} учётки` : '';
             listEl.innerHTML = '';
@@ -307,7 +311,8 @@ function renderTechAccountsSection() {
                     account.username || 'radio',
                     account.faction,
                     'admin-tech__avatar',
-                    null
+                    null,
+                    photoMap[account.uid] || null
                 ));
                 head.appendChild(FactionBadge({ faction: account.faction, size: 'sm' }));
                 head.appendChild(createElement('span', {
@@ -571,6 +576,7 @@ function renderLogsSection() {
     );
 
     let allLogs = [];
+    let logPhotos = {};
 
     const search = createElement('input', {
         className: 'admin-log-toolbar__search',
@@ -657,7 +663,8 @@ function renderLogsSection() {
                 log.authorName || 'user',
                 log.faction || null,
                 'admin-logs__avatar',
-                null
+                null,
+                logPhotos[log.authorId] || null
             ));
             if (log.authorId) {
                 authorCell.appendChild(createElement('a', {
@@ -693,6 +700,9 @@ function renderLogsSection() {
         body.textContent = 'Загрузка...';
         try {
             allLogs = await getRecentLogs(200);
+            const players = await getAllPublicPlayers();
+            logPhotos = {};
+            for (const player of players) logPhotos[player.uid] = player.photo || null;
             renderRows();
         } catch (err) {
             body.textContent = 'Ошибка загрузки: ' + translateError(err);

@@ -18,7 +18,7 @@ import {
     where
 } from 'firebase/firestore';
 
-import { getFirebase } from './firebase.js?v=26';
+import { getFirebase } from './firebase.js?v=27';
 
 function getDb() {
     return getFirebase().db;

@@ -6,18 +6,20 @@
  * Управление ролями игротехника.
  */
 
-import { createElement } from '../utils/dom.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { getCollection } from '../firebase/dbService.js?v=26';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=26';
-import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=26';
-import { createRecipientCode } from '../firebase/radioService.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { Button } from '../components/Button.js?v=26';
-import { StatusMessage } from '../components/StatusMessage.js?v=26';
-import { FactionBadge } from '../components/FactionBadge.js?v=26';
-import { ROLE_LABELS } from '../utils/constants.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { getCollection } from '../firebase/dbService.js?v=27';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
+import { setUserRole, setRadioRoom, getPlayerDisplayName } from '../firebase/authService.js?v=27';
+import { createRecipientCode } from '../firebase/radioService.js?v=27';
+import { saveUserPhoto, removeUserPhoto } from '../firebase/avatarService.js?v=27';
+import { processAvatarFile } from '../utils/avatarPhoto.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { Button } from '../components/Button.js?v=27';
+import { StatusMessage } from '../components/StatusMessage.js?v=27';
+import { FactionBadge } from '../components/FactionBadge.js?v=27';
+import { ROLE_LABELS } from '../utils/constants.js?v=27';
 
 export function UsersAdminPage() {
     const section = createElement('section', { className: 'users-admin-page' });
@@ -94,7 +96,13 @@ export function UsersAdminPage() {
         const card = createElement('div', { className: 'users-admin-page__card' });
 
         const head = createElement('div', { className: 'users-admin-page__card-head' });
-        head.appendChild(createAvatar(user.username, pub.faction || null, 'users-admin-page__avatar', null));
+        head.appendChild(createAvatar(
+            user.username,
+            pub.faction || null,
+            'users-admin-page__avatar',
+            null,
+            user.photo || pub.photo || null
+        ));
 
         const identity = createElement('div', { className: 'users-admin-page__identity' });
         identity.appendChild(createElement('div', { className: 'users-admin-page__name', text: getPlayerDisplayName(user) || user.username }));
@@ -115,6 +123,51 @@ export function UsersAdminPage() {
         }
 
         card.appendChild(head);
+
+        const photoTools = createElement('div', { className: 'users-admin-page__photo-tools' });
+        const photoInput = createElement('input', { attributes: { type: 'file', accept: 'image/*', hidden: '' } });
+        const photoMsg = createElement('span', { className: 'users-admin-page__photo-msg' });
+        const photoBtn = Button({
+            text: 'Фото',
+            icon: 'photo_camera',
+            variant: 'secondary',
+            size: 'sm',
+            onClick: () => photoInput.click()
+        });
+        const removePhotoBtn = Button({
+            text: 'Убрать фото',
+            variant: 'secondary',
+            size: 'sm',
+            disabled: !(user.photo || pub.photo),
+            onClick: async () => {
+                try {
+                    await removeUserPhoto(user.id);
+                    await load();
+                } catch (err) {
+                    alert('Ошибка: ' + translateError(err));
+                }
+            }
+        });
+        photoInput.addEventListener('change', async () => {
+            const file = photoInput.files && photoInput.files[0];
+            if (!file) return;
+            photoBtn.disabled = true;
+            photoMsg.textContent = 'Обработка...';
+            try {
+                const dataUrl = await processAvatarFile(file);
+                await saveUserPhoto(user.id, dataUrl);
+                await load();
+            } catch (err) {
+                photoMsg.textContent = 'Ошибка: ' + translateError(err);
+                photoBtn.disabled = false;
+                photoInput.value = '';
+            }
+        });
+        photoTools.appendChild(photoInput);
+        photoTools.appendChild(photoBtn);
+        photoTools.appendChild(removePhotoBtn);
+        photoTools.appendChild(photoMsg);
+        card.appendChild(photoTools);
 
         const data = createElement('div', { className: 'users-admin-page__data' });
         data.appendChild(dataRow('Контакт', p.contact));

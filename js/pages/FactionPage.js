@@ -1,16 +1,16 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { getCharactersByGame, isActiveCharacter } from '../firebase/charactersService.js?v=26';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=26';
-import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=26';
-import { FactionBadge } from '../components/FactionBadge.js?v=26';
-import { Icon } from '../components/Icon.js?v=26';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=26';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=26';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=26';
-import { ROLE_LABELS } from '../utils/constants.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { getCharactersByGame, isActiveCharacter } from '../firebase/charactersService.js?v=27';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
+import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=27';
+import { FactionBadge } from '../components/FactionBadge.js?v=27';
+import { Icon } from '../components/Icon.js?v=27';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=27';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=27';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=27';
+import { ROLE_LABELS } from '../utils/constants.js?v=27';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
@@ -106,14 +106,14 @@ function renderGroup(faction, members, playerMap, commentsMap, user, fullView) {
 
     const list = createElement('div', { className: 'faction-page__list' });
     for (const character of members) {
-        list.appendChild(createMemberCard(character, playerMap[character.playerId] || null, commentsMap, user, fullView));
+        list.appendChild(createMemberCard(character, playerMap[character.playerId] || null, commentsMap, user, fullView, playerMap));
     }
     group.appendChild(list);
 
     return group;
 }
 
-function createMemberCard(character, player, commentsMap, user, fullView) {
+function createMemberCard(character, player, commentsMap, user, fullView, playerMap = {}) {
     const isSelf = player && player.uid === user.uid;
     const targetId = character.playerId || character.id;
     const comments = commentsMap[targetId] || [];
@@ -122,7 +122,13 @@ function createMemberCard(character, player, commentsMap, user, fullView) {
         className: 'faction-card' + (isSelf ? ' faction-card--current' : '')
     });
 
-    card.appendChild(createAvatar(player?.username || 'agent', character.faction, 'faction-card__avatar', null));
+    card.appendChild(createAvatar(
+        player?.username || 'agent',
+        character.faction,
+        'faction-card__avatar',
+        null,
+        player?.photo || null
+    ));
 
     const info = createElement('div', { className: 'faction-card__info' });
 
@@ -204,7 +210,8 @@ function createMemberCard(character, player, commentsMap, user, fullView) {
                 item.authorName || 'agent',
                 character.faction || null,
                 'faction-card__comment-avatar',
-                null
+                null,
+                playerMap[item.authorId]?.photo || null
             ));
             row.appendChild(createElement('span', {
                 className: 'faction-card__comment-author',

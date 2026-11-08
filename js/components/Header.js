@@ -1,12 +1,12 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { Navigation } from './Navigation.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { getActiveFaction } from '../utils/profile.js?v=26';
-import { signOutUser } from '../firebase/authService.js?v=26';
-import { ROLE_LABELS } from '../utils/constants.js?v=26';
-import { Icon } from './Icon.js?v=26';
-import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { Navigation } from './Navigation.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { getActiveFaction } from '../utils/profile.js?v=27';
+import { signOutUser } from '../firebase/authService.js?v=27';
+import { ROLE_LABELS } from '../utils/constants.js?v=27';
+import { Icon } from './Icon.js?v=27';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=27';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -162,7 +162,8 @@ function createAuthBlock() {
             user.username,
             getActiveFaction(),
             'header__user-avatar',
-            user.player?.gender || null
+            user.player?.gender || null,
+            user.photo || null
         );
         block.appendChild(avatar);
 

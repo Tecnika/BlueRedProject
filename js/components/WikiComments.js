@@ -1,18 +1,19 @@
-import { createElement } from '../utils/dom.js?v=26';
-import { store } from '../core/Store.js?v=26';
-import { createAvatar } from '../core/Avatar.js?v=26';
-import { Icon } from './Icon.js?v=26';
-import { Button } from './Button.js?v=26';
-import { StatusMessage, showMessage } from './StatusMessage.js?v=26';
-import { translateError } from '../utils/translateError.js?v=26';
-import { FactionBadge } from './FactionBadge.js?v=26';
-import { ROLE_LABELS } from '../utils/constants.js?v=26';
+import { createElement } from '../utils/dom.js?v=27';
+import { store } from '../core/Store.js?v=27';
+import { createAvatar } from '../core/Avatar.js?v=27';
+import { Icon } from './Icon.js?v=27';
+import { Button } from './Button.js?v=27';
+import { StatusMessage, showMessage } from './StatusMessage.js?v=27';
+import { translateError } from '../utils/translateError.js?v=27';
+import { FactionBadge } from './FactionBadge.js?v=27';
+import { ROLE_LABELS } from '../utils/constants.js?v=27';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=27';
 import {
     getWikiComments,
     addWikiComment,
     setWikiCommentVisible,
     deleteWikiComment
-} from '../firebase/wikiCommentsService.js?v=26';
+} from '../firebase/wikiCommentsService.js?v=27';
 
 function formatTime(iso) {
     if (!iso) return '';
@@ -34,6 +35,11 @@ export async function WikiComments({ targetType, targetId, rulesWiki = false }) 
 
     const isMaster = user.role === 'master';
     const canMarkForAll = rulesWiki && isMaster;
+    let photoMap = {};
+    try {
+        const players = await getAllPublicPlayers();
+        for (const player of players) photoMap[player.uid] = player.photo || null;
+    } catch (e) { /* без фото */ }
 
     const header = createElement('div', { className: 'wiki-comments__header' });
     header.appendChild(createElement('h2', { className: 'wiki-comments__title', text: 'Обсуждение' }));
@@ -86,7 +92,8 @@ export async function WikiComments({ targetType, targetId, rulesWiki = false }) 
             comment.authorName || 'agent',
             comment.faction || null,
             'wiki-comment__avatar',
-            null
+            null,
+            photoMap[comment.authorId] || null
         ));
 
         const body = createElement('div', { className: 'wiki-comment__body' });

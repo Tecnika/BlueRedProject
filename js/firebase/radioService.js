@@ -6,9 +6,9 @@ import {
     setDoc,
     onSnapshot
 } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=26';
-import { FACTION_LABELS } from '../utils/profile.js?v=26';
-import { logEvent } from './chatService.js?v=26';
+import { getFirebase } from './firebase.js?v=27';
+import { FACTION_LABELS } from '../utils/profile.js?v=27';
+import { logEvent } from './chatService.js?v=27';
 
 /** Сессия радиорубки: radioSessions/{roomUid} */
 export function sessionRef(roomUid) {

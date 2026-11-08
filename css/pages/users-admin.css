@@ -117,6 +117,19 @@
     flex-shrink: 0;
 }
 
+.users-admin-page__photo-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin: 4px 0 10px 60px;
+}
+
+.users-admin-page__photo-msg {
+    font-size: 0.72rem;
+    color: var(--color-text-secondary);
+}
+
 .users-admin-page__base-top {
     display: flex;
     align-items: center;
