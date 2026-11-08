@@ -1,20 +1,20 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { createAvatar } from '../core/Avatar.js?v=18';
-import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=18';
-import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=18';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=18';
-import { getNote, saveNote } from '../firebase/notesService.js?v=18';
-import { getAllDocuments } from '../firebase/documentsService.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { Chip } from '../components/Chip.js?v=18';
-import { FactionBadge } from '../components/FactionBadge.js?v=18';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=18';
-import { FormField } from '../components/FormField.js?v=18';
-import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=18';
-import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=18';
-import { isAdminMode } from '../components/ViewModeToggle.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { getUserProfile, updateUserProfile, syncPublicPlayer, getPlayerDisplayName } from '../firebase/authService.js?v=21';
+import { getPublicPlayer } from '../firebase/publicPlayersService.js?v=21';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=21';
+import { getNote, saveNote } from '../firebase/notesService.js?v=21';
+import { getAllDocuments } from '../firebase/documentsService.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { Chip } from '../components/Chip.js?v=21';
+import { FactionBadge } from '../components/FactionBadge.js?v=21';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=21';
+import { FormField } from '../components/FormField.js?v=21';
+import { getActiveGame, getActiveFaction, FACTION_LABELS } from '../utils/profile.js?v=21';
+import { ROLE_LABELS, LANGUAGE_LABELS } from '../utils/constants.js?v=21';
+import { isAdminMode } from '../components/ViewModeToggle.js?v=21';
 
 export async function ProfilePage(targetUid) {
     const section = createElement('section', { className: 'profile-page' });

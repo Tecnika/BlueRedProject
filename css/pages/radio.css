@@ -122,6 +122,14 @@
     font-weight: 600;
 }
 
+.radio-page__status-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 .radio-page__hacked {
     color: #f97316;
     font-size: 0.75rem;
@@ -199,6 +207,15 @@
     border-radius: var(--radius-sm);
     background: var(--color-bg-secondary);
     font-size: 0.85rem;
+}
+
+.radio-page__message-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
 }
 
 .radio-page__message-author {

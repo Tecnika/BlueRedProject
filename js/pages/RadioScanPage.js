@@ -1,19 +1,19 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { requireAuth } from '../components/PageLayout.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { StatusMessage } from '../components/StatusMessage.js?v=18';
-import { SequenceGame, TunerGame } from '../components/MiniGame.js?v=18';
-import { getActiveGame, getActiveFaction } from '../utils/profile.js?v=18';
-import { getCharacterForPlayer } from '../firebase/charactersService.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { requireAuth } from '../components/PageLayout.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { StatusMessage } from '../components/StatusMessage.js?v=21';
+import { SequenceGame, TunerGame } from '../components/MiniGame.js?v=21';
+import { getActiveGame, getActiveFaction } from '../utils/profile.js?v=21';
+import { getCharacterForPlayer } from '../firebase/charactersService.js?v=21';
 import {
     grantAccess,
     addTrace,
     createRecipientCode,
     listRecipientCodes,
     isCodeValid
-} from '../firebase/radioService.js?v=18';
-import { logEvent } from '../firebase/chatService.js?v=18';
+} from '../firebase/radioService.js?v=21';
+import { logEvent } from '../firebase/chatService.js?v=21';
 
 const ROLE_LABELS = { engineer: 'Инженер', signalman: 'Связист' };
 

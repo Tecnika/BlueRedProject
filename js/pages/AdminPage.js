@@ -1,18 +1,19 @@
-import { store } from '../core/Store.js?v=18';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=18';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=18';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=18';
-import { getRecentLogs } from '../firebase/chatService.js?v=18';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=18';
-import { setDesign } from '../firebase/settingsService.js?v=18';
-import { createElement } from '../utils/dom.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=18';
-import { Icon } from '../components/Icon.js?v=18';
-import { FactionBadge } from '../components/FactionBadge.js?v=18';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=18';
-import { FACTION_LABELS } from '../utils/profile.js?v=18';
+import { store } from '../core/Store.js?v=21';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=21';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=21';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=21';
+import { getRecentLogs } from '../firebase/chatService.js?v=21';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=21';
+import { setDesign } from '../firebase/settingsService.js?v=21';
+import { createElement } from '../utils/dom.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=21';
+import { Icon } from '../components/Icon.js?v=21';
+import { FactionBadge } from '../components/FactionBadge.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=21';
+import { FACTION_LABELS } from '../utils/profile.js?v=21';
 
 const ADMIN_SECTIONS = [
     { id: 'game', label: 'Игра', icon: 'sports_esports' },
@@ -302,6 +303,12 @@ function renderTechAccountsSection() {
                 const card = createElement('div', { className: 'admin-tech__card' });
 
                 const head = createElement('div', { className: 'admin-tech__head' });
+                head.appendChild(createAvatar(
+                    account.username || 'radio',
+                    account.faction,
+                    'admin-tech__avatar',
+                    null
+                ));
                 head.appendChild(FactionBadge({ faction: account.faction, size: 'sm' }));
                 head.appendChild(createElement('span', {
                     className: 'admin-tech__label',
@@ -456,14 +463,15 @@ function buildKeyTables() {
    ============================================================ */
 
 function renderCatalogsSection() {
-    const section = adminSection('Каталоги', 'Грифы, профессии и теги для персонажей и страниц.', 'catalogs');
+    const section = adminSection('Каталоги', 'Справочники для страниц, персонажей и технических меток.', 'catalogs');
 
     section.appendChild(collapse('Грифы', buildCatalog({
         load: getAllTags,
         add: addTag,
         remove: removeTag,
         placeholder: 'Название нового грифа',
-        empty: 'Нет грифов'
+        empty: 'Нет грифов',
+        desc: 'Темы и допуски страниц Эфира. По этим меткам настраивается видимость материалов.'
     }), false));
 
     section.appendChild(collapse('Профессии', buildCatalog({
@@ -471,22 +479,27 @@ function renderCatalogsSection() {
         add: addProfession,
         remove: removeProfession,
         placeholder: 'Название профессии',
-        empty: 'Нет профессий'
+        empty: 'Нет профессий',
+        desc: 'Должности персонажей. Инженер, Связист, Дипломат и Хакер влияют на механику радиорубки.'
     }), false));
 
-    section.appendChild(collapse('Теги', buildCatalog({
+    section.appendChild(collapse('Технические теги', buildCatalog({
         load: getAllSubTags,
         add: addSubTag,
         remove: removeSubTag,
         placeholder: 'Название тега',
-        empty: 'Нет тегов'
+        empty: 'Нет тегов',
+        desc: 'Составные метки ячеек фракционных страниц: гриф_фракция_уровень. Создаются автоматически.'
     }), false));
 
     return section;
 }
 
-function buildCatalog({ load, add, remove, placeholder, empty }) {
+function buildCatalog({ load, add, remove, placeholder, empty, desc }) {
     const box = createElement('div', { className: 'admin-catalog' });
+    if (desc) {
+        box.appendChild(createElement('p', { className: 'admin-catalog__desc', text: desc }));
+    }
     const listEl = createElement('div', { className: 'admin-tags__list', text: 'Загрузка...' });
     box.appendChild(listEl);
 
@@ -640,7 +653,12 @@ function renderLogsSection() {
             }));
 
             const authorCell = createElement('span', { className: 'admin-logs__author' });
-            authorCell.appendChild(Icon({ name: logIconName(log), size: 'sm' }));
+            authorCell.appendChild(createAvatar(
+                log.authorName || 'user',
+                log.faction || null,
+                'admin-logs__avatar',
+                null
+            ));
             if (log.authorId) {
                 authorCell.appendChild(createElement('a', {
                     className: 'admin-logs__author-link',
@@ -655,9 +673,10 @@ function renderLogsSection() {
             const href = logChatHref(log);
             const chatEl = createElement(href ? 'a' : 'span', {
                 className: 'admin-logs__chat',
-                text: log.chatTitle || log.chatType || '—',
                 attributes: href ? { href, title: 'Открыть источник' } : {}
             });
+            chatEl.appendChild(Icon({ name: logIconName(log), size: 'sm' }));
+            chatEl.appendChild(createElement('span', { text: log.chatTitle || log.chatType || '—' }));
             row.appendChild(chatEl);
 
             const textEl = createElement('span', {

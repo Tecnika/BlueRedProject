@@ -1,10 +1,12 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { Navigation } from './Navigation.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { signOutUser } from '../firebase/authService.js?v=18';
-import { ROLE_LABELS } from '../utils/constants.js?v=18';
-import { Icon } from './Icon.js?v=18';
-import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { Navigation } from './Navigation.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { getActiveFaction } from '../utils/profile.js?v=21';
+import { signOutUser } from '../firebase/authService.js?v=21';
+import { ROLE_LABELS } from '../utils/constants.js?v=21';
+import { Icon } from './Icon.js?v=21';
+import { canInstall, promptInstall, isStandalone } from '../core/pwa.js?v=21';
 
 export function Header(navItems, themeManager) {
     const header = createElement('header', { className: 'header' });
@@ -106,7 +108,7 @@ function applyRadioNav(navList) {
     navList.querySelectorAll('.nav__item').forEach(li => {
         if (li.hasAttribute('data-radio-link') || li.hasAttribute('data-admin-link')) return;
         const label = li.textContent.trim();
-        const keep = label === 'Эфир' || label === 'Фракции';
+        const keep = label === 'Эфир' || label === 'Фракции' || label === 'Правила';
         li.style.display = isRadio && !keep ? 'none' : '';
     });
 
@@ -156,11 +158,12 @@ function createAuthBlock() {
     if (user) {
         const block = createElement('div', { className: 'header__user', dataset: { auth: '' } });
 
-        const avatarUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.username || '?') + '&background=4c3b9e&color=fff&size=72&bold=true';
-        const avatar = createElement('img', {
-            className: 'header__user-avatar',
-            attributes: { src: avatarUrl, alt: '', width: '36', height: '36' }
-        });
+        const avatar = createAvatar(
+            user.username,
+            getActiveFaction(),
+            'header__user-avatar',
+            user.player?.gender || null
+        );
         block.appendChild(avatar);
 
         const info = createElement('div', { className: 'header__user-info' });

@@ -1,12 +1,13 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { requireAuth } from '../components/PageLayout.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { StatusMessage } from '../components/StatusMessage.js?v=18';
-import { QRCode } from '../components/QRCode.js?v=18';
-import { Icon } from '../components/Icon.js?v=18';
-import { FACTION_LABELS } from '../utils/profile.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { requireAuth } from '../components/PageLayout.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { StatusMessage } from '../components/StatusMessage.js?v=21';
+import { QRCode } from '../components/QRCode.js?v=21';
+import { Icon } from '../components/Icon.js?v=21';
+import { FACTION_LABELS } from '../utils/profile.js?v=21';
 import {
     subscribeSession,
     getRecipientCode,
@@ -15,8 +16,8 @@ import {
     findTargetFaction,
     ensureCrossChat,
     setChannel
-} from '../firebase/radioService.js?v=18';
-import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=18';
+} from '../firebase/radioService.js?v=21';
+import { subscribeMessages, sendMessage, logEvent } from '../firebase/chatService.js?v=21';
 
 export function RadioRoomPage() {
     const section = createElement('section', { className: 'radio-page' });
@@ -116,6 +117,9 @@ export function RadioRoomPage() {
         el.innerHTML = '';
         const active = accessActive(access);
         el.className = 'radio-page__status' + (active ? ' radio-page__status--active' : '');
+        if (active) {
+            el.appendChild(createAvatar(access.name, radioFaction, 'radio-page__status-avatar', null));
+        }
         el.appendChild(Icon({ name: active ? 'check_circle' : 'radio_button_unchecked', size: 'sm' }));
         el.appendChild(createElement('span', { text: `${label}: ${active ? access.name : 'ожидание'}` }));
         if (active) el.appendChild(createElement('span', { className: 'radio-page__timer', text: remaining(access) }));
@@ -199,6 +203,12 @@ export function RadioRoomPage() {
             }
             for (const m of messages) {
                 const row = createElement('div', { className: 'radio-page__message' });
+                row.appendChild(createAvatar(
+                    m.authorName || 'agent',
+                    m.faction || radioFaction,
+                    'radio-page__message-avatar',
+                    null
+                ));
                 row.appendChild(createElement('span', { className: 'radio-page__message-author', text: m.authorName || 'Агент' }));
                 row.appendChild(createElement('span', { className: 'radio-page__message-text', text: m.text }));
                 messagesEl.appendChild(row);

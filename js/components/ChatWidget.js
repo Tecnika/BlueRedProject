@@ -1,10 +1,11 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { Icon } from './Icon.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=18';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=18';
-import { getCharactersByGame } from '../firebase/charactersService.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { Icon } from './Icon.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=21';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=21';
+import { getCharactersByGame } from '../firebase/charactersService.js?v=21';
 import {
     ensureFactionChat,
     ensureMasterChat,
@@ -16,7 +17,7 @@ import {
     sendMessage,
     markRead,
     dmChatId
-} from '../firebase/chatService.js?v=18';
+} from '../firebase/chatService.js?v=21';
 
 const TIME_FORMAT = { hour: '2-digit', minute: '2-digit' };
 
@@ -315,11 +316,12 @@ class ChatSession {
             const map = {};
             for (const p of players) map[p.uid] = p;
             this.factionMembers = characters
-                .filter(c => c.faction === this.faction && c.playerId && c.playerId !== this.user.uid)
+                .filter(c => c.active !== false && c.faction === this.faction && c.playerId && c.playerId !== this.user.uid)
                 .map(c => ({
                     uid: c.playerId,
                     name: c.name || map[c.playerId]?.username || 'Агент',
-                    username: map[c.playerId]?.username || ''
+                    username: map[c.playerId]?.username || '',
+                    faction: c.faction
                 }));
         } catch (e) {
             this.factionMembers = [];
@@ -420,21 +422,25 @@ class ChatSession {
                 attributes: { type: 'button' }
             });
 
-            const avatarClasses = ['chat-list__avatar'];
+            let avatar;
             if (chat.type === 'faction') {
-                avatarClasses.push('chat-list__avatar--faction', 'chat-list__avatar--' + chat.faction);
-            } else if (chat.type === 'master') {
-                avatarClasses.push('chat-list__avatar--master');
-            } else if (chat.type === 'dm') {
-                const other = (chat.members || []).find(m => m !== this.user.uid);
-                const pf = this.players[other]?.faction;
-                avatarClasses.push('chat-list__avatar--dm');
-                if (pf) avatarClasses.push('chat-list__avatar--' + pf);
+                const iconName = 'groups';
+                avatar = createElement('div', {
+                    className: 'chat-list__avatar chat-list__avatar--faction chat-list__avatar--' + chat.faction
+                });
+                avatar.appendChild(Icon({ name: iconName, size: 'sm' }));
+            } else {
+                const other = chat.type === 'dm'
+                    ? (chat.members || []).find(m => m !== this.user.uid)
+                    : chat.playerId;
+                const person = this.players[other] || {};
+                avatar = createAvatar(
+                    person.username || chat.title || 'user',
+                    person.faction || this.faction,
+                    'chat-list__avatar chat-list__avatar--photo',
+                    person.gender
+                );
             }
-            const avatar = createElement('div', { className: avatarClasses.join(' ') });
-            const iconName = chat.type === 'faction' ? 'groups'
-                : chat.type === 'master' ? 'admin_panel_settings' : 'person';
-            avatar.appendChild(Icon({ name: iconName, size: 'sm' }));
 
             const info = createElement('div', { className: 'chat-list__info' });
             info.appendChild(createElement('div', {
@@ -485,10 +491,18 @@ class ChatSession {
                 className: 'chat-picker__item',
                 attributes: { type: 'button' }
             });
-            row.appendChild(createElement('span', { className: 'chat-picker__name', text: member.name }));
+            row.appendChild(createAvatar(
+                member.username || member.name || 'user',
+                member.faction || this.faction,
+                'chat-picker__avatar',
+                member.gender
+            ));
+            const rowInfo = createElement('span', { className: 'chat-picker__info' });
+            rowInfo.appendChild(createElement('span', { className: 'chat-picker__name', text: member.name }));
             if (member.username) {
-                row.appendChild(createElement('span', { className: 'chat-picker__username', text: '@' + member.username }));
+                rowInfo.appendChild(createElement('span', { className: 'chat-picker__username', text: '@' + member.username }));
             }
+            row.appendChild(rowInfo);
             row.addEventListener('click', async () => {
                 overlay.remove();
                 try {
@@ -595,17 +609,30 @@ class ChatSession {
             const bubble = createElement('div', {
                 className: 'chat-msg' + (own ? ' chat-msg--own' : '')
             });
+
             if (!own) {
-                bubble.appendChild(createElement('div', {
+                const person = this.players[message.authorId] || {};
+                bubble.appendChild(createAvatar(
+                    person.username || message.authorName || 'user',
+                    person.faction || message.faction || this.faction,
+                    'chat-msg__avatar',
+                    person.gender
+                ));
+            }
+
+            const body = createElement('div', { className: 'chat-msg__body' });
+            if (!own) {
+                body.appendChild(createElement('div', {
                     className: 'chat-msg__author',
                     text: message.authorName || 'Агент'
                 }));
             }
-            bubble.appendChild(createElement('div', { className: 'chat-msg__text', text: message.text }));
-            bubble.appendChild(createElement('div', {
+            body.appendChild(createElement('div', { className: 'chat-msg__text', text: message.text }));
+            body.appendChild(createElement('div', {
                 className: 'chat-msg__time',
                 text: this.formatTime(message.createdAt)
             }));
+            bubble.appendChild(body);
             this.messagesEl.appendChild(bubble);
         }
 

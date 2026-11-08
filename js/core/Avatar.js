@@ -6,7 +6,7 @@
  *   2. Если не загрузился за 3 сек — показываем ui-avatars (инициалы)
  */
 
-import { createElement } from '../utils/dom.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
 
 const COLORS = {
     purple: '7c3aed',
@@ -41,24 +41,54 @@ function fallbackUrl(username, faction) {
 export function createAvatar(username, faction, className, gender) {
     const img = createElement('img', {
         className,
-        attributes: { alt: username || 'avatar' }
+        attributes: { alt: username || 'avatar', loading: 'lazy', decoding: 'async' }
     });
 
     // Сразу показываем запасной вариант (инициалы)
     img.src = fallbackUrl(username, faction);
 
-    // Пробуем загрузить DiceBear
-    const test = new Image();
-    test.onload = () => { img.src = test.src; };
-    test.onerror = () => { /* остаётся fallback */ };
-    test.src = dicebearUrl(username, faction, gender);
+    // Пробуем загрузить DiceBear лениво — когда аватар появляется в зоне видимости
+    const loadDiceBear = () => {
+        const test = new Image();
+        test.onload = () => { img.src = test.src; };
+        test.onerror = () => { /* остаётся fallback */ };
+        test.src = dicebearUrl(username, faction, gender);
 
-    // Таймаут 3 сек — если DiceBear не ответил, остаётся fallback
-    setTimeout(() => {
-        if (!test.complete || test.naturalWidth === 0) {
-            test.src = ''; /* отменяем */
-        }
-    }, 3000);
+        // Таймаут 3 сек — если DiceBear не ответил, остаётся fallback
+        setTimeout(() => {
+            if (!test.complete || test.naturalWidth === 0) {
+                test.src = '';
+            }
+        }, 3000);
+    };
+
+    if (typeof IntersectionObserver !== 'undefined') {
+        let started = false;
+        const start = () => {
+            if (started) return;
+            started = true;
+            loadDiceBear();
+        };
+        const observer = new IntersectionObserver((entries, obs) => {
+            if (entries.some(entry => entry.isIntersecting)) {
+                obs.disconnect();
+                start();
+            }
+        }, { rootMargin: '150px' });
+        observer.observe(img);
+
+        // Страховка: если observer не сработал, но аватар виден — грузим
+        setTimeout(() => {
+            if (started || !img.isConnected) return;
+            const rect = img.getBoundingClientRect();
+            if (rect.bottom > -200 && rect.top < window.innerHeight + 200) {
+                observer.disconnect();
+                start();
+            }
+        }, 1500);
+    } else {
+        loadDiceBear();
+    }
 
     return img;
 }

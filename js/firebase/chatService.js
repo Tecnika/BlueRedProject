@@ -10,8 +10,8 @@ import {
     orderBy,
     limit
 } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=18';
-import { FACTION_LABELS } from '../utils/profile.js?v=18';
+import { getFirebase } from './firebase.js?v=21';
+import { FACTION_LABELS } from '../utils/profile.js?v=21';
 
 /**
  * Чаты: chats/{id}

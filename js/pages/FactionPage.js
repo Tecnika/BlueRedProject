@@ -1,16 +1,16 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { createAvatar } from '../core/Avatar.js?v=18';
-import { getCharactersByGame, isActiveCharacter } from '../firebase/charactersService.js?v=18';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=18';
-import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=18';
-import { FactionBadge } from '../components/FactionBadge.js?v=18';
-import { Icon } from '../components/Icon.js?v=18';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=18';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=18';
-import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=18';
-import { ROLE_LABELS } from '../utils/constants.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { getCharactersByGame, isActiveCharacter } from '../firebase/charactersService.js?v=21';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=21';
+import { getAllComments, addComment } from '../firebase/factionCommentsService.js?v=21';
+import { FactionBadge } from '../components/FactionBadge.js?v=21';
+import { Icon } from '../components/Icon.js?v=21';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=21';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=21';
+import { getActiveFaction, getActiveGame, FACTION_LABELS } from '../utils/profile.js?v=21';
+import { ROLE_LABELS } from '../utils/constants.js?v=21';
 
 const FACTION_ORDER = ['purple', 'blue', 'red', '__unassigned'];
 const GROUP_LABELS = { ...FACTION_LABELS, __unassigned: 'Не распределены' };
@@ -200,6 +200,12 @@ function createMemberCard(character, player, commentsMap, user, fullView) {
         }
         for (const item of items) {
             const row = createElement('div', { className: 'faction-card__comment' });
+            row.appendChild(createAvatar(
+                item.authorName || 'agent',
+                character.faction || null,
+                'faction-card__comment-avatar',
+                null
+            ));
             row.appendChild(createElement('span', {
                 className: 'faction-card__comment-author',
                 text: item.authorName || 'Агент'

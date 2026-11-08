@@ -1,4 +1,4 @@
-import { createElement } from '../utils/dom.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
 import {
     getDocument,
     getVersionsByNumber,
@@ -6,13 +6,13 @@ import {
     addVersion,
     updateDocument,
     deleteDocument
-} from '../firebase/documentsService.js?v=18';
-import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=18';
-import { FACTION_LABELS } from '../utils/profile.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=18';
-import { requireAuth } from '../components/PageLayout.js?v=18';
+} from '../firebase/documentsService.js?v=21';
+import { LEVELS, LEVEL_LABELS, DOC_FACTIONS, sortVersions } from '../domain/documents.js?v=21';
+import { FACTION_LABELS } from '../utils/profile.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { StatusMessage, showMessage, showMessageHTML, hideMessage } from '../components/StatusMessage.js?v=21';
+import { requireAuth } from '../components/PageLayout.js?v=21';
 
 /** Одна строка версии: фракция + уровень + текст */
 function createVersionRow(initial = {}) {

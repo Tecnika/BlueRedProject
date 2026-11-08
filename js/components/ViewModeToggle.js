@@ -1,5 +1,5 @@
-import { createElement } from '../utils/dom.js?v=18';
-import { store } from '../core/Store.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { store } from '../core/Store.js?v=21';
 
 const STORAGE_KEY = 'bluered_view_mode';
 

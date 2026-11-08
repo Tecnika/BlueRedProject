@@ -224,6 +224,15 @@
     white-space: nowrap;
 }
 
+.faction-card__comment-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--color-border);
+}
+
 .faction-card__comment-text {
     color: var(--color-text);
     overflow-wrap: anywhere;

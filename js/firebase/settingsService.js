@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=18';
+import { getFirebase } from './firebase.js?v=21';
 
 const SETTINGS_PATH = 'settings/design';
 

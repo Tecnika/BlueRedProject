@@ -7,10 +7,10 @@
  * Мастеру или игротеху создаётся фиолетовый персонаж — они всегда фиолетовые.
  */
 
-import { createElement } from '../utils/dom.js?v=18';
-import { store } from '../core/Store.js?v=18';
-import { translateError } from '../utils/translateError.js?v=18';
-import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=18';
+import { createElement } from '../utils/dom.js?v=21';
+import { store } from '../core/Store.js?v=21';
+import { translateError } from '../utils/translateError.js?v=21';
+import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=21';
 import {
     getCharactersByGame,
     updateCharacter,
@@ -18,13 +18,14 @@ import {
     isActiveCharacter,
     activateCharacterVariant,
     ensurePlayerCharacters
-} from '../firebase/charactersService.js?v=18';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=18';
-import { getCollection } from '../firebase/dbService.js?v=18';
-import { Button } from '../components/Button.js?v=18';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=18';
-import { FactionBadge } from '../components/FactionBadge.js?v=18';
-import { GAME_STATUS_LABELS, ROLE_LABELS } from '../utils/constants.js?v=18';
+} from '../firebase/charactersService.js?v=21';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=21';
+import { getCollection } from '../firebase/dbService.js?v=21';
+import { Button } from '../components/Button.js?v=21';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=21';
+import { FactionBadge } from '../components/FactionBadge.js?v=21';
+import { createAvatar } from '../core/Avatar.js?v=21';
+import { GAME_STATUS_LABELS, ROLE_LABELS } from '../utils/constants.js?v=21';
 
 const VARIANT_LABELS = {
     red: 'Красная фракция',
@@ -265,6 +266,13 @@ export async function GameEditPage(gameId) {
         const card = createElement('div', { className: 'games-page__player' + (staff ? ' games-page__player--staff' : '') });
 
         const head = createElement('div', { className: 'games-page__player-head' });
+        const avatarFaction = staff ? 'purple' : (activeChar ? (variantOf(activeChar) || activeChar.faction) : null);
+        head.appendChild(createAvatar(
+            player.username || player.displayName || 'user',
+            avatarFaction,
+            'games-page__player-avatar',
+            player.gender
+        ));
         const info = createElement('div', { className: 'games-page__player-info' });
         info.appendChild(createElement('div', {
             className: 'games-page__player-name',
