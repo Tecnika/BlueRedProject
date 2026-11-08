@@ -1,11 +1,11 @@
-import { createElement } from '../utils/dom.js?v=24';
-import { store } from '../core/Store.js?v=24';
-import { translateError } from '../utils/translateError.js?v=24';
-import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=24';
-import { Button } from '../components/Button.js?v=24';
-import { FactionBadge } from '../components/FactionBadge.js?v=24';
-import { StatusMessage } from '../components/StatusMessage.js?v=24';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=24';
+import { createElement } from '../utils/dom.js?v=25';
+import { store } from '../core/Store.js?v=25';
+import { translateError } from '../utils/translateError.js?v=25';
+import { getAllPages, buildPageTree, filterVisiblePages } from '../firebase/pagesService.js?v=25';
+import { Button } from '../components/Button.js?v=25';
+import { FactionBadge } from '../components/FactionBadge.js?v=25';
+import { StatusMessage } from '../components/StatusMessage.js?v=25';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=25';
 
 export async function PagesListPage() {
     const section = createElement('section', { className: 'pages-list-page' });

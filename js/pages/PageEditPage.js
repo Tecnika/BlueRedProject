@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=24';
-import { store } from '../core/Store.js?v=24';
-import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js?v=24';
-import { getAllTags } from '../firebase/tagsService.js?v=24';
-import { translateError } from '../utils/translateError.js?v=24';
-import { Button } from '../components/Button.js?v=24';
-import { FormField } from '../components/FormField.js?v=24';
-import { Icon } from '../components/Icon.js?v=24';
-import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=24';
-import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=24';
+import { createElement } from '../utils/dom.js?v=25';
+import { store } from '../core/Store.js?v=25';
+import { getPageBySlug, savePage, deletePage, getAllPages, slugify, createEmptyMatrix, MATRIX_ROW_LABELS, ensureFactionSubTags } from '../firebase/pagesService.js?v=25';
+import { getAllTags } from '../firebase/tagsService.js?v=25';
+import { translateError } from '../utils/translateError.js?v=25';
+import { Button } from '../components/Button.js?v=25';
+import { FormField } from '../components/FormField.js?v=25';
+import { Icon } from '../components/Icon.js?v=25';
+import { StatusMessage, showMessage, hideMessage } from '../components/StatusMessage.js?v=25';
+import { FACTIONS, FACTION_LABELS } from '../utils/profile.js?v=25';
 
 
 export async function PageEditPage(slug) {

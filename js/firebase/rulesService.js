@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=24';
+import { getFirebase } from './firebase.js?v=25';
 
 const SEED_RULES = [
     {
@@ -291,10 +291,15 @@ export async function getRule(id) {
 
 export async function createRule(data) {
     const { db } = getFirebase();
+    const title = data.title.trim();
+    const existing = await getAllRules();
+    if (existing.some(r => (r.title || '').trim().toLowerCase() === title.toLowerCase())) {
+        throw new Error('Правило с таким заголовком уже существует');
+    }
     const ref = doc(collection(db, 'rules'));
     const payload = {
         type: data.type || 'general',
-        title: data.title.trim(),
+        title,
         content: data.content.trim(),
         order: data.order || 0,
         createdAt: new Date().toISOString(),
@@ -307,7 +312,14 @@ export async function createRule(data) {
 export async function updateRule(id, data) {
     const { db } = getFirebase();
     const updates = {};
-    if (data.title !== undefined) updates.title = data.title.trim();
+    if (data.title !== undefined) {
+        const title = data.title.trim();
+        const existing = await getAllRules();
+        if (existing.some(r => r.id !== id && (r.title || '').trim().toLowerCase() === title.toLowerCase())) {
+            throw new Error('Правило с таким заголовком уже существует');
+        }
+        updates.title = title;
+    }
     if (data.content !== undefined) updates.content = data.content.trim();
     if (data.order !== undefined) updates.order = data.order;
     if (data.type !== undefined) updates.type = data.type;

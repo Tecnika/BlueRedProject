@@ -8,8 +8,8 @@ import {
     updateDoc,
     deleteDoc
 } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=24';
-import { getActiveFaction } from '../utils/profile.js?v=24';
+import { getFirebase } from './firebase.js?v=25';
+import { getActiveFaction } from '../utils/profile.js?v=25';
 
 /**
  * Комментарии вики (Эфир и Правила).

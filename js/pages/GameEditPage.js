@@ -7,10 +7,10 @@
  * Мастеру или игротеху создаётся фиолетовый персонаж — они всегда фиолетовые.
  */
 
-import { createElement } from '../utils/dom.js?v=24';
-import { store } from '../core/Store.js?v=24';
-import { translateError } from '../utils/translateError.js?v=24';
-import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=24';
+import { createElement } from '../utils/dom.js?v=25';
+import { store } from '../core/Store.js?v=25';
+import { translateError } from '../utils/translateError.js?v=25';
+import { getGame, updateGame, activateGame } from '../firebase/gamesService.js?v=25';
 import {
     getCharactersByGame,
     updateCharacter,
@@ -18,14 +18,14 @@ import {
     isActiveCharacter,
     activateCharacterVariant,
     ensurePlayerCharacters
-} from '../firebase/charactersService.js?v=24';
-import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=24';
-import { getCollection } from '../firebase/dbService.js?v=24';
-import { Button } from '../components/Button.js?v=24';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=24';
-import { FactionBadge } from '../components/FactionBadge.js?v=24';
-import { createAvatar } from '../core/Avatar.js?v=24';
-import { GAME_STATUS_LABELS, ROLE_LABELS } from '../utils/constants.js?v=24';
+} from '../firebase/charactersService.js?v=25';
+import { getAllPublicPlayers } from '../firebase/publicPlayersService.js?v=25';
+import { getCollection } from '../firebase/dbService.js?v=25';
+import { Button } from '../components/Button.js?v=25';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=25';
+import { FactionBadge } from '../components/FactionBadge.js?v=25';
+import { createAvatar } from '../core/Avatar.js?v=25';
+import { GAME_STATUS_LABELS, ROLE_LABELS } from '../utils/constants.js?v=25';
 
 const VARIANT_LABELS = {
     red: 'Красная фракция',

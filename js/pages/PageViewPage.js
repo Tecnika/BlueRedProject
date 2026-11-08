@@ -1,13 +1,13 @@
-import { createElement } from '../utils/dom.js?v=24';
-import { store } from '../core/Store.js?v=24';
-import { translateError } from '../utils/translateError.js?v=24';
-import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=24';
-import { Button } from '../components/Button.js?v=24';
-import { FactionBadge } from '../components/FactionBadge.js?v=24';
-import { StatusMessage } from '../components/StatusMessage.js?v=24';
-import { WikiComments } from '../components/WikiComments.js?v=24';
-import { getActiveFaction } from '../utils/profile.js?v=24';
-import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=24';
+import { createElement } from '../utils/dom.js?v=25';
+import { store } from '../core/Store.js?v=25';
+import { translateError } from '../utils/translateError.js?v=25';
+import { getPageBySlug, getAllPages, filterVisiblePages, filterVisibleCells, renderContent, FACTION_COLUMNS, MATRIX_ROWS, MATRIX_ROW_LABELS } from '../firebase/pagesService.js?v=25';
+import { Button } from '../components/Button.js?v=25';
+import { FactionBadge } from '../components/FactionBadge.js?v=25';
+import { StatusMessage } from '../components/StatusMessage.js?v=25';
+import { WikiComments } from '../components/WikiComments.js?v=25';
+import { getActiveFaction } from '../utils/profile.js?v=25';
+import { ViewModeToggle, isAdminMode } from '../components/ViewModeToggle.js?v=25';
 
 const FACTION_COLORS = { red: '#dc2626', blue: '#2563eb', purple: '#7c3aed' };
 const TYPE_LABELS = {

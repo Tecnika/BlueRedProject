@@ -1,19 +1,19 @@
-import { store } from '../core/Store.js?v=24';
-import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=24';
-import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=24';
-import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=24';
-import { getRecentLogs } from '../firebase/chatService.js?v=24';
-import { getTechAccounts } from '../firebase/techAccountsService.js?v=24';
-import { setDesign } from '../firebase/settingsService.js?v=24';
-import { createElement } from '../utils/dom.js?v=24';
-import { translateError } from '../utils/translateError.js?v=24';
-import { Button } from '../components/Button.js?v=24';
-import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=24';
-import { Icon } from '../components/Icon.js?v=24';
-import { FactionBadge } from '../components/FactionBadge.js?v=24';
-import { createAvatar } from '../core/Avatar.js?v=24';
-import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=24';
-import { FACTION_LABELS } from '../utils/profile.js?v=24';
+import { store } from '../core/Store.js?v=25';
+import { getAllTags, addTag, removeTag } from '../firebase/tagsService.js?v=25';
+import { getAllSubTags, addSubTag, removeSubTag } from '../firebase/subtagsService.js?v=25';
+import { getAllProfessions, addProfession, removeProfession } from '../firebase/professionsService.js?v=25';
+import { getRecentLogs } from '../firebase/chatService.js?v=25';
+import { getTechAccounts } from '../firebase/techAccountsService.js?v=25';
+import { setDesign } from '../firebase/settingsService.js?v=25';
+import { createElement } from '../utils/dom.js?v=25';
+import { translateError } from '../utils/translateError.js?v=25';
+import { Button } from '../components/Button.js?v=25';
+import { StatusMessage, showMessage } from '../components/StatusMessage.js?v=25';
+import { Icon } from '../components/Icon.js?v=25';
+import { FactionBadge } from '../components/FactionBadge.js?v=25';
+import { createAvatar } from '../core/Avatar.js?v=25';
+import { encryptToFaction, decryptFromFaction, getAlphabetPairs, LANGUAGE_LABELS } from '../utils/cipher.js?v=25';
+import { FACTION_LABELS } from '../utils/profile.js?v=25';
 
 const ADMIN_SECTIONS = [
     { id: 'game', label: 'Игра', icon: 'sports_esports' },

@@ -22,9 +22,9 @@
  */
 
 import { collection, doc, getDocs, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
-import { getFirebase } from './firebase.js?v=24';
-import { addSubTag } from './subtagsService.js?v=24';
-import { getActiveFaction } from '../utils/profile.js?v=24';
+import { getFirebase } from './firebase.js?v=25';
+import { addSubTag } from './subtagsService.js?v=25';
+import { getActiveFaction } from '../utils/profile.js?v=25';
 
 /** Транслитерация кириллицы в латиницу для slug */
 const CYR_TO_LAT = {
@@ -79,6 +79,21 @@ export async function savePage(pageId, data) {
         payload.slug = payload.slug || slugify(payload.title || '') + '-' + Date.now().toString(36);
         pageId = payload.slug;
     }
+
+    // Не допускаем страницы-дубликаты по адресу или названию
+    const all = await getAllPages();
+    const title = (payload.title || '').trim().toLowerCase();
+    const slug = (payload.slug || pageId || '').trim().toLowerCase();
+    const duplicate = all.find(p =>
+        p.id !== pageId && (
+            (p.slug || '').trim().toLowerCase() === slug
+            || (p.title || '').trim().toLowerCase() === title
+        )
+    );
+    if (duplicate) {
+        throw new Error(`Страница «${duplicate.title}» уже существует`);
+    }
+
     await setDoc(doc(db, 'pages', pageId), payload, { merge: true });
     return pageId;
 }

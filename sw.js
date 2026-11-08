@@ -9,7 +9,7 @@
  * При релизе меняйте CACHE_VERSION — старые кеши удалятся.
  */
 
-const CACHE_VERSION = 'bluered-v21-2026-11-08';
+const CACHE_VERSION = 'bluered-v22-2026-11-08';
 const SHELL_CACHE = 'shell-' + CACHE_VERSION;
 const RUNTIME_CACHE = 'runtime-' + CACHE_VERSION;
 
@@ -25,37 +25,37 @@ const SHELL = [
     './icons/apple-touch-icon.png',
     './icons/favicon-32.png',
     './fonts/material-icons.woff2',
-    './css/reset.css?v=25',
-    './css/variables.css?v=25',
-    './css/themes.css?v=25',
-    './css/cosmic.css?v=25',
-    './css/design-v2.css?v=25',
-    './css/responsive.css?v=25',
-    './css/components/header.css?v=25',
-    './css/components/navigation.css?v=25',
-    './css/components/footer.css?v=25',
-    './css/components/tag-input.css?v=25',
-    './css/components/button.css?v=25',
-    './css/components/badge.css?v=25',
-    './css/components/message.css?v=25',
-    './css/components/form-field.css?v=25',
-    './css/components/chip.css?v=25',
-    './css/components/qr.css?v=25',
-    './css/components/icons.css?v=25',
-    './css/components/view-mode.css?v=25',
-    './css/components/chat.css?v=25',
-    './css/pages/radio.css?v=25',
-    './css/pages/home.css?v=25',
-    './css/pages/auth.css?v=25',
-    './css/pages/profile.css?v=25',
-    './css/pages/faction.css?v=25',
-    './css/pages/pages.css?v=25',
-    './css/pages/admin-page.css?v=25',
-    './css/pages/users-admin.css?v=25',
-    './css/pages/games-admin.css?v=25',
-    './css/pages/documents.css?v=25',
-    './css/pages/rules.css?v=25',
-    './css/pages/wiki.css?v=25'
+    './css/reset.css?v=26',
+    './css/variables.css?v=26',
+    './css/themes.css?v=26',
+    './css/cosmic.css?v=26',
+    './css/design-v2.css?v=26',
+    './css/responsive.css?v=26',
+    './css/components/header.css?v=26',
+    './css/components/navigation.css?v=26',
+    './css/components/footer.css?v=26',
+    './css/components/tag-input.css?v=26',
+    './css/components/button.css?v=26',
+    './css/components/badge.css?v=26',
+    './css/components/message.css?v=26',
+    './css/components/form-field.css?v=26',
+    './css/components/chip.css?v=26',
+    './css/components/qr.css?v=26',
+    './css/components/icons.css?v=26',
+    './css/components/view-mode.css?v=26',
+    './css/components/chat.css?v=26',
+    './css/pages/radio.css?v=26',
+    './css/pages/home.css?v=26',
+    './css/pages/auth.css?v=26',
+    './css/pages/profile.css?v=26',
+    './css/pages/faction.css?v=26',
+    './css/pages/pages.css?v=26',
+    './css/pages/admin-page.css?v=26',
+    './css/pages/users-admin.css?v=26',
+    './css/pages/games-admin.css?v=26',
+    './css/pages/documents.css?v=26',
+    './css/pages/rules.css?v=26',
+    './css/pages/wiki.css?v=26'
 ];
 
 self.addEventListener('install', (event) => {
